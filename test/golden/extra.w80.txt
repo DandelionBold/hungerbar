@@ -1,0 +1,3 @@
+Model: Opus 5.5 │ Thinking: high │ Context: [████░░░░░░░░░░░░] 24% │ ⎇ main
+5h ♥ 0% (↻ 1h 5m) │ Wk 🍗 0% (↻ 2d 4h) │ 💾 96% (◑ 🔥 2m55s)
+💳 Extra: $4.20/$50 │ cwd: D:/webapp │ v2.1.306

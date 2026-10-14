@@ -1,0 +1,10 @@
+{
+  "note": "Not JSON: no data.",
+  "raw": "{\"model\": {\"display_name\": \"Opus",
+  "modes": [
+    "nocolor"
+  ],
+  "config": {
+    "look": "classic"
+  }
+}

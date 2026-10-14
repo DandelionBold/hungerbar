@@ -1,0 +1,165 @@
+{
+  "note": "The HUD on picker situation 2, \"Close to limits\": a new quarter appends its bucket to the saved history; 3 prompts, 2 compactions. Since 0.7.0 two signs of a long session (context 71%, 2 compactions) bring two phantoms, and the cache went cold 6 minutes after its last write, so the bed fills slot 4.",
+  "payload": {
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "transcript_path": "{{TRANSCRIPT}}",
+    "cwd": "D:\\webapp",
+    "version": "2.1.306",
+    "model": {
+      "id": "claude-opus-5-5[1m]",
+      "display_name": "Opus 5.5 (1M context)"
+    },
+    "effort": {
+      "level": "xhigh"
+    },
+    "workspace": {
+      "current_dir": "D:\\webapp",
+      "project_dir": "D:\\webapp"
+    },
+    "cost": {
+      "total_lines_added": 412,
+      "total_lines_removed": 97,
+      "total_cost_usd": 18.4
+    },
+    "context_window": {
+      "context_window_size": 1000000,
+      "used_percentage": 71,
+      "remaining_percentage": 92,
+      "total_input_tokens": 712400,
+      "current_usage": {
+        "input_tokens": 6,
+        "output_tokens": 812,
+        "cache_creation_input_tokens": 1494,
+        "cache_read_input_tokens": 710900
+      }
+    },
+    "rate_limits": {
+      "five_hour": {
+        "used_percentage": 93.4,
+        "resets_at": "{{NOW+2280}}"
+      },
+      "seven_day": {
+        "used_percentage": 97.1,
+        "resets_at": "{{NOW+33120}}"
+      }
+    },
+    "prompt_cache": {
+      "warm": false,
+      "caching_observed": true,
+      "ttl": "5m",
+      "expires_at": "{{NOW-60}}",
+      "hit_ratio": 0.914,
+      "requests": 127,
+      "misses": 1
+    }
+  },
+  "fs": {
+    "D:/webapp": {
+      ".git/HEAD": "ref: refs/heads/feature/cache\n",
+      ".git/refs/heads/feature/cache": "cccccccccccccccccccccccccccccccccccccccc\n",
+      ".git/logs/HEAD": "0000000000000000000000000000000000000000 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Steve Hill <steve@example.com> 1792840000 +0200\tcommit (initial): Start the notes\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Steve Hill <steve@example.com> 1792841000 +0200\tcheckout: moving from main to feature/cache\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb Steve Hill <steve@example.com> 1792850000 +0200\tcommit: Cache the diffs\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccccccccccccccccccccccccccc Steve Hill <steve@example.com> 1792856000 +0200\tcommit: Keep the cache warm\n"
+    }
+  },
+  "transcript": "hud-tight.jsonl",
+  "state": {
+    "git": {
+      "for": "D:/webapp",
+      "added": 42,
+      "removed": 7,
+      "files": 3
+    },
+    "usage": {
+      "extra": {
+        "enabled": true,
+        "usedCents": 0,
+        "limitCents": 5000,
+        "currency": "USD"
+      }
+    },
+    "history": {
+      "for": "D:/webapp",
+      "branch": "feature/cache",
+      "lines": 4,
+      "buckets": [
+        ["{{Q-7}}", 210, 160, 50, 0],
+        ["{{Q-6}}", 540, 400, 140, 0],
+        ["{{Q-5}}", 120, 90, 30, 1],
+        ["{{Q-4}}", 460, 300, 160, 0],
+        ["{{Q-3}}", 72, 30, 42, 0],
+        ["{{Q-2}}", 480, 350, 130, 0],
+        ["{{Q-1}}", 528, 388, 140, 1]
+      ],
+      "at": "{{NOW-900}}"
+    }
+  },
+  "config": {
+    "look": "hud",
+    "hud": {
+      "fable": "off",
+      "align": "left",
+      "user": "off",
+      "op": "tag"
+    },
+    "network": {
+      "usageApi": true
+    }
+  },
+  "modes": ["ansi", "nocolor", "ascii", "w60", "w60c", "w100c"],
+  "hudPlayer": {
+    "bed": true,
+    "phantoms": 2
+  },
+  "hudRef": "states:tight",
+  "hudState": {
+    "model": "Opus 5.5",
+    "effort": "xhigh",
+    "ctxPct": 71,
+    "ctxTok": 712400,
+    "ctxMax": 1000000,
+    "branch": "feature/cache",
+    "add": 42,
+    "del": 7,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+      "used": 93,
+      "left": 2280,
+      "window": 18000
+    },
+    "week": {
+      "used": 97,
+      "left": 33120
+    },
+    "cache": {
+      "hit": 91,
+      "warm": false,
+      "left": 0,
+      "ttl": 300
+    },
+    "extra": {
+      "used": 0,
+      "limit": 50
+    },
+    "cost": 18.4,
+    "turns": 3,
+    "compactions": 2,
+    "scoped": [],
+    "hist": {
+      "now": "{{NOW}}",
+      "sessionStart": null,
+      "dirtySince": null,
+      "commits": 0,
+      "lastCommit": null,
+      "buckets": [
+        ["{{Q-7}}", 210, 160, 50, 0],
+        ["{{Q-6}}", 540, 400, 140, 0],
+        ["{{Q-5}}", 120, 90, 30, 1],
+        ["{{Q-4}}", 460, 300, 160, 0],
+        ["{{Q-3}}", 72, 30, 42, 0],
+        ["{{Q-2}}", 480, 350, 130, 0],
+        ["{{Q-1}}", 528, 388, 140, 1],
+        ["{{Q}}", 49, 42, 7, 0]
+      ]
+    }
+  }
+}

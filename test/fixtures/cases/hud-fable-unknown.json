@@ -1,0 +1,174 @@
+{
+  "note": "An unknown hud.fable (\"sparkle\") is off: 4 lines although Fable is in use (round 7 fable-in-use).",
+  "payload": {
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "transcript_path": "{{TRANSCRIPT}}",
+    "cwd": "D:\\webapp",
+    "version": "2.1.306",
+    "model": {
+      "id": "claude-fable-5-1",
+      "display_name": "Fable 5.1"
+    },
+    "effort": {
+      "level": "high"
+    },
+    "workspace": {
+      "current_dir": "D:\\webapp",
+      "project_dir": "D:\\webapp"
+    },
+    "cost": {
+      "total_lines_added": 412,
+      "total_lines_removed": 97,
+      "total_cost_usd": 3.12
+    },
+    "context_window": {
+      "context_window_size": 1000000,
+      "used_percentage": 8,
+      "remaining_percentage": 92,
+      "total_input_tokens": 81000,
+      "current_usage": {
+        "input_tokens": 6,
+        "output_tokens": 812,
+        "cache_creation_input_tokens": 1494,
+        "cache_read_input_tokens": 79500
+      }
+    },
+    "rate_limits": {
+      "five_hour": {
+        "used_percentage": 2,
+        "resets_at": "{{NOW+17340}}"
+      },
+      "seven_day": {
+        "used_percentage": 82,
+        "resets_at": "{{NOW+345540}}"
+      }
+    },
+    "prompt_cache": {
+      "warm": true,
+      "caching_observed": true,
+      "ttl": "5m",
+      "expires_at": "{{NOW+252}}",
+      "hit_ratio": 0.981,
+      "requests": 127,
+      "misses": 1
+    }
+  },
+  "fs": {
+    "D:/webapp": {
+      ".git/HEAD": "ref: refs/heads/main\n",
+      ".git/refs/heads/main": "cccccccccccccccccccccccccccccccccccccccc\n",
+      ".git/logs/HEAD": "0000000000000000000000000000000000000000 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Steve Hill <steve@example.com> 1792840000 +0200\tcommit (initial): Start the notes\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb Steve Hill <steve@example.com> 1792845000 +0200\tcommit: Add the notes\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccccccccccccccccccccccccccc Steve Hill <steve@example.com> 1792854000 +0200\tcommit: Commit before the break\n"
+    }
+  },
+  "transcript": "hud-normal.jsonl",
+  "state": {
+    "git": {
+      "for": "D:/webapp",
+      "added": 1208,
+      "removed": 279,
+      "files": 3
+    },
+    "usage": {
+      "extra": {
+        "enabled": true,
+        "usedCents": 0,
+        "limitCents": 5000,
+        "currency": "USD"
+      },
+      "scoped": [
+        {
+          "name": "Fable",
+          "pct": 62,
+          "resets_at": "{{NOW+190800}}"
+        }
+      ]
+    },
+    "history": {
+      "for": "D:/webapp",
+      "branch": "main",
+      "lines": 3,
+      "buckets": [
+        ["{{Q-6}}", 342, 241, 101, 0],
+        ["{{Q-5}}", 615, 455, 160, 0],
+        ["{{Q-4}}", 860, 640, 220, 0],
+        ["{{Q-3}}", 898, 667, 231, 1],
+        ["{{Q-2}}", 180, 140, 40, 0],
+        ["{{Q-1}}", 640, 520, 120, 0],
+        ["{{Q}}", 1487, 1208, 279, 0]
+      ],
+      "at": "{{NOW-30}}"
+    }
+  },
+  "config": {
+    "look": "hud",
+    "hud": {
+      "fable": "sparkle",
+      "align": "left",
+      "user": "off",
+      "op": "tag"
+    },
+    "network": {
+      "usageApi": true,
+      "scopedWeekly": true
+    }
+  },
+  "modes": ["ansi", "nocolor", "ascii", "w60", "w60c", "w100c"],
+  "hudRef": "round7:fable-in-use",
+  "hudState": {
+    "model": "Fable 5.1",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+      "used": 2,
+      "left": 17340,
+      "window": 18000
+    },
+    "week": {
+      "used": 82,
+      "left": 345540
+    },
+    "cache": {
+      "hit": 98,
+      "warm": true,
+      "left": 252,
+      "ttl": 300
+    },
+    "extra": {
+      "used": 0,
+      "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 3,
+    "compactions": 0,
+    "scoped": [
+      {
+        "name": "Fable",
+        "used": 62,
+        "left": 190800
+      }
+    ],
+    "hist": {
+      "now": "{{NOW}}",
+      "sessionStart": null,
+      "dirtySince": null,
+      "commits": 0,
+      "lastCommit": null,
+      "buckets": [
+        ["{{Q-6}}", 342, 241, 101, 0],
+        ["{{Q-5}}", 615, 455, 160, 0],
+        ["{{Q-4}}", 860, 640, 220, 0],
+        ["{{Q-3}}", 898, 667, 231, 1],
+        ["{{Q-2}}", 180, 140, 40, 0],
+        ["{{Q-1}}", 640, 520, 120, 0],
+        ["{{Q}}", 1487, 1208, 279, 0]
+      ]
+    }
+  }
+}

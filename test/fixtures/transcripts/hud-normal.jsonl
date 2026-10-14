@@ -1,0 +1,9 @@
+{"type":"user","message":{"role":"user","content":"fix the build"},"origin":{"kind":"human"},"timestamp":"2026-10-24T10:00:00.000Z"}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_01","content":"ok"}]},"toolUseResult":{"stdout":"ok"},"timestamp":"2026-10-24T10:01:00.000Z"}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"[Request interrupted by user]"}]},"timestamp":"2026-10-24T10:02:00.000Z"}
+{"type":"user","message":{"role":"user","content":[{"type":"image","source":{"type":"base64","media_type":"image/png","data":"iVBORw0KGgo="}}]},"origin":{"kind":"human"},"timestamp":"2026-10-24T10:03:00.000Z"}
+{"type":"user","isMeta":true,"message":{"role":"user","content":"<local-command-caveat>Caveat</local-command-caveat>"},"timestamp":"2026-10-24T10:04:00.000Z"}
+{"type":"queue-operation","operation":"enqueue","timestamp":"2026-10-24T10:05:00.000Z"}
+{"type":"attachment","isSidechain":false,"attachment":{"type":"queued_command","prompt":"and run the tests","commandMode":"prompt","origin":{"kind":"human"}},"timestamp":"2026-10-24T10:05:00.000Z"}
+{"type":"queue-operation","operation":"remove","timestamp":"2026-10-24T10:05:00.000Z"}
+{"type":"user","message":{"role":"user","content":"<task-notification>\n<task-id>b1</task-id>\n</task-notification>"},"origin":{"kind":"task-notification"},"timestamp":"2026-10-24T10:06:00.000Z"}

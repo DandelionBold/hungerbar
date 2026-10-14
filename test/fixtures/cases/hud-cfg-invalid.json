@@ -1,0 +1,86 @@
+{
+  "note": "An invalid hungerbar.json asking for the HUD (and HUNGERBAR_LOOK=hud): classic with its dim cfg! tag.",
+  "payload": {
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "transcript_path": "{{TRANSCRIPT}}",
+    "cwd": "D:\\webapp",
+    "version": "2.1.306",
+    "model": {
+      "id": "claude-opus-5-5[1m]",
+      "display_name": "Opus 5.5 (1M context)"
+    },
+    "effort": {
+      "level": "high"
+    },
+    "workspace": {
+      "current_dir": "D:\\webapp",
+      "project_dir": "D:\\webapp"
+    },
+    "cost": {
+      "total_lines_added": 412,
+      "total_lines_removed": 97,
+      "total_cost_usd": 3.12
+    },
+    "context_window": {
+      "context_window_size": 1000000,
+      "used_percentage": 8,
+      "remaining_percentage": 92,
+      "total_input_tokens": 81000,
+      "current_usage": {
+        "input_tokens": 6,
+        "output_tokens": 812,
+        "cache_creation_input_tokens": 1494,
+        "cache_read_input_tokens": 79500
+      }
+    },
+    "rate_limits": {
+      "five_hour": {
+        "used_percentage": 2,
+        "resets_at": "{{NOW+17340}}"
+      },
+      "seven_day": {
+        "used_percentage": 82,
+        "resets_at": "{{NOW+345540}}"
+      }
+    },
+    "prompt_cache": {
+      "warm": true,
+      "caching_observed": true,
+      "ttl": "5m",
+      "expires_at": "{{NOW+252}}",
+      "hit_ratio": 0.981,
+      "requests": 127,
+      "misses": 1
+    }
+  },
+  "fs": {
+    "D:/webapp": {
+      ".git/HEAD": "ref: refs/heads/main\n",
+      ".git/refs/heads/main": "cccccccccccccccccccccccccccccccccccccccc\n",
+      ".git/logs/HEAD": "0000000000000000000000000000000000000000 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Steve Hill <steve@example.com> 1792840000 +0200\tcommit (initial): Start the notes\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb Steve Hill <steve@example.com> 1792845000 +0200\tcommit: Add the notes\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccccccccccccccccccccccccccc Steve Hill <steve@example.com> 1792854000 +0200\tcommit: Commit before the break\n"
+    }
+  },
+  "transcript": "hud-normal.jsonl",
+  "state": {
+    "git": {
+      "for": "D:/webapp",
+      "added": 1208,
+      "removed": 279,
+      "files": 3
+    },
+    "usage": {
+      "extra": {
+        "enabled": true,
+        "usedCents": 0,
+        "limitCents": 5000,
+        "currency": "USD"
+      }
+    }
+  },
+  "configText": "{ \"look\": \"hud\", \"hud\": { \"fable\": \"boss\" }, }",
+  "env": {
+    "HUNGERBAR_LOOK": "hud"
+  },
+  "modes": ["ansi", "nocolor", "ascii", "w60"],
+  "hudState": null
+}

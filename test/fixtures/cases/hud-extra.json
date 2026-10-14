@@ -1,0 +1,162 @@
+{
+  "note": "The HUD on picker situation 4, \"Using extra credits\": the saved history already has this quarter's gold; 2 prompts, 1 compaction.",
+  "payload": {
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "transcript_path": "{{TRANSCRIPT}}",
+    "cwd": "D:\\webapp",
+    "version": "2.1.306",
+    "model": {
+      "id": "claude-opus-5-5[1m]",
+      "display_name": "Opus 5.5 (1M context)"
+    },
+    "effort": {
+      "level": "high"
+    },
+    "workspace": {
+      "current_dir": "D:\\webapp",
+      "project_dir": "D:\\webapp"
+    },
+    "cost": {
+      "total_lines_added": 412,
+      "total_lines_removed": 97,
+      "total_cost_usd": 41.9
+    },
+    "context_window": {
+      "context_window_size": 1000000,
+      "used_percentage": 24,
+      "remaining_percentage": 92,
+      "total_input_tokens": 236900,
+      "current_usage": {
+        "input_tokens": 6,
+        "output_tokens": 812,
+        "cache_creation_input_tokens": 1494,
+        "cache_read_input_tokens": 235400
+      }
+    },
+    "rate_limits": {
+      "five_hour": {
+        "used_percentage": 100,
+        "resets_at": "{{NOW+3900}}"
+      },
+      "seven_day": {
+        "used_percentage": 100,
+        "resets_at": "{{NOW+187200}}"
+      }
+    },
+    "prompt_cache": {
+      "warm": true,
+      "caching_observed": true,
+      "ttl": "5m",
+      "expires_at": "{{NOW+175}}",
+      "hit_ratio": 0.96,
+      "requests": 127,
+      "misses": 1
+    }
+  },
+  "fs": {
+    "D:/webapp": {
+      ".git/HEAD": "ref: refs/heads/main\n",
+      ".git/refs/heads/main": "cccccccccccccccccccccccccccccccccccccccc\n",
+      ".git/logs/HEAD": "0000000000000000000000000000000000000000 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Steve Hill <steve@example.com> 1792840000 +0200\tcommit (initial): Start the notes\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb Steve Hill <steve@example.com> 1792845000 +0200\tcommit: Add the notes\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccccccccccccccccccccccccccc Steve Hill <steve@example.com> 1792854000 +0200\tcommit: Commit before the break\n"
+    }
+  },
+  "transcript": "hud-extra.jsonl",
+  "state": {
+    "git": {
+      "for": "D:/webapp",
+      "added": 12,
+      "removed": 3,
+      "files": 3
+    },
+    "usage": {
+      "extra": {
+        "enabled": true,
+        "usedCents": 420,
+        "limitCents": 5000,
+        "currency": "USD"
+      }
+    },
+    "history": {
+      "for": "D:/webapp",
+      "branch": "main",
+      "lines": 3,
+      "buckets": [
+        ["{{Q-7}}", 96, 70, 26, 0],
+        ["{{Q-6}}", 310, 240, 70, 1],
+        ["{{Q-5}}", 140, 100, 40, 0],
+        ["{{Q-4}}", 520, 400, 120, 0],
+        ["{{Q-3}}", 1180, 900, 280, 0],
+        ["{{Q-2}}", 1540, 1200, 340, 0],
+        ["{{Q-1}}", 2210, 1730, 480, 0],
+        ["{{Q}}", 2390, 1880, 510, 1]
+      ],
+      "at": "{{NOW-30}}"
+    }
+  },
+  "config": {
+    "look": "hud",
+    "hud": {
+      "fable": "off",
+      "align": "left",
+      "user": "off",
+      "op": "tag"
+    },
+    "network": {
+      "usageApi": true
+    }
+  },
+  "modes": ["ansi", "nocolor", "ascii", "w60", "w60c", "w100c"],
+  "hudRef": "states:extra",
+  "hudState": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 24,
+    "ctxTok": 236900,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 12,
+    "del": 3,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+      "used": 100,
+      "left": 3900,
+      "window": 18000
+    },
+    "week": {
+      "used": 100,
+      "left": 187200
+    },
+    "cache": {
+      "hit": 96,
+      "warm": true,
+      "left": 175,
+      "ttl": 300
+    },
+    "extra": {
+      "used": 4.2,
+      "limit": 50
+    },
+    "cost": 41.9,
+    "turns": 2,
+    "compactions": 1,
+    "scoped": [],
+    "hist": {
+      "now": "{{NOW}}",
+      "sessionStart": null,
+      "dirtySince": null,
+      "commits": 0,
+      "lastCommit": null,
+      "buckets": [
+        ["{{Q-7}}", 96, 70, 26, 0],
+        ["{{Q-6}}", 310, 240, 70, 1],
+        ["{{Q-5}}", 140, 100, 40, 0],
+        ["{{Q-4}}", 520, 400, 120, 0],
+        ["{{Q-3}}", 1180, 900, 280, 0],
+        ["{{Q-2}}", 1540, 1200, 340, 0],
+        ["{{Q-1}}", 2210, 1730, 480, 0],
+        ["{{Q}}", 2390, 1880, 510, 1]
+      ]
+    }
+  }
+}

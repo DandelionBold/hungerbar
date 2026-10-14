@@ -1,0 +1,8 @@
+{"type":"user","message":{"role":"user","content":"cache the diffs"},"origin":{"kind":"human"},"timestamp":"2026-10-24T10:00:00.000Z"}
+{"type":"system","subtype":"compact_boundary","compactMetadata":{"trigger":"auto"},"timestamp":"2026-10-24T10:10:00.000Z"}
+{"type":"user","isCompactSummary":true,"message":{"role":"user","content":"This session is being continued from a previous conversation."},"timestamp":"2026-10-24T10:10:00.000Z"}
+{"type":"user","message":{"role":"user","content":"keep going"},"origin":{"kind":"human"},"timestamp":"2026-10-24T10:11:00.000Z"}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_01","content":"ok"}]},"toolUseResult":{"stdout":"ok"},"timestamp":"2026-10-24T10:12:00.000Z"}
+{"type":"system","subtype":"compact_boundary","compactMetadata":{"trigger":"auto"},"timestamp":"2026-10-24T10:20:00.000Z"}
+{"type":"user","isCompactSummary":true,"message":{"role":"user","content":"This session is being continued from a previous conversation."},"timestamp":"2026-10-24T10:20:00.000Z"}
+{"type":"user","message":{"role":"user","content":"<system-reminder>x</system-reminder>\nwrap up"},"origin":{"kind":"human"},"timestamp":"2026-10-24T10:21:00.000Z"}

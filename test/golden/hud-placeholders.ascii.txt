@@ -1,0 +1,3 @@
+Model: None | Thinking: Infinity | Context: [#---------------] 81k/1.0M (8%) | null
+Session: [##########] 98% (4h 49m) | Weekly: [        ==] 18% (3d 23h) | Cache Hit: 98% (4m12s)
+Extra: $0.00/$50 | cwd: nil | vNone

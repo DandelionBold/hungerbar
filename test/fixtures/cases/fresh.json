@@ -1,0 +1,72 @@
+{
+  "note": "Picker situation 3, \"Fresh start, no git\": no context yet, no prompt_cache, an empty transcript, not a repo.",
+  "payload": {
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "transcript_path": "{{TRANSCRIPT}}",
+    "cwd": "C:\\Users\\Steve",
+    "version": "2.1.306",
+    "model": {
+      "id": "claude-opus-5-5[1m]",
+      "display_name": "Opus 5.5 (1M context)"
+    },
+    "effort": {
+      "level": "medium"
+    },
+    "workspace": {
+      "current_dir": "C:\\Users\\Steve",
+      "project_dir": "C:\\Users\\Steve"
+    },
+    "cost": {
+      "total_lines_added": 412,
+      "total_lines_removed": 97
+    },
+    "context_window": {
+      "context_window_size": 1000000,
+      "used_percentage": null,
+      "remaining_percentage": null,
+      "total_input_tokens": 0,
+      "current_usage": null
+    },
+    "rate_limits": {
+      "five_hour": {
+        "used_percentage": 0,
+        "resets_at": "{{NOW+18000}}"
+      },
+      "seven_day": {
+        "used_percentage": 12,
+        "resets_at": "{{NOW+512340}}"
+      }
+    }
+  },
+  "fs": {
+    "C:/Users/Steve": {
+      "notes.txt": "not a repo\n"
+    }
+  },
+  "transcript": [],
+  "config": {
+    "look": "classic",
+    "network": {
+      "usageApi": true
+    }
+  },
+  "modes": [
+    "ansi",
+    "nocolor",
+    "ascii",
+    "w100",
+    "w80",
+    "w60",
+    "w40"
+  ],
+  "state": {
+    "usage": {
+      "extra": {
+        "enabled": true,
+        "usedCents": 0,
+        "limitCents": 5000,
+        "currency": "USD"
+      }
+    }
+  }
+}
