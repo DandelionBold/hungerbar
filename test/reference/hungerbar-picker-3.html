@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hungerbar Round 3</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one column. Sticky pick summary, a before/after strip, one-click pairs for the two bars, five choice groups,
+   then the pick in all four situations. Terminal blocks stay dark in both themes; the page around them follows the OS. */
+:root{
+  --bg:#15171c; --panel:#1c1f26; --raise:#252933; --line:#30353f;
+  --fg:#ece7db; --muted:#a3a9b5; --food:#e2a65a; --food-ink:#2b1a06; --grass:#79c463;
+  --term:#0c0c0c; --term-fg:#cccccc; --term-key:#8a8a8a;
+  --f-display:"Pixelify Sans","Atkinson Hyperlegible",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-term:"Cascadia Mono","Cascadia Code",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  --bg:#f4f1ea; --panel:#fffdf8; --raise:#ece6da; --line:#d4ccbb; --fg:#1d1b17; --muted:#57534a; --food:#9a5a12; --food-ink:#fffaf2; --grass:#2f7a1f; color-scheme:light } }
+:root[data-theme="light"]{
+  --bg:#f4f1ea; --panel:#fffdf8; --raise:#ece6da; --line:#d4ccbb; --fg:#1d1b17; --muted:#57534a; --food:#9a5a12; --food-ink:#fffaf2; --grass:#2f7a1f; color-scheme:light }
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--fg);font:15px/1.55 var(--f-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{padding-block:28px 6px;display:flex;flex-direction:column;gap:8px}
+.brand{font:700 clamp(28px,4vw,40px)/1.1 var(--f-display);margin:0;letter-spacing:.01em;text-wrap:balance}
+.lede{margin:0;color:var(--muted);max-width:72ch}
+.lede b{color:var(--fg)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+@media (max-width:640px){ .bar{position:static} }
+.bar .wrap{padding-block:10px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.picked{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0}
+.pill{font:13px/1 var(--f-body);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 10px;white-space:nowrap}
+.pill b{color:var(--food)}
+.label{font:700 11px/1 var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.btn{font:700 14px/1 var(--f-body);border-radius:8px;padding:10px 14px;cursor:pointer;border:1px solid var(--line);background:var(--raise);color:var(--fg)}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--food);border-color:var(--food);color:var(--food-ink)}
+:focus-visible{outline:2px solid var(--food);outline-offset:2px}
+main{padding-block:18px 60px;display:flex;flex-direction:column;gap:32px}
+#groups{display:flex;flex-direction:column;gap:32px}
+section{display:flex;flex-direction:column;gap:12px;min-width:0}
+h2{margin:0;font:700 22px/1.25 var(--f-body);text-wrap:balance}
+.sub{margin:0;color:var(--muted);max-width:78ch}
+code{font:13px var(--f-term);color:var(--fg);background:var(--raise);border-radius:4px;padding:1px 5px}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card h3{margin:0;font:700 15px/1.3 var(--f-body)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:10px}
+.opt{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+.opt:hover{border-color:var(--muted)}
+.opt[aria-pressed="true"]{border:2px solid var(--food);padding:11px}
+.opt:focus-visible{outline:2px solid var(--food);outline-offset:2px}
+.opt-h{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.opt-h b{font:700 15px/1.3 var(--f-body)}
+.tag{font:12px/1 var(--f-body);color:var(--food);border:1px solid color-mix(in srgb,var(--food) 50%,var(--line));border-radius:6px;padding:4px 6px;white-space:nowrap}
+.opt-note{display:block;color:var(--muted);font-size:14px}
+.term{display:block;background:var(--term);border-radius:6px;padding:8px 12px;font:13px/1.45 var(--f-term);color:var(--term-fg);overflow-x:auto;min-width:0}
+.ln{display:block;white-space:pre;height:1.45em}
+.ln .k{color:var(--term-key)}
+/* The Windows Terminal grid: a glyph from a fallback font keeps the cells WT gives it and may run into the next one. */
+.g{display:inline-block;width:calc(var(--n)*1ch);height:1.45em;vertical-align:top;overflow:visible;white-space:pre}
+.gE{font-family:"Segoe UI Emoji",sans-serif}
+.gS{font-family:"Segoe UI Symbol",sans-serif}
+.steps{margin:0;color:var(--muted);font-size:14px;max-width:82ch;background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.steps b{color:var(--fg)}
+.scen-title{margin:6px 0 -4px}
+.out{display:flex;flex-direction:column;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.out textarea{width:100%;resize:vertical;background:var(--term);color:var(--term-fg);border:1px solid var(--line);border-radius:6px;font:12.5px/1.45 var(--f-term);padding:10px;overflow:hidden}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ok{color:var(--grass);font-weight:700}
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <h1 class="brand">Hungerbar · round 3</h1>
+  <p class="lede">Round 2 was drawn by the <b>browser</b>, and a browser draws some icons differently from <b>Windows Terminal</b>. That is why ⏲ was orange there and white in the terminal. Every preview on this page is now drawn the way Windows Terminal draws it: same fonts, same character grid, overlaps included. Pick one card in each group.</p>
+</header>
+
+<div class="bar"><div class="wrap">
+  <div class="picked" id="picked"></div>
+  <button class="btn" type="button" data-act="today">Back to today's look</button>
+</div></div>
+
+<main class="wrap" id="main">
+  <section aria-labelledby="h-diff">
+    <h2 id="h-diff">Why the terminal looked different</h2>
+    <p class="sub">The same items with a warm cache and a cold cache. A terminal whose Intense text style setting brightens instead of bolding draws the bold values at normal weight, so the terminal previews below are not bold.</p>
+    <div class="duo">
+      <div class="card"><h3>Round 2 in a browser</h3><div class="term" id="diff-browser"></div></div>
+      <div class="card"><h3>Windows Terminal today</h3><div class="term" id="diff-wt"></div></div>
+    </div>
+  </section>
+  <section aria-labelledby="h-pairs">
+    <h2 id="h-pairs">Hunger and hearts together</h2>
+    <p class="sub">"Reversed" can mean one bar or both. Each card sets both groups below in one click; you can still change either afterwards.</p>
+    <div class="opts" id="pairs"></div>
+  </section>
+  <div id="groups"></div>
+  <section aria-labelledby="h-all">
+    <h2 id="h-all">Your pick in all four situations</h2>
+    <p class="sub">Drawn the way Windows Terminal draws it. To check in your real terminal, copy the command in the box below and run it in a Windows Terminal tab.</p>
+    <div id="situations"></div>
+  </section>
+  <section class="out" aria-labelledby="h-out">
+    <h2 id="h-out">Send this back to Claude</h2>
+    <textarea id="outText" rows="10" readonly aria-label="Your pick"></textarea>
+    <div class="row"><button class="btn primary" type="button" data-act="copy">Copy my pick</button><span id="copied" class="ok" role="status"></span></div>
+  </section>
+</main>
+
+<script>
+/*ENGINE*/
+/* DOM-free: hungerbar-lab-3.mjs runs this block in Node to print the same lines in the real terminal. */
+const SCEN = {
+  normal: { label:'Normal day', model:'Opus 5.5', effort:'high', ctxTok:81000, ctxMax:1000000, ctxPct:8, branch:'main', add:1208, del:279, cwd:'D:/webapp', ver:'2.1.306',
+    h5:{pct:2,left:17340}, week:{pct:82,left:345540}, cache:{hit:98,warm:true,left:252,ttl:300}, extra:{used:0,limit:50} },
+  tight: { label:'Close to limits', model:'Opus 5.5', effort:'xhigh', ctxTok:712400, ctxMax:1000000, ctxPct:71, branch:'feature/cache', add:42, del:7, cwd:'D:/webapp', ver:'2.1.306',
+    h5:{pct:93,left:2280}, week:{pct:97,left:33120}, cache:{hit:91,warm:false,left:0,ttl:300}, extra:{used:0,limit:50} },
+  fresh: { label:'Fresh start, no git', model:'Opus 5.5', effort:'medium', ctxTok:0, ctxMax:1000000, ctxPct:0, branch:null, add:0, del:0, cwd:'C:/Users/Steve', ver:'2.1.306',
+    h5:{pct:0,left:18000}, week:{pct:12,left:512340}, cache:{hit:null,warm:null,left:0,ttl:300}, extra:{used:0,limit:50} },
+  extra: { label:'Using extra credits', model:'Opus 5.5', effort:'high', ctxTok:236900, ctxMax:1000000, ctxPct:24, branch:'main', add:12, del:3, cwd:'D:/webapp', ver:'2.1.306',
+    h5:{pct:100,left:3900}, week:{pct:100,left:187200}, cache:{hit:96,warm:true,left:175,ttl:300}, extra:{used:4.2,limit:50} },
+};
+const PAL = {model:'#FFAA00',effort:'#FF55FF',ctx:'#80FF20',bar:'#80FF20',empty:'#3f3f3f',git:'#55FF55',chg:'#FFFF55',cwd:'#AAAAAA',h5:'#E0A458',week:'#FF5555',time:'#AAAAAA',
+  cache:'#55FFFF',warm:'#FFAA00',cold:'#55FFFF',extra:'#17DD62',ver:'#555555',sep:'#555555',warn:'#FFFF55',crit:'#FF5555',food:'#E0A458',heart:'#FF5555',label:'#AAAAAA'};
+
+/* Which font Windows Terminal 1.25 with Cascadia Mono draws each glyph from (DirectWrite fallback, measured on a Windows 10
+   machine) and how many cells it gets. C = Cascadia Mono (anything not listed), S = Segoe UI Symbol (plain, takes our
+   colour), E = Segoe UI Emoji (colour, ignores our colour). */
+const WT = {
+  '🍗':['E',2], '🦴':['E',2], '🔥':['E',2], '💾':['E',2], '💳':['E',2],
+  '⏲':['E',1], '❄':['E',1],
+  '↻':['S',1], '⎇':['S',1], '⧗':['S',1],
+};
+/* With the "Plain icons" terminal setting these come from Segoe UI Symbol instead (🦴 is not in it). */
+const MONO_OK = '🍗🔥💾💳⏲❄';
+
+const OPTIONS = {
+  count: { title:'What the numbers and icons count', short:'Count', sub:'Round 3 counted the icons as what is left but printed the % as what is used, so two drumsticks sat next to "82%". Pick one way for both.', items:[
+    { id:'mixed', name:'Icons left, % used', today:true, note:'As in round 3: the two disagree.' },
+    { id:'left', name:'Both show what is left', note:'A full row of hearts reads 98%; two drumsticks read 18%.' },
+    { id:'used', name:'Both show what is used', note:'A heart turns red and a drumstick appears for each tenth you use; the % is what you used.' },
+  ]},
+  bars: { title:'Which bar is which', short:'Bars', sub:'In Minecraft food refills your hearts. So the week can be your food, and each 5-hour session your hearts, which fill up again when the session resets.', items:[
+    { id:'classic', name:'Food for the session, hearts for the week', today:true, note:'As built in round 2.' },
+    { id:'swap', name:'Hearts for the session, food for the week', note:'The idea: the weekly food refills the hearts every session.' },
+  ]},
+  hunger: { title:'Hunger bar (5-hour window)', short:'Hunger', sub:'🍗 sits too close to ▰. In Minecraft the food bar runs out from the LEFT, and hearts run out from the right (checked in the game\'s own HUD code).', items:[
+    { id:'today', name:'Today', today:true, note:'🍗 touches ▰; food runs out from the right.' },
+    { id:'space', name:'Space after 🍗', note:'One space after 🍗 (and after 🦴 at 90% and up), so it stops touching ▰.' },
+    { id:'mirror', name:'From the left (like Minecraft)', note:'Same space after 🍗. Food runs out from the left, as in the real game.' },
+    { id:'fill', name:'Fills up', note:'Reversed meaning: a ▰ lights up for each tenth of the 5 hours you use, so 82% shows 8.' },
+    { id:'sticks', name:'Drumsticks to bones', note:'Five drumsticks, each 20% of the 5 hours; eaten ones turn to bones from the right.' },
+    { id:'sticksMirror', name:'Bones on the left', note:'Eaten drumsticks turn to bones from the left, like the real hunger bar.' },
+    { id:'sticksGone', name:'Drumsticks that vanish', note:'Eaten drumsticks disappear from the right; the gap stays so nothing jumps.' },
+    { id:'sticksGoneMirror', name:'Vanish from the left', note:'Like Minecraft hearts, reversed: eaten drumsticks disappear from the left; full ones stay by the number.' },
+    { id:'tenGoneMirror', name:'Ten drumsticks, like Minecraft', note:'Ten drumsticks side by side, as many as the game has; eaten ones vanish from the left, full ones stay by the number.' },
+  ]},
+  hearts: { title:'Hearts (week)', short:'Hearts', sub:'In Minecraft lost hearts stay as dark empty hearts and go from the right; that is what Hungerbar does today. Here are the ways it can go reversed. Only ♥ is safe in Windows Terminal; ♡ and ❤ are colour emoji there.', items:[
+    { id:'grey', name:'Today', today:true, note:'Lost hearts turn dark and go from the right: Minecraft health as it is.' },
+    { id:'mirror', name:'Reversed: from the left', note:'Lost hearts turn dark and go from the left; red ones stay by the number.' },
+    { id:'gone', name:'Hearts that vanish', note:'Lost hearts disappear; the gap stays so nothing jumps.' },
+    { id:'goneMirror', name:'Vanish from the left', note:'Lost hearts disappear from the left; red ones stay by the number.' },
+    { id:'fill', name:'Hearts that fill up', note:'Reversed meaning: a heart turns red for each tenth of the week you use (82% shows 8 red). Pick "Both fill up" above if the food bar should match.' },
+  ]},
+  clock: { title:'Cache timer symbol', short:'Timer', sub:'The terminal font has no ⏲, so Windows borrows the colour emoji one: white, and too wide for its cell. Hungerbar cannot ask for the plain one; Windows Terminal ignores that request. Two ways out: keep ⏲ and choose Plain icons in the next group, or pick another symbol here. These take our colour with no setting: orange while warm, cyan when cold.', items:[
+    { id:'emoji', name:'Keep ⏲', today:true, note:'White emoji now, and it runs into the next cell. With Plain icons (next group) it becomes the orange ⏲ from round 2.',
+      noteMono:'With Plain icons: the orange ⏲ from round 2. It still runs a little into the space after it, so it gets one extra space.' },
+    { id:'pie', name:'Pie timer', note:'Empties as the cache cools: ● ◕ ◑ ◔ ○. No setting needed.' },
+    { id:'quad', name:'Clock face ◷', note:'Takes our colour, no setting needed.' },
+    { id:'hourglass', name:'Hourglass ⧗', note:'Takes our colour, no setting needed.' },
+    { id:'none', name:'No symbol', note:'Just 🔥 while warm and the cold mark when cold.' },
+  ]},
+  icons: { title:'Icon style (this gives the orange ⏲)', short:'Icons', sub:'The only way to get round 2\'s orange ⏲. It is a Windows Terminal setting, not a Hungerbar one, so it applies to every program you run in the terminal: icons that Cascadia Mono lacks turn plain, except newer ones such as 🦴. These cards always show ⏲ so you can compare.', items:[
+    { id:'colour', name:'Colour emoji', today:true, note:'⏲ 🍗 💾 🔥 💳 ❄ stay colour emoji (white ⏲, blue ❄).' },
+    { id:'mono', name:'Plain icons', note:'Needs one terminal setting (steps below). Then 🍗 ⏲ 🔥 ❄ 💾 💳 turn plain in Hungerbar\'s colours: 🍗 and ⏲ orange, ❄ cyan, 💾 and 💳 label grey. 🦴 stays a colour emoji.' },
+  ]},
+  cold: { title:'Cold cache mark', short:'Cold', sub:'❄ is a colour emoji in your terminal too (that blue is the emoji\'s own colour, not ours), and it touches COLD. The white ⏲ also touches ❄; the timer group fixes that part.',
+    subMono:'With Plain icons, ❄ is a plain glyph in our cyan.', items:[
+    { id:'snow', name:'Today', today:true, note:'❄ runs into COLD.', noteMono:'With Plain icons: plain cyan ❄, with a small gap before COLD.' },
+    { id:'snowGap', name:'Snowflake with room', note:'❄ gets two cells, so it stops touching COLD.' },
+    { id:'text', name:'Word only', note:'COLD in cyan, no snowflake.' },
+  ]},
+};
+const TODAY = { count:'mixed', bars:'classic', hunger:'today', hearts:'grey', clock:'emoji', icons:'colour', cold:'snow' };
+const PAIRS = [
+  { name:'Like Minecraft', hunger:'mirror', hearts:'grey', note:'Food runs out from the left, hearts from the right, as in the game.' },
+  { name:'Both from the left', hunger:'mirror', hearts:'mirror', note:'Both run out from the left; the full icons sit by the number.' },
+  { name:'Both vanish from the left', hunger:'sticksGoneMirror', hearts:'goneMirror', note:'Eaten drumsticks and lost hearts disappear from the left.' },
+  { name:'Both fill up', hunger:'fill', hearts:'fill', note:'Both light up as you use your limits, so the count matches the number.' },
+  { name:'Today, with a space', hunger:'space', hearts:'grey', note:'Only the drumstick fix; everything else stays as it is.' },
+];
+
+const clamp = (x,a,b) => Math.max(a,Math.min(b,x));
+const lvl = (p,base) => p>=90 ? PAL.crit : p>=75 ? PAL.warn : base;
+const tok = n => n>=1e6 ? (n/1e6).toFixed(1)+'M' : n>=1e3 ? Math.round(n/1e3)+'k' : String(n);
+const tokS = n => n>=999500 ? String(+(n/1e6).toFixed(1))+'M' : n>=1e3 ? Math.round(n/1e3)+'k' : String(n);
+function tLeft(sec){ const d=Math.floor(sec/86400), h=Math.floor(sec%86400/3600), m=Math.floor(sec%3600/60); return sec<=0?null:sec<60?'<1m':d?`${d}d ${h}h`:h?`${h}h ${m}m`:`${m}m`; }
+const cd = sec => sec<60 ? `${sec}s` : `${Math.floor(sec/60)}m${String(sec%60).padStart(2,'0')}s`;
+const L = t => ({t, c:PAL.label, lab:true});
+/* Tenths left, rounded (the pips and grey hearts of today). */
+const tenths = p => clamp(Math.floor(((100-p)*10+50)/100),0,10);
+/* Icons that vanish or turn to bones: one stays while any of its share is left. */
+const remain = (p,n) => p>=100 ? 0 : clamp(Math.ceil((100-p)*n/100),1,n);
+
+function hunger(d, pick){
+  const p=d.pct, left=tenths(p), used=10-left, icon=p>=90?'🦴':'🍗';
+  const head={t:icon, c:PAL.food}, headSp={t:icon+' ', c:PAL.food};
+  const five=remain(p,5);
+  const slots=(full,spent)=>Array.from({length:5},(_,i)=>i<five?full:spent);
+  switch(pick.hunger){
+    case 'today': return [head, {t:'▰'.repeat(left),c:PAL.food}, {t:'▱'.repeat(used),c:PAL.empty}];
+    case 'space': return [headSp, {t:'▰'.repeat(left),c:PAL.food}, {t:'▱'.repeat(used),c:PAL.empty}];
+    case 'mirror': return [headSp, {t:'▱'.repeat(used),c:PAL.empty}, {t:'▰'.repeat(left),c:PAL.food}];
+    case 'fill': return [headSp, {t:'▰'.repeat(used),c:PAL.food}, {t:'▱'.repeat(left),c:PAL.empty}];
+    case 'sticks': return [{t:slots('🍗','🦴').join(' '), c:PAL.food}];
+    case 'sticksMirror': return [{t:slots('🍗','🦴').reverse().join(' '), c:PAL.food}];
+    case 'sticksGone': return [{t:slots('🍗','  ').join(' '), c:PAL.food}];
+    case 'sticksGoneMirror': return [{t:slots('🍗','  ').reverse().join(' '), c:PAL.food}];
+    case 'tenGoneMirror': { const ten=pick.count==='used' ? 10-remain(p,10) : remain(p,10); return [{t:'  '.repeat(10-ten)+'🍗'.repeat(ten), c:PAL.food}]; }
+  }
+}
+function hearts(d, pick){
+  const p=d.pct, left=tenths(p), used=10-left, keep=remain(p,10), gone=10-keep;
+  switch(pick.hearts){
+    case 'grey': return pick.count==='used' ? [{t:'♥'.repeat(used),c:PAL.heart},{t:'♥'.repeat(left),c:PAL.empty}] : [{t:'♥'.repeat(left),c:PAL.heart},{t:'♥'.repeat(used),c:PAL.empty}];
+    case 'mirror': return [{t:'♥'.repeat(used),c:PAL.empty},{t:'♥'.repeat(left),c:PAL.heart}];
+    case 'gone': return [{t:'♥'.repeat(keep),c:PAL.heart},{t:' '.repeat(gone)}];
+    case 'goneMirror': return [{t:' '.repeat(gone)},{t:'♥'.repeat(keep),c:PAL.heart}];
+    case 'fill': return [{t:'♥'.repeat(used),c:PAL.heart},{t:'♥'.repeat(left),c:PAL.empty}];
+  }
+}
+/* Which window each bar shows: classic = food for the 5 hours, hearts for the week; swap = the other way round. */
+const foodKey = pick => pick.bars==='swap' ? 'week' : 'h5';
+function limitItem(key, s, pick, noTime){
+  const d=s[key], five=key==='h5', food=key===foodKey(pick);
+  const sp=[L(five?'Session: ':'Weekly: '), ...(food?hunger(d,pick):hearts(d,pick)), {t:' '+(pick.count==='left'?100-d.pct:d.pct)+'%', c:lvl(d.pct, food?PAL.food:PAL.heart)}];
+  const T=noTime?null:tLeft(d.left); if(T) sp.push({t:` (↻ ${T})`, c:PAL.time});
+  return sp;
+}
+function clockGlyph(k, pick){
+  if(pick.clock==='emoji') return '⏲';
+  if(pick.clock==='quad') return '◷';
+  if(pick.clock==='hourglass') return '⧗';
+  if(pick.clock==='none') return '';
+  if(k.warm!==true || k.left<=0) return '○';
+  const f=k.left/k.ttl; return f>0.875?'●':f>0.625?'◕':f>0.375?'◑':f>0.125?'◔':'○';
+}
+function cacheItem(s, pick){
+  const k=s.cache, sp=[L('💾 Cache Hit: '), {t:k.hit==null?'n/a':k.hit+'%', c:PAL.cache}];
+  if(k.warm===null) return sp;
+  const g=clockGlyph(k,pick);
+  const pre=' ('+(g ? g+(g==='⏲'&&pick.icons==='mono'?'  ':' ') : '');
+  if(k.warm) sp.push({t:pre+'🔥 '+cd(k.left)+')', c:PAL.warm});
+  else sp.push({t:pre+(pick.cold==='text'?'COLD':pick.cold==='snowGap'?'❄  COLD':'❄ COLD')+')', c:PAL.cold});
+  return sp;
+}
+function lines(s, pick){
+  const P=PAL, l1=[[L('Model: '),{t:s.model,c:P.model}], [L('Thinking: '),{t:s.effort,c:P.effort}]];
+  const f=Math.round(s.ctxPct/100*16), c=lvl(s.ctxPct,P.ctx);
+  l1.push([L('Context: '),{t:'[',c:P.ctx},{t:'█'.repeat(f),c:s.ctxPct>=75?c:P.bar},{t:'░'.repeat(16-f),c:P.empty},{t:']',c:P.ctx},{t:' '+tokS(s.ctxTok)+'/'+tok(s.ctxMax)+' ('+s.ctxPct+'%)',c}]);
+  if(s.branch){ l1.push([{t:'⎇ '+s.branch,c:P.git}]); l1.push([{t:`(+${s.add},-${s.del})`,c:P.chg}]); }
+  else { l1.push([{t:'⎇ no git',c:P.git}]); l1.push([{t:'(no git)',c:P.chg}]); }
+  const l2=[limitItem('h5',s,pick), limitItem('week',s,pick), cacheItem(s,pick)];
+  const l3=[[L('💳 Extra: '),{t:'$'+s.extra.used.toFixed(2)+'/$'+s.extra.limit,c:P.extra}], [L('cwd: '),{t:s.cwd,c:P.cwd}], [{t:'v'+s.ver,c:P.ver}]];
+  return [l1,l2,l3];
+}
+/* A small sample for an option card: [label, pieces] rows. */
+function sample(group, pick){
+  const S=SCEN;
+  const at=(key,pct)=>limitItem(key,{[key]:{pct,left:0}},pick,true), fk=foodKey(pick), hk=fk==='h5'?'week':'h5';
+  if(group==='hunger') return [['2% used',[at(fk,2)]],['50% used',[at(fk,50)]],['93% used',[at(fk,93)]]];
+  if(group==='hearts') return [['18% used',[at(hk,18)]],['82% used',[at(hk,82)]],['97% used',[at(hk,97)]]];
+  if(group==='bars') return [['normal',[limitItem('h5',S.normal,pick,true)]],['',[limitItem('week',S.normal,pick,true)]],['tight',[limitItem('h5',S.tight,pick,true)]],['',[limitItem('week',S.tight,pick,true)]]];
+  if(group==='pair') return [['normal',[limitItem('h5',S.normal,pick,true)]],['',[limitItem('week',S.normal,pick,true)]],['tight',[limitItem('h5',S.tight,pick,true)]],['',[limitItem('week',S.tight,pick,true)]]];
+  if(group==='icons'){ const k={...pick,clock:'emoji'}; return [['hunger',[limitItem('h5',S.normal,k,true)]],['warm',[cacheItem(S.normal,k)]],['cold',[cacheItem(S.tight,k)]],['extra',[lines(S.extra,k)[2][0]]]]; }
+  return [['warm',[cacheItem(S.normal,pick)]],['cooling',[cacheItem({cache:{hit:96,warm:true,left:50,ttl:300}},pick)]],['cold',[cacheItem(S.tight,pick)]]];
+}
+/*END ENGINE*/
+
+/* ---------- drawing on the Windows Terminal grid ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function wtText(t, pick){
+  let out='', run='';
+  const flush=()=>{ if(run){ out+=esc(run); run=''; } };
+  for(const ch of t){
+    let cls=WT[ch];
+    if(cls && pick.icons==='mono' && MONO_OK.includes(ch)) cls=['S',cls[1]];
+    if(!cls){ run+=ch; continue; }
+    flush();
+    const glyph = cls[0]==='E' ? ch+'\uFE0F' : ch+'\uFE0E';
+    out+=`<span class="g" style="--n:${cls[1]}"><span class="g${cls[0]}">${esc(glyph)}</span></span>`;
+  }
+  flush();
+  return out;
+}
+/* mode 'wt': the terminal grid, no bold (WT brightens instead). mode 'browser': round 2 as the browser drew it, bold. */
+function spanHTML(s, pick, mode){
+  const style=(s.c?`color:${s.c};`:'')+(!s.lab&&mode==='browser'?'font-weight:700;':'');
+  return `<span style="${style}">${mode==='browser'?esc(s.t):wtText(s.t,pick)}</span>`;
+}
+function lineInner(pieces, pick, mode){
+  const sep = spanHTML({t:' │ ', c:PAL.sep}, pick, mode);
+  return pieces.map(p=>p.map(s=>spanHTML(s,pick,mode)).join('')).join(sep);
+}
+const lineHTML = (pieces, pick, mode) => `<span class="ln">${lineInner(pieces,pick,mode)}</span>`;
+const sampleHTML = (rows, pick) => rows.map(([lab,pieces])=>`<span class="ln"><span class="k">${esc(lab.padEnd(9))}</span>${lineInner(pieces,pick,'wt')}</span>`).join('');
+
+/* ---------- state ---------- */
+const KEY='hungerbar-picker-r3';
+let pick = {...TODAY};
+try { const v=JSON.parse(localStorage.getItem(KEY)); if(v && typeof v==='object') for(const g of Object.keys(OPTIONS)) if(OPTIONS[g].items.some(o=>o.id===v[g])) pick[g]=v[g]; } catch(e) {}
+const save=()=>{ try { localStorage.setItem(KEY, JSON.stringify(pick)); } catch(e) {} };
+const nameOf = g => OPTIONS[g].items.find(o=>o.id===pick[g]).name;
+
+function labCommand(){
+  return `node hungerbar-lab-3.mjs --pick ${Object.keys(OPTIONS).map(g=>g+'='+pick[g]).join(',')}`;
+}
+function summary(){
+  return `Hungerbar round 3 pick\n`
+    + Object.keys(OPTIONS).map(g=>`${OPTIONS[g].short}: ${nameOf(g)} (${pick[g]})`).join('\n')
+    + `\n\nSee it in Windows Terminal:\n${labCommand()}`;
+}
+function optButton(g, o, p, pressed, name, note){
+  const id=`n-${g}-${(o.id||o.name).replace(/\W+/g,'-')}`;
+  return `<button class="opt" type="button" data-act="${g==='pair'?'pair':'pick'}" data-g="${g}" data-v="${esc(o.id||o.name)}" aria-pressed="${pressed}" aria-label="${esc(name)}" aria-describedby="${id}">
+    <span class="opt-h"><b>${esc(name)}</b>${o.today?'<span class="tag">today</span>':''}</span>
+    <span class="term" aria-hidden="true">${sampleHTML(sample(g,p),p)}</span><span class="opt-note" id="${id}">${esc(note)}</span></button>`;
+}
+
+function render(){
+  const mono = pick.icons==='mono';
+  document.getElementById('picked').innerHTML = `<span class="label">Your pick</span>` + Object.keys(OPTIONS).map(g=>`<span class="pill">${esc(OPTIONS[g].short)}: <b>${esc(nameOf(g))}</b></span>`).join('');
+  const today={...TODAY};
+  const diffRows=[SCEN.normal,SCEN.tight].flatMap(s=>{ const l=lines(s,today)[1]; return [[l[0]],[l[2]]]; });
+  document.getElementById('diff-browser').innerHTML = diffRows.map(r=>lineHTML(r,today,'browser')).join('');
+  document.getElementById('diff-wt').innerHTML = diffRows.map(r=>lineHTML(r,today,'wt')).join('');
+  document.getElementById('pairs').innerHTML = PAIRS.map(pr=>{ const p={...pick,hunger:pr.hunger,hearts:pr.hearts};
+    return optButton('pair', pr, p, pick.hunger===pr.hunger&&pick.hearts===pr.hearts, pr.name, pr.note); }).join('');
+  document.getElementById('groups').innerHTML = Object.entries(OPTIONS).map(([g,grp])=>`<section aria-labelledby="h-${g}">
+      <h2 id="h-${g}">${esc(grp.title)}</h2><p class="sub">${esc(mono&&grp.subMono||grp.sub)}</p>
+      <div class="opts">${grp.items.map(o=>{ const p={...pick,[g]:o.id};
+        return optButton(g, o, p, pick[g]===o.id, o.name, p.icons==='mono'&&o.noteMono||o.note); }).join('')}</div>
+      ${g==='icons'?`<p class="steps"><b>The setting for Plain icons</b> (Windows Terminal 1.21 or newer; you have 1.25): Settings → Profiles → Defaults → Appearance (under Additional settings) → Font face. Type <code>Cascadia Mono, Segoe UI Symbol</code> in full (Segoe UI Symbol is only suggested when "Show all fonts" is ticked), keep Cascadia Mono first, then Save. The lab command below shows plain icons once this is on.</p>`:''}
+    </section>`).join('');
+  document.getElementById('situations').innerHTML = Object.values(SCEN).map(s=>`<div class="label scen-title">${esc(s.label)}</div><div class="term" role="img" aria-label="Status line, ${esc(s.label)}">${lines(s,pick).map(r=>lineHTML(r,pick,'wt')).join('')}</div>`).join('');
+  const ta=document.getElementById('outText');
+  ta.value = summary();
+  ta.style.height='auto'; ta.style.height=(ta.scrollHeight+4)+'px';
+  document.getElementById('copied').textContent='';
+}
+function refocus(sel){ const el=document.querySelector(sel); if(el) el.focus({preventScroll:true}); }
+document.addEventListener('click', e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const a=b.dataset.act;
+  if(a==='pick'){ const {g,v}=b.dataset; pick[g]=v; save(); render(); refocus(`.opt[data-g="${g}"][data-v="${v}"]`); }
+  else if(a==='pair'){ const pr=PAIRS.find(x=>x.name===b.dataset.v); if(pr){ pick.hunger=pr.hunger; pick.hearts=pr.hearts; save(); render(); refocus(`.opt[data-g="pair"][data-v="${pr.name}"]`); } }
+  else if(a==='today'){ pick={...TODAY}; save(); render(); }
+  else if(a==='copy'){
+    const ta=document.getElementById('outText'), ok=document.getElementById('copied');
+    const done=()=>{ ok.textContent='Copied. Paste it in the chat.'; };
+    const fallback=()=>{ ta.focus(); ta.select(); let r=false; try{ r=document.execCommand('copy'); }catch(err){} ok.textContent = r ? 'Copied. Paste it in the chat.' : 'Copy was blocked: the text is selected, press Ctrl+C.'; };
+    try { navigator.clipboard.writeText(ta.value).then(done, fallback); } catch(err){ fallback(); }
+  }
+});
+render();
+const bar=document.querySelector('.bar');
+const pad=()=>{ document.documentElement.style.scrollPaddingTop = getComputedStyle(bar).position==='sticky' ? (bar.offsetHeight+8)+'px' : '0px'; };
+try { new ResizeObserver(pad).observe(bar); } catch(e) { pad(); }
+</script>
+</body>
+</html>

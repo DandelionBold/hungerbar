@@ -1,0 +1,138 @@
+{
+ "normal": {
+  "model": "Opus 5.5",
+  "effort": "high",
+  "ctxPct": 8,
+  "ctxTok": 81000,
+  "ctxMax": 1000000,
+  "branch": "main",
+  "add": 1208,
+  "del": 279,
+  "cwd": "D:/webapp",
+  "ver": "2.1.306",
+  "h5": {
+   "used": 2,
+   "left": 17340,
+   "window": 18000
+  },
+  "week": {
+   "used": 82,
+   "left": 345540
+  },
+  "cache": {
+   "hit": 98,
+   "warm": true,
+   "left": 252,
+   "ttl": 300
+  },
+  "extra": {
+   "used": 0,
+   "limit": 50
+  },
+  "cost": 3.12,
+  "turns": 42,
+  "compactions": 0
+ },
+ "tight": {
+  "model": "Opus 5.5",
+  "effort": "xhigh",
+  "ctxPct": 71,
+  "ctxTok": 712400,
+  "ctxMax": 1000000,
+  "branch": "feature/cache",
+  "add": 42,
+  "del": 7,
+  "cwd": "D:/webapp",
+  "ver": "2.1.306",
+  "h5": {
+   "used": 93,
+   "left": 2280,
+   "window": 18000
+  },
+  "week": {
+   "used": 97,
+   "left": 33120
+  },
+  "cache": {
+   "hit": 91,
+   "warm": false,
+   "left": 0,
+   "ttl": 300
+  },
+  "extra": {
+   "used": 0,
+   "limit": 50
+  },
+  "cost": 18.4,
+  "turns": 42,
+  "compactions": 2
+ },
+ "fresh": {
+  "model": "Opus 5.5",
+  "effort": "medium",
+  "ctxPct": 0,
+  "ctxTok": 0,
+  "ctxMax": 1000000,
+  "branch": null,
+  "add": 0,
+  "del": 0,
+  "cwd": "C:/Users/Steve",
+  "ver": "2.1.306",
+  "h5": {
+   "used": 0,
+   "left": 18000,
+   "window": 18000
+  },
+  "week": {
+   "used": 12,
+   "left": 512340
+  },
+  "cache": {
+   "hit": null,
+   "warm": null,
+   "left": 0,
+   "ttl": 300
+  },
+  "extra": {
+   "used": 0,
+   "limit": 50
+  },
+  "cost": 0,
+  "turns": 0,
+  "compactions": 0
+ },
+ "extra": {
+  "model": "Opus 5.5",
+  "effort": "high",
+  "ctxPct": 24,
+  "ctxTok": 236900,
+  "ctxMax": 1000000,
+  "branch": "main",
+  "add": 12,
+  "del": 3,
+  "cwd": "D:/webapp",
+  "ver": "2.1.306",
+  "h5": {
+   "used": 100,
+   "left": 3900,
+   "window": 18000
+  },
+  "week": {
+   "used": 100,
+   "left": 187200
+  },
+  "cache": {
+   "hit": 96,
+   "warm": true,
+   "left": 175,
+   "ttl": 300
+  },
+  "extra": {
+   "used": 4.2,
+   "limit": 50
+  },
+  "cost": 41.9,
+  "turns": 42,
+  "compactions": 1
+ }
+}
