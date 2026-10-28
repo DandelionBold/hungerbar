@@ -1,0 +1,68 @@
+name: Bug report
+description: Something Hungerbar draws or does is wrong.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting this. Please fill in what you can.
+
+        `hungerbar doctor` prints your user name and some of your folders. Read it before you paste it, and replace anything you would rather keep private.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead. A screenshot of the status line helps a lot.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to make it happen
+      description: The steps, if you know them.
+      placeholder: |
+        1. Run hungerbar look hud --align left
+        2. Make the window narrower than 80 columns
+        3. The status line shows ...
+  - type: textarea
+    id: doctor
+    attributes:
+      label: What hungerbar doctor prints
+      description: Run `hungerbar doctor` in the terminal where you use Claude Code, and paste everything it prints.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Hungerbar version
+      description: What `hungerbar --version` prints.
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: claude-code
+    attributes:
+      label: Claude Code version
+      description: What `claude --version` prints.
+  - type: dropdown
+    id: terminal
+    attributes:
+      label: Terminal
+      options:
+        - Windows Terminal
+        - VS Code's terminal
+        - Another terminal (say which below)
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Your hungerbar.json
+      description: What `~/.claude/hungerbar.json` holds, if you have one.
+      render: json
+  - type: textarea
+    id: more
+    attributes:
+      label: Anything else
+      description: For a wrong render, start Claude Code with `HUNGERBAR_CAPTURE=<folder>` set. Hungerbar then saves the payload Claude Code sends it, with the working and project folders, the transcript path and the session id replaced. Other paths, such as a worktree's, are kept. Read the file before you attach it, and replace anything you would rather keep private. Attach it if you can.
