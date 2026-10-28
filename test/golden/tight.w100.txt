@@ -1,0 +1,3 @@
+Model: Opus 5.5 │ Thinking: xhigh │ Context: [███████████░░░░░] 71% │ ⎇ feature/cache
+5h ♥········· 7% (↻ 38m) │ Wk                   🍗 3% (↻ 9h 12m) │ 💾 91% (○ ❄ COLD)
+💳 Extra: $0.00/$50 │ cwd: D:/webapp │ v2.1.306

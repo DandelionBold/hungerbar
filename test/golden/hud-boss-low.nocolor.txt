@@ -1,0 +1,3 @@
+Model: Fable 5.1 │ Thinking: xhigh │ Context: [███████████░░░░░] 712k/1.0M (71%) │ ⎇ feature/cache │ (+42,-7)
+Session: ♥········· 7% (↻ 38m) │ Weekly:                   🍗 3% (↻ 9h 12m) │ 💾 Cache Hit: 91% (○ ❄ COLD)
+💳 Extra: $0.00/$50 │ cwd: D:/webapp │ v2.1.306

@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "hungerbar.json",
+  "title": "Hungerbar configuration",
+  "description": "~/.claude/hungerbar.json (or HUNGERBAR_CONFIG). Every key is optional; environment variables win over the file.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "icons": {
+      "description": "minecraft: hearts and drumsticks (see the minecraft key); unicode: plain numbers for the limits; ascii: no Unicode at all (also HUNGERBAR_ASCII=1 or TERM=dumb), which also keeps look hud on the classic lines.",
+      "enum": ["minecraft", "unicode", "ascii"],
+      "default": "minecraft"
+    },
+    "color": { "enum": ["auto", "always", "never"], "default": "auto" },
+    "colorDepth": {
+      "description": "auto picks 24-bit in Windows Terminal, VS Code and terminals that set COLORTERM, else 256.",
+      "enum": ["auto", "truecolor", "256", "16"],
+      "default": "auto"
+    },
+    "bold": { "description": "Bold values (labels stay regular).", "type": "boolean", "default": true },
+    "lines": {
+      "description": "Up to 3 lines of item ids (classic look only).",
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "array",
+        "items": { "enum": ["model", "effort", "context", "git", "limit5h", "limitWeek", "scopedWeek", "cache", "extra", "cwd", "version"] }
+      },
+      "default": [["model", "effort", "context", "git"], ["limit5h", "limitWeek", "cache"], ["extra", "cwd", "version"]]
+    },
+    "bar": {
+      "type": "object",
+      "properties": { "width": { "description": "Context bar cells (classic look only).", "type": "integer", "minimum": 4, "maximum": 40, "default": 16 } }
+    },
+    "thresholds": {
+      "description": "Percent at which limits, context and extra turn the warn and crit colours (classic look only).",
+      "type": "object",
+      "properties": {
+        "warn": { "type": "integer", "minimum": 1, "maximum": 100, "default": 75 },
+        "crit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 90 }
+      }
+    },
+    "git": {
+      "type": "object",
+      "properties": {
+        "mode": { "description": "swr: background refresh (default); sync: inline, about +160 ms (the HUD's git status too, as much again); off: branch only (the HUD still reads a merge, rebase or cherry-pick in progress from .git, with no process). For the HUD the refresher also runs git status --porcelain=v2 --branch, which colours ⎇ and the branch and adds the marks.", "enum": ["swr", "sync", "off"], "default": "swr" },
+        "ttlSeconds": { "type": "integer", "minimum": 1, "maximum": 3600, "default": 15 },
+        "timeoutMs": { "type": "integer", "minimum": 100, "maximum": 30000, "default": 2000 }
+      }
+    },
+    "network": {
+      "type": "object",
+      "properties": {
+        "usageApi": {
+          "description": "Opt-in, off until you say yes: a background refresher reads your Claude OAuth token and asks the usage endpoint for extra credits and scoped weekly limits. Never on the render path. Every hud.fable option but off needs it, with scopedWeekly, so the default hud.fable boss shows nothing until both are on. hungerbar setup asks for both, with yes pre-selected, after saying what they read and send, and saves a no as false; hungerbar look hud --fable <option> turns both on, saying so first. No hungerbar.json, or an invalid one, keeps it off.",
+          "type": "boolean",
+          "default": false
+        },
+        "ttlSeconds": { "type": "integer", "minimum": 60, "maximum": 86400, "default": 180 },
+        "scopedWeekly": { "description": "Fetch and show per-model weekly limits (e.g. Fable) for the scopedWeek item and the HUD's hud.fable options. With it on, usage.json refreshes every ttlSeconds (180 s) while a session renders, instead of hourly. Off until you say yes, with usageApi.", "type": "boolean", "default": false }
+      }
+    },
+    "limits": {
+      "description": "What the limit icons and % count: what is left (a full row of hearts reads 98%) or what is used (a heart turns red for each tenth used). Both always count the same thing. Classic look only: the HUD always counts what is left.",
+      "enum": ["left", "used"],
+      "default": "left"
+    },
+    "minecraft": {
+      "description": "Which Minecraft bar each limit window shows (classic look only; the HUD always has hearts for the session and food for the week). Default: hearts for the 5-hour window, food for the week (food refills hearts).",
+      "type": "object",
+      "properties": {
+        "session": { "enum": ["hearts", "food"], "default": "hearts" },
+        "weekly": { "enum": ["hearts", "food"], "default": "food" }
+      }
+    },
+    "nbsp": { "description": "Interior spaces as U+00A0 so Claude Code keeps them (both looks; the HUD's background cells too).", "type": "boolean", "default": true },
+    "widthReserve": { "description": "Columns to leave free when COLUMNS is known. Hungerbar does not read Claude Code's statusLine.padding (COLUMNS is the full width), and Claude Code puts the padding on both sides of the status line, so with a non-zero padding set this to twice it (padding 3: 6); hungerbar doctor warns while it is below 2 x padding.", "type": "integer", "minimum": 0, "maximum": 200, "default": 0 },
+    "look": {
+      "description": "hud (the default): the Minecraft HUD, 5 lines with the frame under the hotbar (6 with the Fable boss bar); it draws only at 256 or 24-bit colour, outside ASCII mode, and when a known width leaves at least hud.minWidth, else classic. classic: the Classic Plus lines. HUNGERBAR_LOOK=classic|hud wins over the file.",
+      "enum": ["classic", "hud"],
+      "default": "hud"
+    },
+    "hud": {
+      "description": "The Minecraft HUD (look: hud). It honours bold, nbsp, color, colorDepth and widthReserve, and ignores lines, bar, thresholds, limits and minecraft.",
+      "type": "object",
+      "properties": {
+        "fable": {
+          "description": "How the HUD shows Fable's weekly limit: off; tail (a grey note after the weekly); tooltip (the wear of the item in your hand); boss (the default: a boss bar on a sixth line, on top, while you use Fable); beacon (a beacon at the end of the food line). Every option but off needs network.usageApi and network.scopedWeekly, which stay off until you say yes, so until then the HUD draws no Fable. The engine's ids (fable-boss) work too; any other value is off.",
+          "enum": ["off", "tail", "tooltip", "boss", "beacon", "fable-off", "fable-tail", "fable-tooltip", "fable-boss", "fable-beacon"],
+          "default": "boss"
+        },
+        "minWidth": {
+          "description": "The HUD draws only when a known budget (HUNGERBAR_WIDTH or COLUMNS, minus 4 and widthReserve) is at least this; with an unknown width it always draws.",
+          "type": "integer",
+          "minimum": 62,
+          "maximum": 200,
+          "default": 80
+        },
+        "align": {
+          "description": "Where the HUD sits: center (the default: the whole HUD moves right as one block, so the hotbar sits in the middle of the status line, like Minecraft's) or left (at the left edge). Centring needs a known width: the budget the gate reads (HUNGERBAR_WIDTH or COLUMNS, minus 4 and widthReserve; a non-zero statusLine.padding is not read and Claude Code puts it on both sides, so set widthReserve to twice it). Claude Code passes COLUMNS on every render, so a resized window re-centres on the next one. The shift is floor(budget / 2) - 39 (39 is the hotbar's centre column), never more than the room the widest line leaves; with an unknown width, or no room, the HUD stays at the left edge. HUNGERBAR_HUD_ALIGN=left|center wins over the file.",
+          "enum": ["left", "center"],
+          "default": "center"
+        },
+        "pr": {
+          "description": "The current branch's pull request and its CI after the branch on the hotbar line (opt-in, because it uses the network: off until you say yes): #123 and one CI mark (gold ● running, green ✓ passed, red × failed), then at most one more (✓ approved, yellow ± changes requested, red ‼ a conflict with the base branch, grey ◌ a draft); a merged PR is #123 merged in purple, a closed one #123 closed in dark grey; no PR, nothing. A background refresher runs your own GitHub CLI (gh pr view, with your own gh login; Hungerbar never sees the token) about once a minute, only in a repo with a GitHub remote and on a branch (not a detached HEAD); the status line only reads its saved answer. It needs gh on PATH and stays off when CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC or HUNGERBAR_OFFLINE is set. hungerbar look hud --pr on turns it on, and setup asks for it when gh is found, with yes pre-selected; both say first what it runs and sends.",
+          "enum": ["off", "on"],
+          "default": "off"
+        },
+        "user": {
+          "description": "Who you are, before the folder at the end of line 3, all in the folder's grey like a Minecraft chat line: off (just the folder); user (the default: ⌂ steve: D:/webapp); user@host (⌂ steve@DESKTOP: D:/webapp, for when you work on more than one computer). The user is your account's name (os.userInfo, else USERNAME), the host the computer's name up to its first dot. When line 3 runs out of room, the host goes first, then the name; the folder keeps at least 10 cells. hungerbar look hud --user off|user|user@host sets it, and setup asks for it.",
+          "enum": ["off", "user", "user@host"],
+          "default": "user"
+        },
+        "op": {
+          "description": "How the HUD marks a Claude Code that runs elevated (as Administrator on Windows, as root elsewhere): gold (the default), your name in bold gold (the ⌂ with hud.user off), the colour servers often give operators; tag, a bold red [OP] before your name (after the ⌂ with hud.user off), like a rank in a Minecraft server's chat; off, nothing. Nothing shows while Claude Code runs normally. hungerbar look hud --op off|tag|gold sets it, and setup asks for it; hungerbar look and doctor say whether this terminal runs elevated.",
+          "enum": ["off", "tag", "gold"],
+          "default": "gold"
+        },
+        "bed": {
+          "description": "on: after 5 minutes without a message (the transcript's last message, a tool's result included, or the prompt cache's last write, whatever the cache's TTL), a block bed fills the empty hotbar slot 4, a white pillow and a red blanket on oak legs; not while a tool call still runs (a long build, a test run, a subagent), only once the session waits on you; it goes with your next message. off: never. hungerbar look hud --bed on|off sets it.",
+          "enum": ["on", "off"],
+          "default": "on"
+        },
+        "phantoms": {
+          "description": "on: phantoms circle in line 1's empty sky, one for each sign of a long session (100 or more prompts, 4 hours or more, 2 or more compactions, context at 70% or more): one sign brings one small, dim phantom far away; two or more bring that many big ones with green eyes, a hint that /clear would help. The session's age is Claude Code's cost.total_duration_ms, else the HUD history's first render in this repo. off: never. hungerbar look hud --phantoms on|off sets it.",
+          "enum": ["on", "off"],
+          "default": "on"
+        }
+      }
+    }
+  }
+}

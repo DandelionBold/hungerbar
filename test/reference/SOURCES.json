@@ -1,0 +1,115 @@
+{
+  "about": "Where the HUD oracle comes from. Every file here is pinned by its sha256 (test/hud.reference.test.ts). An engine change is re-vendored and re-proved, never patched in place (plan §4).",
+  "origins": "Each origin is a file of the design rounds' working folder, which is not published; originSha256 is that file's own sha256.",
+  "renamed": "Before publication (2026-10-28) the personal sample names in these files were replaced with neutral ones of the same length: the folder D:/webapp, the user steve (C:/Users/Steve), and the design notes that named a person or a private folder were reworded. Four of hud4.js's option notes that quoted a request of the design chat as \"Your idea of …\" now read \"The idea of …\", and the pitch of Your mix that read \"as you picked it, with your three changes\" now reads \"as picked, with three changes\" (2026-10-28, before publication). Files of kind \"renamed\" are their origin with only those changes, so their sha256 differs from originSha256; no other byte of an engine, a state or a render changed. extract-spec.mjs re-checked all 240 renders of hud-spec.json against the round-7 spec with the same names replaced (its sha256 is the one hud-spec.json names), and the round-8 rows were renamed alike.",
+  "vendored": "2026-10-27",
+  "files": {
+    "hud4.js": {
+      "kind": "renamed",
+      "origin": "round4/hud4.js",
+      "originSha256": "d61026e697982b8f887122957e36fcca1eeb6b9b40d6e20cbee7f8478409697f",
+      "originDate": "2026-10-26T14:13:24Z",
+      "sha256": "d7473d37e3ce9a9f708a13069c9ec64721f94ffeb8f83aa02ae6197c19b79257",
+      "note": "The HUD engine as design round 7 left it (Survival, Day & Night, Pocket and Your mix with its git, pick, book and fable options)."
+    },
+    "hud4-session.js": {
+      "kind": "renamed",
+      "origin": "round4/session4.js",
+      "originSha256": "3e7a104933aae48ed8736a7fd2836a747425498cd27f365a9964f5287bde4200",
+      "originDate": "2026-10-26T11:04:12Z",
+      "sha256": "42e66875554af0a83a6f4eacf32d4168ac26d1c376a458b810948e86935b500c",
+      "note": "The 5½-hour time-lapse: 661 frames 30 s apart, each with its hist and scoped."
+    },
+    "hud4-states.json": {
+      "kind": "renamed",
+      "origin": "round4/states.json",
+      "originSha256": "70baec2cabe671e17d1d53b3c32c679ec2195976df298990d16308fdca042b21",
+      "originDate": "2026-10-25T00:21:25Z",
+      "sha256": "7ad0a4b79e67d7434fd3fa1731d4147daa112aa1dcbf83454ffcaa0c70d3810a",
+      "note": "The four picker situations: normal, tight, fresh, extra."
+    },
+    "hud4-cache.mjs": {
+      "kind": "extract",
+      "origin": "round6/judge/r6lib.mjs",
+      "originSha256": "60a52e38f139ec74055983aa564bccd041b687dada2c8b15add42dd39b3d9976",
+      "originDate": "2026-10-25T21:51:06Z",
+      "sha256": "4b1b145d9e3044f41230e197f48d3337d9f933af4b324824f8a77807f9dcf3f7",
+      "note": "r6lib.mjs lines 65-128 and 145-218 verbatim (branchOf, cleanHist, isCommitSubject, reflogEntry, cacheStep, commitsOf, framesWithHist and their constants) below a loader of the vendored hud4.js through r6lib's _r6 injection."
+    },
+    "extract-spec.mjs": {
+      "kind": "tool",
+      "sha256": "6011a2095fd063b7356bbe919c1a6f58910c20afa8dd662c99bd1dfe25326e4e",
+      "note": "Builds hud-spec.json from the two spec files."
+    },
+    "hud-spec.json": {
+      "kind": "generated",
+      "origin": [
+        "round6/round6-spec.json",
+        "round7/round7-spec.json"
+      ],
+      "originSha256": {
+        "round6/round6-spec.json": "b6f92b86c939b67601e3f9e65c3833f116f774ecb6df2295713613bc6b91899b",
+        "round7/round7-spec.json": "c8168e8d38f3882e987c6ad67e7e8e57628e11861b5251031766b096eed4963d"
+      },
+      "originDate": "2026-10-26T14:20:33Z",
+      "sha256": "2ce65ed1aa8308b9656798960dba2983c7f2a64f97d5079dd819348f488725e0",
+      "note": "node test/reference/extract-spec.mjs round6/round6-spec.json round7/round7-spec.json, the second with the sample names replaced (see renamed)."
+    },
+    "round8/gitstate.json": {
+      "kind": "extract",
+      "origin": [
+        "round8/gitstate.json",
+        "round8/gitstate/build.cjs"
+      ],
+      "originSha256": {
+        "round8/gitstate.json": "77bf20db39d554a4c96ecbf1765c61e7aa3cc72ca5406a2f15e6eb0ebfb2df7e",
+        "round8/gitstate/build.cjs": "723d7a184e406c69bacf9492c2b66dceee13cca9782f5365d4b1c59603516b7b"
+      },
+      "originDate": "2026-10-27T23:17:28Z",
+      "sha256": "fe326253ccc329c719cb01888755c2bd9a5a12e00feecff402b75070a6ee5cf6",
+      "note": "Design round 8, the pick for the git state: the option colour-marks of gitstate.json, its rows verbatim but for the sample names, with the situations they were drawn from (build.cjs SITS). test/unit/hud-gitstate.test.ts renders each through Hungerbar and compares span for span."
+    },
+    "round8/prci.json": {
+      "kind": "extract",
+      "origin": [
+        "round8/prci.json",
+        "round8/prci/build.cjs"
+      ],
+      "originSha256": {
+        "round8/prci.json": "8d637c525e401c7ac3ff69a1cd6c4710f3b879c0521d9e04450ca05dc9cda870",
+        "round8/prci/build.cjs": "46aacad27a6f4f7ca50cd37f4dc088504763dc395b79907a4740a6c1713cc3e4"
+      },
+      "originDate": "2026-10-27T23:19:11Z",
+      "sha256": "c5a312fb79fc832e587dffd3742166cafdf5fdbb7b0b63c18ffb3321fcc064d3",
+      "note": "Design round 8, the pick for the pull request and CI status: the option prci-compact of prci.json, its rows verbatim but for the sample names, with the situations they were drawn from (build.cjs SITS). test/unit/hud-prci.test.ts renders each through Hungerbar and compares span for span."
+    },
+    "round8/identity.json": {
+      "kind": "extract",
+      "origin": [
+        "round8/identity.json",
+        "round8/identity/build.cjs"
+      ],
+      "originSha256": {
+        "round8/identity.json": "3a03c0ce705b7af1ef851cf6407c4a1e6432e6ee9e743fa252e1de94b43b1bd8",
+        "round8/identity/build.cjs": "86e69998cd000b770840bc655f55439cf3c707d623332bcbf3fb62c5aa64bdca"
+      },
+      "originDate": "2026-10-27T23:14:26Z",
+      "sha256": "9a23e1faa5919cbdbfc42504674378bd8364bcdab3c17391535b916c7639aa38",
+      "note": "Design round 8, the picks for who, where and when you are away: the options user-grey (the name), op-tag and op-name (both operator looks, hud.op tag and gold) and bed-blocks (the idle bed) of identity.json, their rows verbatim but for the sample names, with the situations they were drawn from (build.cjs). test/unit/hud-player.test.ts renders each through Hungerbar and compares span for span."
+    },
+    "round8/toolong.json": {
+      "kind": "extract",
+      "origin": [
+        "round8/toolong.json",
+        "round8/toolong/build.cjs"
+      ],
+      "originSha256": {
+        "round8/toolong.json": "18e785cb79f56ae191c9abdf8ba3dd1a558eb1c1893af3adb49a6c5b0a9f01ef",
+        "round8/toolong/build.cjs": "0af6505a9400376f88c08090d14ee8cda949b11aeae8da4e8ba122b42e045aad"
+      },
+      "originDate": "2026-10-27T23:17:49Z",
+      "sha256": "78ac0963453a248ceedcba8000ec392d9df05bc37c951335b7201bef6965b559",
+      "note": "Design round 8, the pick for a session getting too long: the option phantoms of toolong.json, its rows verbatim but for the sample names, with the situations they were drawn from (build.cjs SITUATIONS). test/unit/hud-player.test.ts renders each through Hungerbar and compares span for span."
+    }
+  }
+}

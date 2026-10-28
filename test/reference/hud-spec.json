@@ -1,0 +1,296 @@
+{
+  "about": "Frozen renders of the HUD design rounds 6 and 7 for the vendored hud4.js (test/hud.reference.test.ts). Built by extract-spec.mjs, which checked every render against the spec files (span for span, both icon styles) before hashing it.",
+  "hash": "sha256 of JSON.stringify(lines.map((l) => l.map((s) => [s.t, s.fg ?? null, s.bg ?? null, s.bold ?? null])))",
+  "sources": {
+    "round6": {
+      "file": "round6/round6-spec.json",
+      "sha256": "b6f92b86c939b67601e3f9e65c3833f116f774ecb6df2295713613bc6b91899b"
+    },
+    "round7": {
+      "file": "round7/round7-spec.json",
+      "sha256": "c8168e8d38f3882e987c6ad67e7e8e57628e11861b5251031766b096eed4963d"
+    }
+  },
+  "hudPick": {
+    "git": "git-terrain",
+    "pick": "pick-numeral",
+    "book": "on",
+    "style": "colour"
+  },
+  "round6": {
+    "option": "git-terrain",
+    "renders": "line 4 only: MIX.render(state, { ...hudPick, fable: \"fable-off\" })[3] (lines 1-3 are Day & Night's own)",
+    "inputs": {
+      "normal": {
+        "from": "hud4-states.json normal",
+        "about": "states.json normal; hand-filled hist: 1h35m into the session, +1208 -279 on main uncommitted for 47 minutes, 1 commit (49 minutes ago, +667 -231), a growing hill with the commit at 0h45m-1h00m",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":8,"ctxTok":81000,"ctxMax":1000000,"branch":"main","add":1208,"del":279,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":2,"left":17340,"window":18000},"week":{"used":82,"left":345540},"cache":{"hit":98,"warm":true,"left":252,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.12,"turns":42,"compactions":0,"hist":{"now":5700,"sessionStart":0,"dirtySince":2880,"commits":1,"lastCommit":{"at":2760,"add":667,"del":231,"branch":"main"},"buckets":[[0,342,241,101,0],[1,615,455,160,0],[2,860,640,220,0],[3,898,667,231,1],[4,180,140,40,0],[5,640,520,120,0],[6,1487,1208,279,0]]}},
+        "sha256": "fd1a32dcea9be3bb7656ec4302eea4a085763d6f40f238d67e468c6b428b48c5"
+      },
+      "tight": {
+        "from": "hud4-states.json tight",
+        "about": "states.json tight; hand-filled hist: 3h20m into the session, a break (the cache is cold), +42 -7 on feature/cache for 12 minutes, 3 commits, the last 13 minutes ago",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":71,"ctxTok":712400,"ctxMax":1000000,"branch":"feature/cache","add":42,"del":7,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":93,"left":2280,"window":18000},"week":{"used":97,"left":33120},"cache":{"hit":91,"warm":false,"left":0,"ttl":300},"extra":{"used":0,"limit":50},"cost":18.4,"turns":42,"compactions":2,"hist":{"now":12000,"sessionStart":0,"dirtySince":11280,"commits":3,"lastCommit":{"at":11220,"add":388,"del":140,"branch":"feature/cache"},"buckets":[[6,210,160,50,0],[7,540,400,140,0],[8,120,90,30,1],[9,460,300,160,0],[10,72,30,42,0],[11,480,350,130,0],[12,528,388,140,1],[13,49,42,7,0]]}},
+        "sha256": "4b30ec27760d30a260de9ee689bbe3846c57ca3808617cc46447ec3423f8791b"
+      },
+      "fresh": {
+        "from": "hud4-states.json fresh",
+        "about": "states.json fresh; hand-filled hist: the very first render (now 0, nothing yet); no repo",
+        "state": {"model":"Opus 5.5","effort":"medium","ctxPct":0,"ctxTok":0,"ctxMax":1000000,"branch":null,"add":0,"del":0,"cwd":"C:/Users/Steve","ver":"2.1.306","h5":{"used":0,"left":18000,"window":18000},"week":{"used":12,"left":512340},"cache":{"hit":null,"warm":null,"left":0,"ttl":300},"extra":{"used":0,"limit":50},"cost":0,"turns":0,"compactions":0,"hist":{"now":0,"sessionStart":0,"dirtySince":null,"commits":0,"lastCommit":null,"buckets":[]}},
+        "sha256": "8b8e1fa99b6fcb412dcfd9a506476b860b0424555d0fe1f9e4d65a23cfa87cf8"
+      },
+      "extra": {
+        "from": "hud4-states.json extra",
+        "about": "states.json extra; hand-filled hist: 4h10m into the session, +12 -3 on main for 3 minutes, 2 commits, the last 4 minutes ago (+1880 -510)",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":24,"ctxTok":236900,"ctxMax":1000000,"branch":"main","add":12,"del":3,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":100,"left":3900,"window":18000},"week":{"used":100,"left":187200},"cache":{"hit":96,"warm":true,"left":175,"ttl":300},"extra":{"used":4.2,"limit":50},"cost":41.9,"turns":42,"compactions":1,"hist":{"now":15000,"sessionStart":0,"dirtySince":14820,"commits":2,"lastCommit":{"at":14760,"add":1880,"del":510,"branch":"main"},"buckets":[[9,96,70,26,0],[10,310,240,70,1],[11,140,100,40,0],[12,520,400,120,0],[13,1180,900,280,0],[14,1540,1200,340,0],[15,2210,1730,480,0],[16,2390,1880,510,1]]}},
+        "sha256": "3e80129ab3ca0beb0bdbaa897c70d4027956568e9a63370fd8fb1caa820ac84c"
+      },
+      "partial": {
+        "from": "hud4-states.json normal",
+        "about": "states.json normal; hand-filled hist: 10 seconds after a commit of +667 -231 that left the +1208 -279 uncommitted (a partial commit), 2 commits, the quarter hour's biggest change 2385 lines",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":8,"ctxTok":81000,"ctxMax":1000000,"branch":"main","add":1208,"del":279,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":2,"left":17340,"window":18000},"week":{"used":82,"left":345540},"cache":{"hit":98,"warm":true,"left":252,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.12,"turns":42,"compactions":0,"hist":{"now":5700,"sessionStart":0,"dirtySince":5690,"commits":2,"lastCommit":{"at":5690,"add":667,"del":231,"branch":"main"},"buckets":[[0,342,241,101,0],[1,615,455,160,0],[2,860,640,220,0],[3,898,667,231,1],[4,180,140,40,0],[5,640,520,120,0],[6,2385,1875,510,1]]}},
+        "sha256": "f89ac410465e30e1a0b199aa1c11ac4233fcb82bda3017167df4c134f9efd4c1"
+      },
+      "frame20": {
+        "from": "hud4-session.js frames[20] without scoped",
+        "about": "a pile growing (+119 -63), 10 minutes in (4 messages, main +119 -63, context 5%, compactions 0, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":5,"ctxTok":53662,"ctxMax":1000000,"branch":"main","add":119,"del":63,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":2.8,"left":17400,"window":18000},"week":{"used":58.6,"left":280200},"cache":{"hit":95,"warm":true,"left":170,"ttl":300},"extra":{"used":0,"limit":50},"cost":0.76,"turns":4,"compactions":0,"hist":{"now":600,"sessionStart":0,"dirtySince":30,"commits":0,"lastCommit":null,"buckets":[[0,182,119,63,0]]}},
+        "sha256": "556aa1ea054c267f82afbef449f5b652abb257222ab4554ca4828e44daf1b67b"
+      },
+      "frame80": {
+        "from": "hud4-session.js frames[80] without scoped",
+        "about": "just before the first commit (+596 -194) (16 messages, main +596 -194, context 24%, compactions 0, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":24,"ctxTok":241316,"ctxMax":1000000,"branch":"main","add":596,"del":194,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":11.2,"left":15600,"window":18000},"week":{"used":60.4,"left":278400},"cache":{"hit":89,"warm":true,"left":170,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.59,"turns":16,"compactions":0,"hist":{"now":2400,"sessionStart":0,"dirtySince":30,"commits":0,"lastCommit":null,"buckets":[[0,245,161,84,0],[1,586,421,165,0],[2,790,596,194,0]]}},
+        "sha256": "3dda6324f5f2c78966748b27426c9dbca44062046795cac232c459e22c847180"
+      },
+      "frame86": {
+        "from": "hud4-session.js frames[86] without scoped",
+        "about": "the first render after the first commit (18 messages, main +0 -0, context 27%, compactions 0, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":27,"ctxTok":271818,"ctxMax":1000000,"branch":"main","add":0,"del":0,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":12.6,"left":15420,"window":18000},"week":{"used":60.7,"left":278220},"cache":{"hit":99,"warm":true,"left":290,"ttl":300},"extra":{"used":0,"limit":50},"cost":4.14,"turns":18,"compactions":0,"hist":{"now":2580,"sessionStart":0,"dirtySince":null,"commits":1,"lastCommit":{"at":2580,"add":667,"del":231,"branch":"main"},"buckets":[[0,245,161,84,0],[1,586,421,165,0],[2,840,626,214,1]]}},
+        "sha256": "6c584cec47f3fd6b200a70a27062274c303aae90a73fa657473f189bb312a754"
+      },
+      "frame140": {
+        "from": "hud4-session.js frames[140] without scoped",
+        "about": "a new pile after a break (+407 -157) (26 messages, main +407 -157, context 38%, compactions 0, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":38,"ctxTok":384385,"ctxMax":1000000,"branch":"main","add":407,"del":157,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":18.2,"left":13800,"window":18000},"week":{"used":61.9,"left":276600},"cache":{"hit":94,"warm":true,"left":260,"ttl":300},"extra":{"used":0,"limit":50},"cost":6.53,"turns":26,"compactions":0,"hist":{"now":4200,"sessionStart":0,"dirtySince":3330,"commits":1,"lastCommit":{"at":2580,"add":667,"del":231,"branch":"main"},"buckets":[[0,245,161,84,0],[1,586,421,165,0],[2,840,626,214,1],[3,167,133,34,0],[4,564,407,157,0]]}},
+        "sha256": "fc708713bc504514fc393d4df46975d1ed9ae05f11bec1d808fc75e0cdc6c674"
+      },
+      "frame159": {
+        "from": "hud4-session.js frames[159] without scoped",
+        "about": "switched to feature/hotbar (+2): not a commit, a new clock (31 messages, feature/hotbar +2 -0, context 45%, compactions 0, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":45,"ctxTok":445037,"ctxMax":1000000,"branch":"feature/hotbar","add":2,"del":0,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":21.7,"left":13230,"window":18000},"week":{"used":62.65,"left":276030},"cache":{"hit":95,"warm":true,"left":290,"ttl":300},"extra":{"used":0,"limit":50},"cost":8.17,"turns":31,"compactions":0,"hist":{"now":4770,"sessionStart":0,"dirtySince":4770,"commits":1,"lastCommit":{"at":2580,"add":667,"del":231,"branch":"main"},"buckets":[[0,245,161,84,0],[1,586,421,165,0],[2,840,626,214,1],[3,167,133,34,0],[4,642,442,200,0],[5,736,521,215,0]]}},
+        "sha256": "3a5de8e8614c4755375da951c38d974880c61d2002d9966c50ade1911be2450a"
+      },
+      "frame220": {
+        "from": "hud4-session.js frames[220] without scoped",
+        "about": "feature/hotbar +458 -218, 50 minutes old (46 messages, feature/hotbar +458 -218, context 67%, compactions 0, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":67,"ctxTok":669925,"ctxMax":1000000,"branch":"feature/hotbar","add":458,"del":218,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":32.2,"left":11400,"window":18000},"week":{"used":64.9,"left":274200},"cache":{"hit":88,"warm":true,"left":260,"ttl":300},"extra":{"used":0,"limit":50},"cost":13.85,"turns":46,"compactions":0,"hist":{"now":6600,"sessionStart":0,"dirtySince":4770,"commits":1,"lastCommit":{"at":2580,"add":667,"del":231,"branch":"main"},"buckets":[[0,245,161,84,0],[1,586,421,165,0],[2,840,626,214,1],[3,167,133,34,0],[4,642,442,200,0],[5,736,521,215,0],[6,574,395,179,0],[7,676,458,218,0]]}},
+        "sha256": "a58d75ac5b6b0ed0737285c4b9a19ca298d4d339f19a36937d6be6877159332b"
+      },
+      "frame269": {
+        "from": "hud4-session.js frames[269] without scoped",
+        "about": "a break after the second commit: 56 messages, context 81%, cold (56 messages, feature/hotbar +0 -0, context 81%, compactions 0, cache cold)",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":81,"ctxTok":814845,"ctxMax":1000000,"branch":"feature/hotbar","add":0,"del":0,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":39.2,"left":9930,"window":18000},"week":{"used":66.4,"left":272730},"cache":{"hit":90,"warm":false,"left":0,"ttl":300},"extra":{"used":0,"limit":50},"cost":18.29,"turns":56,"compactions":0,"hist":{"now":8070,"sessionStart":0,"dirtySince":null,"commits":2,"lastCommit":{"at":7770,"add":747,"del":342,"branch":"feature/hotbar"},"buckets":[[1,586,421,165,0],[2,840,626,214,1],[3,167,133,34,0],[4,642,442,200,0],[5,736,521,215,0],[6,574,395,179,0],[7,898,623,275,0],[8,1044,715,329,1]]}},
+        "sha256": "aa9f16d64b2aae711dd70692809ed204b97d4ef4f226d32b5aa4d551934b584e"
+      },
+      "frame300": {
+        "from": "hud4-session.js frames[300] without scoped",
+        "about": "after the break (+103 -59), context 90% (60 messages, feature/hotbar +103 -59, context 90%, compactions 0, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":90,"ctxTok":897470,"ctxMax":1000000,"branch":"feature/hotbar","add":103,"del":59,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":43.2,"left":9000,"window":18000},"week":{"used":67.28,"left":271800},"cache":{"hit":89,"warm":true,"left":290,"ttl":300},"extra":{"used":0,"limit":50},"cost":20.54,"turns":60,"compactions":0,"hist":{"now":9000,"sessionStart":0,"dirtySince":8730,"commits":2,"lastCommit":{"at":7770,"add":747,"del":342,"branch":"feature/hotbar"},"buckets":[[3,167,133,34,0],[4,642,442,200,0],[5,736,521,215,0],[6,574,395,179,0],[7,898,623,275,0],[8,1044,715,329,1],[9,104,71,33,0],[10,162,103,59,0]]}},
+        "sha256": "21e507667ddd0e04490e90bc8ade4ebc1733a176318f822e31a3115cdd32e5c6"
+      },
+      "frame390": {
+        "from": "hud4-session.js frames[390] without scoped",
+        "about": "+1207 -408, 90 messages, compacted once (90 messages, feature/hotbar +1207 -408, context 67%, compactions 1, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":67,"ctxTok":670234,"ctxMax":1000000,"branch":"feature/hotbar","add":1207,"del":408,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":73.2,"left":6300,"window":18000},"week":{"used":73.88,"left":269100},"cache":{"hit":98,"warm":true,"left":290,"ttl":300},"extra":{"used":0,"limit":50},"cost":32.65,"turns":90,"compactions":1,"hist":{"now":11700,"sessionStart":0,"dirtySince":8730,"commits":2,"lastCommit":{"at":7770,"add":747,"del":342,"branch":"feature/hotbar"},"buckets":[[6,574,395,179,0],[7,898,623,275,0],[8,1044,715,329,1],[9,104,71,33,0],[10,586,438,148,0],[11,1078,778,300,0],[12,1603,1202,401,0],[13,1615,1207,408,0]]}},
+        "sha256": "dca18717fb262384c770049c9bf8d54f55575e23116824fc30c743a6ec73df07"
+      },
+      "frame420": {
+        "from": "hud4-session.js frames[420] without scoped",
+        "about": "the 100th message (100 messages, feature/hotbar +1656 -519, context 88%, compactions 1, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":88,"ctxTok":881802,"ctxMax":1000000,"branch":"feature/hotbar","add":1656,"del":519,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":83.2,"left":5400,"window":18000},"week":{"used":76.08,"left":268200},"cache":{"hit":98,"warm":true,"left":290,"ttl":300},"extra":{"used":0,"limit":50},"cost":37.99,"turns":100,"compactions":1,"hist":{"now":12600,"sessionStart":0,"dirtySince":8730,"commits":2,"lastCommit":{"at":7770,"add":747,"del":342,"branch":"feature/hotbar"},"buckets":[[7,898,623,275,0],[8,1044,715,329,1],[9,104,71,33,0],[10,586,438,148,0],[11,1078,778,300,0],[12,1603,1202,401,0],[13,2101,1595,506,0],[14,2175,1656,519,0]]}},
+        "sha256": "67ff033fe1a858022d4ff4799cfc2c61379e9d199c104b73f9088615bce679a6"
+      },
+      "frame470": {
+        "from": "hud4-session.js frames[470] without scoped",
+        "about": "+2301 -763 (3064 lines), 116 messages (116 messages, feature/hotbar +2301 -763, context 39%, compactions 2, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":39,"ctxTok":392524,"ctxMax":1000000,"branch":"feature/hotbar","add":2301,"del":763,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":99.2,"left":3900,"window":18000},"week":{"used":79.6,"left":266700},"cache":{"hit":99,"warm":true,"left":230,"ttl":300},"extra":{"used":0,"limit":50},"cost":44.06,"turns":116,"compactions":2,"hist":{"now":14100,"sessionStart":0,"dirtySince":8730,"commits":2,"lastCommit":{"at":7770,"add":747,"del":342,"branch":"feature/hotbar"},"buckets":[[8,1044,715,329,1],[9,104,71,33,0],[10,586,438,148,0],[11,1078,778,300,0],[12,1603,1202,401,0],[13,2101,1595,506,0],[14,2588,1948,640,0],[15,3064,2301,763,0]]}},
+        "sha256": "8b564772bf01b27f72c8585f46a5ecc9bc10e370f946fa9d4646cec570c7e0da"
+      },
+      "frame471": {
+        "from": "hud4-session.js frames[471] without scoped",
+        "about": "30 s later, +2339 -788: the other 10-second tick (117 messages, feature/hotbar +2339 -788, context 41%, compactions 2, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":41,"ctxTok":411025,"ctxMax":1000000,"branch":"feature/hotbar","add":2339,"del":788,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":100,"left":3870,"window":18000},"week":{"used":79.82,"left":266670},"cache":{"hit":90,"warm":true,"left":290,"ttl":300},"extra":{"used":0,"limit":50},"cost":44.46,"turns":117,"compactions":2,"hist":{"now":14130,"sessionStart":0,"dirtySince":8730,"commits":2,"lastCommit":{"at":7770,"add":747,"del":342,"branch":"feature/hotbar"},"buckets":[[8,1044,715,329,1],[9,104,71,33,0],[10,586,438,148,0],[11,1078,778,300,0],[12,1603,1202,401,0],[13,2101,1595,506,0],[14,2588,1948,640,0],[15,3127,2339,788,0]]}},
+        "sha256": "1e60c76ce03238f557a7ad9b2fe6a9ac855cdaf760fe4f3a5d259d20b0aef0bd"
+      },
+      "frame516": {
+        "from": "hud4-session.js frames[516] without scoped",
+        "about": "the biggest pile of the day (+3019 -992), just before the third commit (132 messages, feature/hotbar +3019 -992, context 71%, compactions 2, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":71,"ctxTok":712217,"ctxMax":1000000,"branch":"feature/hotbar","add":3019,"del":992,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":100,"left":2520,"window":18000},"week":{"used":79.82,"left":265320},"cache":{"hit":99,"warm":true,"left":290,"ttl":300},"extra":{"used":6.86,"limit":50},"cost":51.32,"turns":132,"compactions":2,"hist":{"now":15480,"sessionStart":0,"dirtySince":8730,"commits":2,"lastCommit":{"at":7770,"add":747,"del":342,"branch":"feature/hotbar"},"buckets":[[10,586,438,148,0],[11,1078,778,300,0],[12,1603,1202,401,0],[13,2101,1595,506,0],[14,2588,1948,640,0],[15,3218,2425,793,0],[16,3775,2850,925,0],[17,4011,3019,992,0]]}},
+        "sha256": "4697b009bd9f9d0008a95ed81147d7b043f125dfd20f53ca7c13a66362b03077"
+      },
+      "frame519": {
+        "from": "hud4-session.js frames[519] without scoped",
+        "about": "the first render after the third commit (133 messages, feature/hotbar +0 -0, context 73%, compactions 2, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":73,"ctxTok":728178,"ctxMax":1000000,"branch":"feature/hotbar","add":0,"del":0,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":100,"left":2430,"window":18000},"week":{"used":79.82,"left":265230},"cache":{"hit":92,"warm":true,"left":290,"ttl":300},"extra":{"used":7.37,"limit":50},"cost":51.83,"turns":133,"compactions":2,"hist":{"now":15570,"sessionStart":0,"dirtySince":null,"commits":3,"lastCommit":{"at":15570,"add":3081,"del":1007,"branch":"feature/hotbar"},"buckets":[[10,586,438,148,0],[11,1078,778,300,0],[12,1603,1202,401,0],[13,2101,1595,506,0],[14,2588,1948,640,0],[15,3218,2425,793,0],[16,3775,2850,925,0],[17,4011,3019,992,1]]}},
+        "sha256": "bbb1587a4056afb6888bc3f17055f3d29ba6058f37cd4184107cfd04061bf48c"
+      },
+      "frame520": {
+        "from": "hud4-session.js frames[520] without scoped",
+        "about": "30 s after the third commit (133 messages, feature/hotbar +0 -0, context 73%, compactions 2, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":73,"ctxTok":728178,"ctxMax":1000000,"branch":"feature/hotbar","add":0,"del":0,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":100,"left":2400,"window":18000},"week":{"used":79.82,"left":265200},"cache":{"hit":92,"warm":true,"left":260,"ttl":300},"extra":{"used":7.37,"limit":50},"cost":51.83,"turns":133,"compactions":2,"hist":{"now":15600,"sessionStart":0,"dirtySince":null,"commits":3,"lastCommit":{"at":15570,"add":3081,"del":1007,"branch":"feature/hotbar"},"buckets":[[10,586,438,148,0],[11,1078,778,300,0],[12,1603,1202,401,0],[13,2101,1595,506,0],[14,2588,1948,640,0],[15,3218,2425,793,0],[16,3775,2850,925,0],[17,4011,3019,992,1]]}},
+        "sha256": "bbb1587a4056afb6888bc3f17055f3d29ba6058f37cd4184107cfd04061bf48c"
+      },
+      "frame525": {
+        "from": "hud4-session.js frames[525] without scoped",
+        "about": "3 minutes after the third commit (133 messages, feature/hotbar +0 -0, context 73%, compactions 2, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":73,"ctxTok":728178,"ctxMax":1000000,"branch":"feature/hotbar","add":0,"del":0,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":100,"left":2250,"window":18000},"week":{"used":79.82,"left":265050},"cache":{"hit":92,"warm":true,"left":110,"ttl":300},"extra":{"used":7.37,"limit":50},"cost":51.83,"turns":133,"compactions":2,"hist":{"now":15750,"sessionStart":0,"dirtySince":null,"commits":3,"lastCommit":{"at":15570,"add":3081,"del":1007,"branch":"feature/hotbar"},"buckets":[[10,586,438,148,0],[11,1078,778,300,0],[12,1603,1202,401,0],[13,2101,1595,506,0],[14,2588,1948,640,0],[15,3218,2425,793,0],[16,3775,2850,925,0],[17,4011,3019,992,1]]}},
+        "sha256": "bbb1587a4056afb6888bc3f17055f3d29ba6058f37cd4184107cfd04061bf48c"
+      },
+      "frame529": {
+        "from": "hud4-session.js frames[529] without scoped",
+        "about": "a short break after the third commit: 133 messages, compacted twice, cold (133 messages, feature/hotbar +0 -0, context 73%, compactions 2, cache cold)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":73,"ctxTok":728178,"ctxMax":1000000,"branch":"feature/hotbar","add":0,"del":0,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":100,"left":2130,"window":18000},"week":{"used":79.82,"left":264930},"cache":{"hit":92,"warm":false,"left":0,"ttl":300},"extra":{"used":7.37,"limit":50},"cost":51.83,"turns":133,"compactions":2,"hist":{"now":15870,"sessionStart":0,"dirtySince":null,"commits":3,"lastCommit":{"at":15570,"add":3081,"del":1007,"branch":"feature/hotbar"},"buckets":[[10,586,438,148,0],[11,1078,778,300,0],[12,1603,1202,401,0],[13,2101,1595,506,0],[14,2588,1948,640,0],[15,3218,2425,793,0],[16,3775,2850,925,0],[17,4011,3019,992,1]]}},
+        "sha256": "bbb1587a4056afb6888bc3f17055f3d29ba6058f37cd4184107cfd04061bf48c"
+      },
+      "frame570": {
+        "from": "hud4-session.js frames[570] without scoped",
+        "about": "a small pile late in the day (+273 -85), 141 messages (141 messages, feature/hotbar +273 -85, context 88%, compactions 2, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":88,"ctxTok":884572,"ctxMax":1000000,"branch":"feature/hotbar","add":273,"del":85,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":100,"left":900,"window":18000},"week":{"used":79.82,"left":263700},"cache":{"hit":97,"warm":true,"left":170,"ttl":300},"extra":{"used":11.74,"limit":50},"cost":56.2,"turns":141,"compactions":2,"hist":{"now":17100,"sessionStart":0,"dirtySince":15930,"commits":3,"lastCommit":{"at":15570,"add":3081,"del":1007,"branch":"feature/hotbar"},"buckets":[[12,1603,1202,401,0],[13,2101,1595,506,0],[14,2588,1948,640,0],[15,3218,2425,793,0],[16,3775,2850,925,0],[17,4011,3019,992,1],[18,358,273,85,0],[19,358,273,85,0]]}},
+        "sha256": "ea3f770689eac157e3ce135461259eefa1f17b8f41951c926ba2765b4d6ae0f4"
+      },
+      "frame650": {
+        "from": "hud4-session.js frames[650] without scoped",
+        "about": "+323 -57, 150 messages (150 messages, feature/hotbar +323 -57, context 22%, compactions 3, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":22,"ctxTok":218516,"ctxMax":1000000,"branch":"feature/hotbar","add":323,"del":57,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":4.9,"left":16500,"window":18000},"week":{"used":80.87,"left":261300},"cache":{"hit":96,"warm":true,"left":200,"ttl":300},"extra":{"used":12.62,"limit":50},"cost":58.78,"turns":150,"compactions":3,"hist":{"now":19500,"sessionStart":0,"dirtySince":18330,"commits":4,"lastCommit":{"at":17280,"add":315,"del":109,"branch":"feature/hotbar"},"buckets":[[14,2588,1948,640,0],[15,3218,2425,793,0],[16,3775,2850,925,0],[17,4011,3019,992,1],[18,358,273,85,0],[19,373,281,92,1],[20,221,192,29,0],[21,380,323,57,0]]}},
+        "sha256": "341a87f5080d80b4a1cf2406a53fe0e34d6d3ccb1dd39bfc174021310468e245"
+      },
+      "frame660": {
+        "from": "hud4-session.js frames[660] without scoped",
+        "about": "the end: +387 -92, 152 messages (152 messages, feature/hotbar +387 -92, context 25%, compactions 3, cache warm)",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":25,"ctxTok":246560,"ctxMax":1000000,"branch":"feature/hotbar","add":387,"del":92,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":6.3,"left":16200,"window":18000},"week":{"used":81.17,"left":261000},"cache":{"hit":99,"warm":true,"left":260,"ttl":300},"extra":{"used":12.62,"limit":50},"cost":59.31,"turns":152,"compactions":3,"hist":{"now":19800,"sessionStart":0,"dirtySince":18330,"commits":4,"lastCommit":{"at":17280,"add":315,"del":109,"branch":"feature/hotbar"},"buckets":[[15,3218,2425,793,0],[16,3775,2850,925,0],[17,4011,3019,992,1],[18,358,273,85,0],[19,373,281,92,1],[20,221,192,29,0],[21,479,387,92,0],[22,479,387,92,0]]}},
+        "sha256": "5ad03df4b784bb3af44d02cbb86a268534ba3c6bf0c2652e5b9ee6c1b11c7953"
+      }
+    }
+  },
+  "round7": {
+    "ids": ["fable-off","fable-tail","fable-tooltip","fable-boss","fable-beacon"],
+    "renders": "every line: MIX.render(state, { ...hudPick, fable: id }) (5 lines for fable-boss while the model in use has a scoped limit)",
+    "situations": {
+      "normal": {
+        "from": "round7-spec.json",
+        "about": "states.json normal (Opus 5.5) + its round-6 history; Fable 35% used, resets in 4 days: 65% left, ↻ 4d00h",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":8,"ctxTok":81000,"ctxMax":1000000,"branch":"main","add":1208,"del":279,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":2,"left":17340,"window":18000},"week":{"used":82,"left":345540},"cache":{"hit":98,"warm":true,"left":252,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.12,"turns":42,"compactions":0,"hist":{"now":5700,"sessionStart":0,"dirtySince":2880,"commits":1,"lastCommit":{"at":2760,"add":667,"del":231,"branch":"main"},"buckets":[[0,342,241,101,0],[1,615,455,160,0],[2,860,640,220,0],[3,898,667,231,1],[4,180,140,40,0],[5,640,520,120,0],[6,1487,1208,279,0]]},"scoped":[{"name":"Fable","used":35,"left":345600}]},
+        "sha256": {"fable-off":"a9c1453a9a6e21baf9f02caf20505738f2caa0d3e72ea8a5d2c53d17169ff891","fable-tail":"9e31998896123c83135b8a8e4e9b108be6ad4a00e86725ccc2ee6a5894118cd0","fable-tooltip":"9e31998896123c83135b8a8e4e9b108be6ad4a00e86725ccc2ee6a5894118cd0","fable-boss":"9e31998896123c83135b8a8e4e9b108be6ad4a00e86725ccc2ee6a5894118cd0","fable-beacon":"ff213761992536448fc17598cb76fa376c44e01dd5e6680031f5e31a3fd99836"}
+      },
+      "tight": {
+        "from": "round7-spec.json",
+        "about": "states.json tight (Opus 5.5, weekly 3% left) + its history; Fable 91.3% used, resets in 6h40m: 9% left (red)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":71,"ctxTok":712400,"ctxMax":1000000,"branch":"feature/cache","add":42,"del":7,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":93,"left":2280,"window":18000},"week":{"used":97,"left":33120},"cache":{"hit":91,"warm":false,"left":0,"ttl":300},"extra":{"used":0,"limit":50},"cost":18.4,"turns":42,"compactions":2,"hist":{"now":12000,"sessionStart":0,"dirtySince":11280,"commits":3,"lastCommit":{"at":11220,"add":388,"del":140,"branch":"feature/cache"},"buckets":[[6,210,160,50,0],[7,540,400,140,0],[8,120,90,30,1],[9,460,300,160,0],[10,72,30,42,0],[11,480,350,130,0],[12,528,388,140,1],[13,49,42,7,0]]},"scoped":[{"name":"Fable","used":91.3,"left":24000}]},
+        "sha256": {"fable-off":"c09e41127b1d297dfedc715ec4eebd491c5f706b7750fa193c01a1deaa3480b2","fable-tail":"4219e7679c31fe3f11593a99a525623a6ca45823047b110a4336fe11e630ac75","fable-tooltip":"4219e7679c31fe3f11593a99a525623a6ca45823047b110a4336fe11e630ac75","fable-boss":"4219e7679c31fe3f11593a99a525623a6ca45823047b110a4336fe11e630ac75","fable-beacon":"465471175387f47e7482f3a573cb856a7b8b3a13fda77a2796dd42193ccaae78"}
+      },
+      "fresh": {
+        "from": "round7-spec.json",
+        "about": "states.json fresh (Opus 5.5, no cache yet, no repo) + its history; Fable unused and no reset time sent (left null): 100%, no clock",
+        "state": {"model":"Opus 5.5","effort":"medium","ctxPct":0,"ctxTok":0,"ctxMax":1000000,"branch":null,"add":0,"del":0,"cwd":"C:/Users/Steve","ver":"2.1.306","h5":{"used":0,"left":18000,"window":18000},"week":{"used":12,"left":512340},"cache":{"hit":null,"warm":null,"left":0,"ttl":300},"extra":{"used":0,"limit":50},"cost":0,"turns":0,"compactions":0,"hist":{"now":0,"sessionStart":0,"dirtySince":null,"commits":0,"lastCommit":null,"buckets":[]},"scoped":[{"name":"Fable","used":0,"left":null}]},
+        "sha256": {"fable-off":"42b2a0b2ccf96603c908f6794d87032fe13adaff622c32b388274e9503e5574f","fable-tail":"8fda5d8d3c93aba5ebf997b85b403ae10be32477dca45e6cdd944ed1c05b8d6c","fable-tooltip":"8fda5d8d3c93aba5ebf997b85b403ae10be32477dca45e6cdd944ed1c05b8d6c","fable-boss":"8fda5d8d3c93aba5ebf997b85b403ae10be32477dca45e6cdd944ed1c05b8d6c","fable-beacon":"a02c7fe48ed307f0738ad305f07b8409298984fade581fa08152dd6fd8158d02"}
+      },
+      "extra": {
+        "from": "round7-spec.json",
+        "about": "states.json extra (Opus 5.5, 5-hour and weekly used up, paying with extra credits) + its history; Fable 64.6% used, resets in 2d05h: 36% left",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":24,"ctxTok":236900,"ctxMax":1000000,"branch":"main","add":12,"del":3,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":100,"left":3900,"window":18000},"week":{"used":100,"left":187200},"cache":{"hit":96,"warm":true,"left":175,"ttl":300},"extra":{"used":4.2,"limit":50},"cost":41.9,"turns":42,"compactions":1,"hist":{"now":15000,"sessionStart":0,"dirtySince":14820,"commits":2,"lastCommit":{"at":14760,"add":1880,"del":510,"branch":"main"},"buckets":[[9,96,70,26,0],[10,310,240,70,1],[11,140,100,40,0],[12,520,400,120,0],[13,1180,900,280,0],[14,1540,1200,340,0],[15,2210,1730,480,0],[16,2390,1880,510,1]]},"scoped":[{"name":"Fable","used":64.6,"left":190800}]},
+        "sha256": {"fable-off":"fb84e56ab4be9a0b1f761dd9e3fc89565617d7c6fa0948d5303459fb7e591b9b","fable-tail":"c3c04de09895f6c25aecda53f329c7754ba1465d5b42d9088774d35ac0652471","fable-tooltip":"c3c04de09895f6c25aecda53f329c7754ba1465d5b42d9088774d35ac0652471","fable-boss":"c3c04de09895f6c25aecda53f329c7754ba1465d5b42d9088774d35ac0652471","fable-beacon":"7860e89f450830368354d1eda93ff7e97bf5fb20a905e60e1f8295b2d1fe8715"}
+      },
+      "fable-empty": {
+        "from": "round7-spec.json",
+        "about": "USED UP: normal (Opus 5.5 in use); Fable 100% used, resets in 19 hours: 0% left, ↻ 19h00m",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":8,"ctxTok":81000,"ctxMax":1000000,"branch":"main","add":1208,"del":279,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":2,"left":17340,"window":18000},"week":{"used":82,"left":345540},"cache":{"hit":98,"warm":true,"left":252,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.12,"turns":42,"compactions":0,"hist":{"now":5700,"sessionStart":0,"dirtySince":2880,"commits":1,"lastCommit":{"at":2760,"add":667,"del":231,"branch":"main"},"buckets":[[0,342,241,101,0],[1,615,455,160,0],[2,860,640,220,0],[3,898,667,231,1],[4,180,140,40,0],[5,640,520,120,0],[6,1487,1208,279,0]]},"scoped":[{"name":"Fable","used":100,"left":68400}]},
+        "sha256": {"fable-off":"a9c1453a9a6e21baf9f02caf20505738f2caa0d3e72ea8a5d2c53d17169ff891","fable-tail":"579ca36373f4b4f376b2d72a0741108705427242764e915a1f5001fbc0ec1dc4","fable-tooltip":"579ca36373f4b4f376b2d72a0741108705427242764e915a1f5001fbc0ec1dc4","fable-boss":"579ca36373f4b4f376b2d72a0741108705427242764e915a1f5001fbc0ec1dc4","fable-beacon":"b84884fe7f4da93cbd507a3f4632819f765b1693f386cfb02223913e19cce207"}
+      },
+      "fable-in-use": {
+        "from": "round7-spec.json",
+        "about": "normal, but the model in use is 'Fable 5.1'; Fable 62% used, resets in 2d05h: 38% left",
+        "state": {"model":"Fable 5.1","effort":"high","ctxPct":8,"ctxTok":81000,"ctxMax":1000000,"branch":"main","add":1208,"del":279,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":2,"left":17340,"window":18000},"week":{"used":82,"left":345540},"cache":{"hit":98,"warm":true,"left":252,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.12,"turns":42,"compactions":0,"hist":{"now":5700,"sessionStart":0,"dirtySince":2880,"commits":1,"lastCommit":{"at":2760,"add":667,"del":231,"branch":"main"},"buckets":[[0,342,241,101,0],[1,615,455,160,0],[2,860,640,220,0],[3,898,667,231,1],[4,180,140,40,0],[5,640,520,120,0],[6,1487,1208,279,0]]},"scoped":[{"name":"Fable","used":62,"left":190800}]},
+        "sha256": {"fable-off":"a3e2582a868da1118e4d507ae4a7790bb1c427e23227fa1b9e9606ca6456b088","fable-tail":"df8cd5e0cb23f97bc04631e34cfb4761f10f085287d145104079a5e7ef814cc2","fable-tooltip":"79fa62af57193331bc89422db25bf952a98145324a2192e16a2ca5e5e1f7ba2b","fable-boss":"3782e24e13974c53edfa47e4bccee5e19ce0f1ff9f00e1673ca9370760173fea","fable-beacon":"2d7991e6843b77017fcf8cf46b9e9a4cf8ab96c75e84ff23f8bc014e08ce1515"}
+      },
+      "fable-empty-in-use": {
+        "from": "round7-spec.json",
+        "about": "normal, model 'Fable 5.1'; Fable 100% used while it is the model in use, resets in 19 hours",
+        "state": {"model":"Fable 5.1","effort":"high","ctxPct":8,"ctxTok":81000,"ctxMax":1000000,"branch":"main","add":1208,"del":279,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":2,"left":17340,"window":18000},"week":{"used":82,"left":345540},"cache":{"hit":98,"warm":true,"left":252,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.12,"turns":42,"compactions":0,"hist":{"now":5700,"sessionStart":0,"dirtySince":2880,"commits":1,"lastCommit":{"at":2760,"add":667,"del":231,"branch":"main"},"buckets":[[0,342,241,101,0],[1,615,455,160,0],[2,860,640,220,0],[3,898,667,231,1],[4,180,140,40,0],[5,640,520,120,0],[6,1487,1208,279,0]]},"scoped":[{"name":"Fable","used":100,"left":68400}]},
+        "sha256": {"fable-off":"a3e2582a868da1118e4d507ae4a7790bb1c427e23227fa1b9e9606ca6456b088","fable-tail":"724a47bca20a56caaa938afd803dd5971707e694bea809a2b3cfb3778dc4000e","fable-tooltip":"2f17c3adc072b2bdf41300cf243305c30818b10c30e47fc3f5e3360ab4529850","fable-boss":"abf705b0683719351bb53a18020ea544fc4a18687c7def508de15f4db46d58a3","fable-beacon":"5e896247b93f5d2e6f8c90b5be14fa36963ada1912fdad6caa5e1c887c786ea6"}
+      },
+      "fable-low-in-use": {
+        "from": "round7-spec.json",
+        "about": "tight (weekly 3% left, cache cold, compacted twice), model 'Fable 5.1', effort xhigh; Fable 95% used, resets in 6h40m: both limits nearly gone",
+        "state": {"model":"Fable 5.1","effort":"xhigh","ctxPct":71,"ctxTok":712400,"ctxMax":1000000,"branch":"feature/cache","add":42,"del":7,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":93,"left":2280,"window":18000},"week":{"used":97,"left":33120},"cache":{"hit":91,"warm":false,"left":0,"ttl":300},"extra":{"used":0,"limit":50},"cost":18.4,"turns":42,"compactions":2,"hist":{"now":12000,"sessionStart":0,"dirtySince":11280,"commits":3,"lastCommit":{"at":11220,"add":388,"del":140,"branch":"feature/cache"},"buckets":[[6,210,160,50,0],[7,540,400,140,0],[8,120,90,30,1],[9,460,300,160,0],[10,72,30,42,0],[11,480,350,130,0],[12,528,388,140,1],[13,49,42,7,0]]},"scoped":[{"name":"Fable","used":95,"left":24000}]},
+        "sha256": {"fable-off":"4e2e700ac51d47a26b90c846ef7ca7d520fd8d2775c937bd077c85edda89ac4d","fable-tail":"8b86b809aeecc33854a21cccd07baca326bb9ab7a3cfc9cfcd2e342c82ab08d5","fable-tooltip":"d3deec7ea9e1c11b9a29f690c82ded69576dccfe79fa7db1902dc089273511cc","fable-boss":"68a258b324353dcc7b5a4b401d5145ce2b23518c25f25258939da5c5e6b79469","fable-beacon":"fe30d08fa52fecdc450d501a82177ba0785cd3ad9409ce5be60d1f5fed7dd014"}
+      },
+      "fable-full-in-use": {
+        "from": "round7-spec.json",
+        "about": "fresh (no cache yet, no repo), model 'Fable 5.1', effort max; a new Fable week: 0% used, resets in 6d23h",
+        "state": {"model":"Fable 5.1","effort":"max","ctxPct":0,"ctxTok":0,"ctxMax":1000000,"branch":null,"add":0,"del":0,"cwd":"C:/Users/Steve","ver":"2.1.306","h5":{"used":0,"left":18000,"window":18000},"week":{"used":12,"left":512340},"cache":{"hit":null,"warm":null,"left":0,"ttl":300},"extra":{"used":0,"limit":50},"cost":0,"turns":0,"compactions":0,"hist":{"now":0,"sessionStart":0,"dirtySince":null,"commits":0,"lastCommit":null,"buckets":[]},"scoped":[{"name":"Fable","used":0,"left":604740}]},
+        "sha256": {"fable-off":"a82643e5e72b45b64a9153f821943adf6819e76f85d4b554c3af8581461c02f7","fable-tail":"e91a333e74dfee095aebe1407463fd353aa85a674a8b3f766e1e773fd2578258","fable-tooltip":"17ef23993e058e5208336bcdcb69cced8e4537196fdf1a846acf08cb83d89d15","fable-boss":"14726ec4abe42fb89800ae1aaf67325ffaf1c5293fa64dc66f7844334cf16bbc","fable-beacon":"79fc5df9700b4653f4c43d2472549fae41aab0e43187a9b63621ab805f97bd1e"}
+      },
+      "two-scoped": {
+        "from": "round7-spec.json",
+        "about": "normal (Opus 5.5 in use); Fable 40% used (resets in 4d) and a second scoped model, a made-up 'Sonnet' 90% used (resets in 1d06h)",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":8,"ctxTok":81000,"ctxMax":1000000,"branch":"main","add":1208,"del":279,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":2,"left":17340,"window":18000},"week":{"used":82,"left":345540},"cache":{"hit":98,"warm":true,"left":252,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.12,"turns":42,"compactions":0,"hist":{"now":5700,"sessionStart":0,"dirtySince":2880,"commits":1,"lastCommit":{"at":2760,"add":667,"del":231,"branch":"main"},"buckets":[[0,342,241,101,0],[1,615,455,160,0],[2,860,640,220,0],[3,898,667,231,1],[4,180,140,40,0],[5,640,520,120,0],[6,1487,1208,279,0]]},"scoped":[{"name":"Fable","used":40,"left":345600},{"name":"Sonnet","used":90,"left":108000}]},
+        "sha256": {"fable-off":"a9c1453a9a6e21baf9f02caf20505738f2caa0d3e72ea8a5d2c53d17169ff891","fable-tail":"0f2a8d28c720a5222a304422bb6f62a3fd9142898af7c46924799ca777a63dd0","fable-tooltip":"0f2a8d28c720a5222a304422bb6f62a3fd9142898af7c46924799ca777a63dd0","fable-boss":"0f2a8d28c720a5222a304422bb6f62a3fd9142898af7c46924799ca777a63dd0","fable-beacon":"024e15f1138a06833a4a61999cc1bee2f265673ff70caf50431b8b243021aaff"}
+      },
+      "two-scoped-in-use": {
+        "from": "round7-spec.json",
+        "about": "two-scoped, but the model in use is 'Fable 5.1'",
+        "state": {"model":"Fable 5.1","effort":"high","ctxPct":8,"ctxTok":81000,"ctxMax":1000000,"branch":"main","add":1208,"del":279,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":2,"left":17340,"window":18000},"week":{"used":82,"left":345540},"cache":{"hit":98,"warm":true,"left":252,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.12,"turns":42,"compactions":0,"hist":{"now":5700,"sessionStart":0,"dirtySince":2880,"commits":1,"lastCommit":{"at":2760,"add":667,"del":231,"branch":"main"},"buckets":[[0,342,241,101,0],[1,615,455,160,0],[2,860,640,220,0],[3,898,667,231,1],[4,180,140,40,0],[5,640,520,120,0],[6,1487,1208,279,0]]},"scoped":[{"name":"Fable","used":40,"left":345600},{"name":"Sonnet","used":90,"left":108000}]},
+        "sha256": {"fable-off":"a3e2582a868da1118e4d507ae4a7790bb1c427e23227fa1b9e9606ca6456b088","fable-tail":"60bb7ebd470ad0e4de8a2847a32a77ec3641aa84f6b5b3ca0d9926804de9ad89","fable-tooltip":"182c3b0e3f986f120be7011be95f0ac8dd5378404916e0a440c1ff7511f478d5","fable-boss":"c44e1dfac21ebed6672521568ba40cb479268f5b62f7ca5b5b42aab763d23857","fable-beacon":"31f3b377787f9a37f3348d55db0c23fa4ba6a6ce85090c9f001296f0b5d757a3"}
+      },
+      "two-scoped-sonnet-first": {
+        "from": "round7-spec.json",
+        "about": "normal (Opus 5.5 in use); the API lists a made-up 'Sonnet' first, 30% used (resets in 1d06h), then Fable used up (resets in 19 hours): Fable is still the beacon and keeps its reset",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":8,"ctxTok":81000,"ctxMax":1000000,"branch":"main","add":1208,"del":279,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":2,"left":17340,"window":18000},"week":{"used":82,"left":345540},"cache":{"hit":98,"warm":true,"left":252,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.12,"turns":42,"compactions":0,"hist":{"now":5700,"sessionStart":0,"dirtySince":2880,"commits":1,"lastCommit":{"at":2760,"add":667,"del":231,"branch":"main"},"buckets":[[0,342,241,101,0],[1,615,455,160,0],[2,860,640,220,0],[3,898,667,231,1],[4,180,140,40,0],[5,640,520,120,0],[6,1487,1208,279,0]]},"scoped":[{"name":"Sonnet","used":30,"left":108000},{"name":"Fable","used":100,"left":68400}]},
+        "sha256": {"fable-off":"a9c1453a9a6e21baf9f02caf20505738f2caa0d3e72ea8a5d2c53d17169ff891","fable-tail":"3a3b8351fddc64284f2f9c2889e5934d4b31656a9330acb78399d1a56e1bddd4","fable-tooltip":"3a3b8351fddc64284f2f9c2889e5934d4b31656a9330acb78399d1a56e1bddd4","fable-boss":"3a3b8351fddc64284f2f9c2889e5934d4b31656a9330acb78399d1a56e1bddd4","fable-beacon":"0dafb90e7241b4fd9bedbdabcb94ceeb6dbb4cb0f5886a77f8c8403d7909b7be"}
+      },
+      "no-data": {
+        "from": "round7-spec.json",
+        "about": "normal with no scoped field (feature off, an API key login, or the API did not send it): every option must draw exactly today",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":8,"ctxTok":81000,"ctxMax":1000000,"branch":"main","add":1208,"del":279,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":2,"left":17340,"window":18000},"week":{"used":82,"left":345540},"cache":{"hit":98,"warm":true,"left":252,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.12,"turns":42,"compactions":0,"hist":{"now":5700,"sessionStart":0,"dirtySince":2880,"commits":1,"lastCommit":{"at":2760,"add":667,"del":231,"branch":"main"},"buckets":[[0,342,241,101,0],[1,615,455,160,0],[2,860,640,220,0],[3,898,667,231,1],[4,180,140,40,0],[5,640,520,120,0],[6,1487,1208,279,0]]}},
+        "sha256": {"fable-off":"a9c1453a9a6e21baf9f02caf20505738f2caa0d3e72ea8a5d2c53d17169ff891","fable-tail":"a9c1453a9a6e21baf9f02caf20505738f2caa0d3e72ea8a5d2c53d17169ff891","fable-tooltip":"a9c1453a9a6e21baf9f02caf20505738f2caa0d3e72ea8a5d2c53d17169ff891","fable-boss":"a9c1453a9a6e21baf9f02caf20505738f2caa0d3e72ea8a5d2c53d17169ff891","fable-beacon":"a9c1453a9a6e21baf9f02caf20505738f2caa0d3e72ea8a5d2c53d17169ff891"}
+      },
+      "frame0": {
+        "from": "hud4-session.js frames[0]",
+        "about": "the first render (0h00m): Fable 84% used by other sessions, 16% left, resets in 2h30m",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":0,"ctxTok":0,"ctxMax":1000000,"branch":"main","add":0,"del":0,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":0,"left":18000,"window":18000},"week":{"used":58,"left":280800},"cache":{"hit":null,"warm":null,"left":0,"ttl":300},"extra":{"used":0,"limit":50},"cost":0,"turns":0,"compactions":0,"hist":{"now":0,"sessionStart":0,"dirtySince":null,"commits":0,"lastCommit":null,"buckets":[[0,0,0,0,0]]},"scoped":[{"name":"Fable","used":84,"left":9000}]},
+        "sha256": {"fable-off":"a25223a0df0a4eda23ac11d449db2f1cd957e2e4774bbc3cd3e6ce35c7ed8cae","fable-tail":"24c540c2cd2f1d201985b405cabdc0fef642b9a88f9d1cd87c0a32443ef3df25","fable-tooltip":"24c540c2cd2f1d201985b405cabdc0fef642b9a88f9d1cd87c0a32443ef3df25","fable-boss":"24c540c2cd2f1d201985b405cabdc0fef642b9a88f9d1cd87c0a32443ef3df25","fable-beacon":"d451c323adc824bcc8725509d47f5e3ef4bba3259202a3784f09bcceaf7a7cab"}
+      },
+      "frame75": {
+        "from": "hud4-session.js frames[75]",
+        "about": "0h37m30s: other sessions keep using Fable: 90.3% used, 10% left (red), ↻ 1h52m",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":23,"ctxTok":227442,"ctxMax":1000000,"branch":"main","add":558,"del":186,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":10.5,"left":15750,"window":18000},"week":{"used":60.25,"left":278550},"cache":{"hit":98,"warm":true,"left":170,"ttl":300},"extra":{"used":0,"limit":50},"cost":3.33,"turns":15,"compactions":0,"hist":{"now":2250,"sessionStart":0,"dirtySince":30,"commits":0,"lastCommit":null,"buckets":[[0,245,161,84,0],[1,586,421,165,0],[2,744,558,186,0]]},"scoped":[{"name":"Fable","used":90.3,"left":6750}]},
+        "sha256": {"fable-off":"5ed2e7781f8a54b36a621d19c0e85724cb389d1a443d581afdbb5da7592b649e","fable-tail":"bdf015d5f7490bd239977ddbe745033678452092b0d59e22b242e386754ccf1b","fable-tooltip":"bdf015d5f7490bd239977ddbe745033678452092b0d59e22b242e386754ccf1b","fable-boss":"bdf015d5f7490bd239977ddbe745033678452092b0d59e22b242e386754ccf1b","fable-beacon":"6d4e0db22833b113d0c44cb022c2485a736e4607236a314dc79eb1f9eca6f88d"}
+      },
+      "frame180": {
+        "from": "hud4-session.js frames[180]",
+        "about": "1h30m: Fable used up by the other sessions: 0% (red), back in 1h00m",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":52,"ctxTok":524971,"ctxMax":1000000,"branch":"feature/hotbar","add":196,"del":87,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":25.2,"left":12600,"window":18000},"week":{"used":63.4,"left":275400},"cache":{"hit":89,"warm":true,"left":260,"ttl":300},"extra":{"used":0,"limit":50},"cost":9.93,"turns":36,"compactions":0,"hist":{"now":5400,"sessionStart":0,"dirtySince":4770,"commits":1,"lastCommit":{"at":2580,"add":667,"del":231,"branch":"main"},"buckets":[[0,245,161,84,0],[1,586,421,165,0],[2,840,626,214,1],[3,167,133,34,0],[4,642,442,200,0],[5,736,521,215,0],[6,283,196,87,0]]},"scoped":[{"name":"Fable","used":100,"left":3600}]},
+        "sha256": {"fable-off":"cd7627bffd3405ddd53a2340ef34dba439bcdf75176dd42602ef8fec7784a22f","fable-tail":"c8ab7a89da2e887ebf78dfff4727074566ce776d80c911b3cc72cb5f99af3149","fable-tooltip":"c8ab7a89da2e887ebf78dfff4727074566ce776d80c911b3cc72cb5f99af3149","fable-boss":"c8ab7a89da2e887ebf78dfff4727074566ce776d80c911b3cc72cb5f99af3149","fable-beacon":"8e2dcd44bc0471edbe0f368f2d555279aef27f73280565e5ec88aa9cf4922f73"}
+      },
+      "frame299": {
+        "from": "hud4-session.js frames[299]",
+        "about": "2h29m30s: still used up, the reset is less than a minute away (↻ 0m)",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":88,"ctxTok":875046,"ctxMax":1000000,"branch":"feature/hotbar","add":71,"del":33,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":42.2,"left":9030,"window":18000},"week":{"used":67.06,"left":271830},"cache":{"hit":95,"warm":true,"left":230,"ttl":300},"extra":{"used":0,"limit":50},"cost":19.97,"turns":59,"compactions":0,"hist":{"now":8970,"sessionStart":0,"dirtySince":8730,"commits":2,"lastCommit":{"at":7770,"add":747,"del":342,"branch":"feature/hotbar"},"buckets":[[2,840,626,214,1],[3,167,133,34,0],[4,642,442,200,0],[5,736,521,215,0],[6,574,395,179,0],[7,898,623,275,0],[8,1044,715,329,1],[9,104,71,33,0]]},"scoped":[{"name":"Fable","used":100,"left":30}]},
+        "sha256": {"fable-off":"ba666b19ee81040cbc69de4c3b9b4be78b672ce95d8e98b257d751b37bd8c2d4","fable-tail":"b4232a76538db4e7c75daf28b6e656fdb24f3ba464f0753b6fdf2d15a17179b1","fable-tooltip":"b4232a76538db4e7c75daf28b6e656fdb24f3ba464f0753b6fdf2d15a17179b1","fable-boss":"b4232a76538db4e7c75daf28b6e656fdb24f3ba464f0753b6fdf2d15a17179b1","fable-beacon":"86c086d76ca9d2f5e7cb5c898482accd26f2dacb86b461cb197db143860478bf"}
+      },
+      "frame300": {
+        "from": "hud4-session.js frames[300]",
+        "about": "2h30m: the reset: a new Fable week, 100% left, ↻ 7d00h",
+        "state": {"model":"Opus 5.5","effort":"xhigh","ctxPct":90,"ctxTok":897470,"ctxMax":1000000,"branch":"feature/hotbar","add":103,"del":59,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":43.2,"left":9000,"window":18000},"week":{"used":67.28,"left":271800},"cache":{"hit":89,"warm":true,"left":290,"ttl":300},"extra":{"used":0,"limit":50},"cost":20.54,"turns":60,"compactions":0,"hist":{"now":9000,"sessionStart":0,"dirtySince":8730,"commits":2,"lastCommit":{"at":7770,"add":747,"del":342,"branch":"feature/hotbar"},"buckets":[[3,167,133,34,0],[4,642,442,200,0],[5,736,521,215,0],[6,574,395,179,0],[7,898,623,275,0],[8,1044,715,329,1],[9,104,71,33,0],[10,162,103,59,0]]},"scoped":[{"name":"Fable","used":0,"left":604800}]},
+        "sha256": {"fable-off":"69f2f8d44c0da8a4a3c5aee9df76cab4e79f9eef3328625b8af9617cc371fed4","fable-tail":"a2206df4b089d02500d95f76fd3ca54b44c8e0f70623ca26cb92e326dd5da5f6","fable-tooltip":"a2206df4b089d02500d95f76fd3ca54b44c8e0f70623ca26cb92e326dd5da5f6","fable-boss":"a2206df4b089d02500d95f76fd3ca54b44c8e0f70623ca26cb92e326dd5da5f6","fable-beacon":"fb41801f8fd66204b790e38ec22047ff24d65b3ec520ee4c291a37acc71331ab"}
+      },
+      "frame660": {
+        "from": "hud4-session.js frames[660]",
+        "about": "the end (5h30m): other sessions used 18% of the new week: 82% left, ↻ 6d21h",
+        "state": {"model":"Opus 5.5","effort":"high","ctxPct":25,"ctxTok":246560,"ctxMax":1000000,"branch":"feature/hotbar","add":387,"del":92,"cwd":"D:/webapp","ver":"2.1.306","h5":{"used":6.3,"left":16200,"window":18000},"week":{"used":81.17,"left":261000},"cache":{"hit":99,"warm":true,"left":260,"ttl":300},"extra":{"used":12.62,"limit":50},"cost":59.31,"turns":152,"compactions":3,"hist":{"now":19800,"sessionStart":0,"dirtySince":18330,"commits":4,"lastCommit":{"at":17280,"add":315,"del":109,"branch":"feature/hotbar"},"buckets":[[15,3218,2425,793,0],[16,3775,2850,925,0],[17,4011,3019,992,1],[18,358,273,85,0],[19,373,281,92,1],[20,221,192,29,0],[21,479,387,92,0],[22,479,387,92,0]]},"scoped":[{"name":"Fable","used":18,"left":594000}]},
+        "sha256": {"fable-off":"7a5071006d378c898123b4ef8d70eae4ea3eea0bf97cc5829e3246c589eaf2a1","fable-tail":"ce7ceb7800e2b2a03925013b68f6d6406f3ce4d01392f8888f6b7492c3b61ec4","fable-tooltip":"ce7ceb7800e2b2a03925013b68f6d6406f3ce4d01392f8888f6b7492c3b61ec4","fable-boss":"ce7ceb7800e2b2a03925013b68f6d6406f3ce4d01392f8888f6b7492c3b61ec4","fable-beacon":"355115facf0f5e71739fa5a10a637c4729bb93144b8465e0d96a79b725a1f053"}
+      }
+    }
+  }
+}

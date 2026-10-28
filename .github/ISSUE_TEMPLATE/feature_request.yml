@@ -1,0 +1,28 @@
+name: Feature request
+description: An idea for the HUD, the classic lines or the commands.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What would you like?
+      description: What should the status line show or do?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why?
+      description: What would it help you see or decide while you work with Claude Code?
+    validations:
+      required: true
+  - type: textarea
+    id: minecraft
+    attributes:
+      label: In Minecraft
+      description: Is there something in Minecraft it could look like? Optional, but it helps the HUD stay a HUD.
+  - type: textarea
+    id: more
+    attributes:
+      label: Anything else
+      description: Sketches, mock-ups, or how other status lines do it.

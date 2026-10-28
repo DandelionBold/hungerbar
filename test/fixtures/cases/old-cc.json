@@ -1,0 +1,54 @@
+{
+  "note": "An old Claude Code with no prompt_cache, effort or rate_limits: transcript fallbacks only.",
+  "payload": {
+    "session_id": "00000000-0000-4000-8000-000000000002",
+    "transcript_path": "{{TRANSCRIPT}}",
+    "cwd": "D:\\webapp",
+    "model": {
+      "id": "claude-opus-5-5",
+      "display_name": "Opus 5.5"
+    },
+    "workspace": {
+      "current_dir": "D:\\webapp"
+    },
+    "version": "2.0.14"
+  },
+  "fs": {
+    "D:/webapp": {
+      ".git/HEAD": "ref: refs/heads/main\n"
+    }
+  },
+  "state": {
+    "git": {
+      "for": "D:/webapp",
+      "added": 1208,
+      "removed": 279,
+      "files": 3
+    }
+  },
+  "transcript": [
+    {
+      "type": "assistant",
+      "isSidechain": false,
+      "timestamp": "2026-10-24T16:29:20.000Z",
+      "message": {
+        "id": "msg_1",
+        "model": "claude-opus-5-5",
+        "role": "assistant",
+        "usage": {
+          "input_tokens": 20,
+          "cache_creation_input_tokens": 2000,
+          "cache_read_input_tokens": 48000,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 2000,
+            "ephemeral_1h_input_tokens": 0
+          }
+        }
+      },
+      "effort": "high"
+    }
+  ],
+  "config": {
+    "look": "classic"
+  }
+}

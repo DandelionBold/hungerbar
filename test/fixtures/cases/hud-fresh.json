@@ -1,0 +1,108 @@
+{
+  "note": "The HUD on picker situation 3, \"Fresh start, no git\": not a repo, so no history; no cache yet.",
+  "payload": {
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "transcript_path": "{{TRANSCRIPT}}",
+    "cwd": "C:\\Users\\Steve",
+    "version": "2.1.306",
+    "model": {
+      "id": "claude-opus-5-5[1m]",
+      "display_name": "Opus 5.5 (1M context)"
+    },
+    "effort": {
+      "level": "medium"
+    },
+    "workspace": {
+      "current_dir": "C:\\Users\\Steve",
+      "project_dir": "C:\\Users\\Steve"
+    },
+    "cost": {
+      "total_lines_added": 412,
+      "total_lines_removed": 97,
+      "total_cost_usd": 0
+    },
+    "context_window": {
+      "context_window_size": 1000000,
+      "used_percentage": null,
+      "remaining_percentage": null,
+      "total_input_tokens": 0,
+      "current_usage": null
+    },
+    "rate_limits": {
+      "five_hour": {
+        "used_percentage": 0,
+        "resets_at": "{{NOW+18000}}"
+      },
+      "seven_day": {
+        "used_percentage": 12,
+        "resets_at": "{{NOW+512340}}"
+      }
+    }
+  },
+  "fs": {
+    "C:/Users/Steve": {
+      "notes.txt": "not a repo\n"
+    }
+  },
+  "transcript": [],
+  "state": {
+    "usage": {
+      "extra": {
+        "enabled": true,
+        "usedCents": 0,
+        "limitCents": 5000,
+        "currency": "USD"
+      }
+    }
+  },
+  "config": {
+    "look": "hud",
+    "hud": {
+      "fable": "off",
+      "align": "left",
+      "user": "off",
+      "op": "tag"
+    },
+    "network": {
+      "usageApi": true
+    }
+  },
+  "modes": ["ansi", "nocolor", "ascii", "w60", "w60c", "w100c"],
+  "hudRef": "states:fresh",
+  "hudState": {
+    "model": "Opus 5.5",
+    "effort": "medium",
+    "ctxPct": 0,
+    "ctxTok": 0,
+    "ctxMax": 1000000,
+    "branch": null,
+    "add": 0,
+    "del": 0,
+    "cwd": "C:/Users/Steve",
+    "ver": "2.1.306",
+    "h5": {
+      "used": 0,
+      "left": 18000,
+      "window": 18000
+    },
+    "week": {
+      "used": 12,
+      "left": 512340
+    },
+    "cache": {
+      "hit": null,
+      "warm": null,
+      "left": 0,
+      "ttl": 300
+    },
+    "extra": {
+      "used": 0,
+      "limit": 50
+    },
+    "cost": 0,
+    "turns": 0,
+    "compactions": 0,
+    "scoped": [],
+    "hist": null
+  }
+}

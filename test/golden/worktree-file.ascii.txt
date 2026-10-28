@@ -1,0 +1,3 @@
+Model: Opus 5.5 | Thinking: high | Context: [#---------------] 81k/1.0M (8%) | feature/wt
+Session: [##########] 98% (4h 49m) | Weekly: [        ==] 18% (3d 23h) | Cache Hit: 98% (4m12s)
+cwd: D:/wt/feature | v2.1.306

@@ -1,0 +1,54 @@
+{
+  "name": "hungerbar",
+  "version": "1.0.0",
+  "description": "A Claude Code status line where your limits drain and refill like a Minecraft hunger bar.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "hungerbar": "dist/hungerbar.mjs"
+  },
+  "files": [
+    "dist",
+    "schema.json",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "prepack": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && node --test --test-concurrency=1 \"test/**/*.test.ts\"",
+    "test:unit": "node --test \"test/unit/*.test.ts\"",
+    "test:hud-coverage": "node --test --experimental-test-coverage --test-coverage-include=\"src/hud/{wt,py,text,spans,input,mix,fable,frame,align,gitstate,prci,who,bed,phantoms,player}.ts\" --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-functions=100 test/hud.oracle.test.ts test/unit/hud-frame.test.ts test/unit/hud-align.test.ts test/unit/hud-gitstate.test.ts test/unit/hud-prci.test.ts test/unit/hud-player.test.ts",
+    "golden:update": "npm run build && node test/golden.test.ts --update",
+    "bench": "npm run build && node bench/bench.mjs",
+    "killstorm": "npm run build && node bench/killstorm.mjs",
+    "mirror": "node dist/hungerbar.mjs mirror"
+  },
+  "keywords": [
+    "claude-code",
+    "statusline",
+    "status-line",
+    "minecraft",
+    "windows-terminal",
+    "hud"
+  ],
+  "author": "Kamal Nady",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DandelionBold/hungerbar.git"
+  },
+  "homepage": "https://github.com/DandelionBold/hungerbar#readme",
+  "bugs": {
+    "url": "https://github.com/DandelionBold/hungerbar/issues"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "esbuild": "0.28.2",
+    "typescript": "5.9.3"
+  }
+}

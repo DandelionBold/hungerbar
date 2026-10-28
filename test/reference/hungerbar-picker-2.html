@@ -1,0 +1,1016 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hungerbar Round 2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: one column. Sticky toolbar (scenario + progress), then full-width terminal cards.
+   Three modes in sequence: Drop -> Face-off -> Fine-tune. Deliberately dark-only: it imitates a terminal. */
+:root{
+  --bg:#15171c; --panel:#1c1f26; --raise:#252933; --line:#30353f;
+  --fg:#ece7db; --muted:#9ca2ae;
+  --food:#e2a65a; --food-ink:#2b1a06; --redstone:#e45b50; --grass:#79c463;
+  --term:#0c0c0c; --term-fg:#cccccc; --term-dim:#6c6c6c;
+  --f-display:"Pixelify Sans","Atkinson Hyperlegible",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"Cascadia Mono","Cascadia Code","JetBrains Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--fg);font:15px/1.55 var(--f-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+header.top{padding-block:28px 8px;display:flex;flex-direction:column;gap:6px}
+.brand{font:700 clamp(28px,4vw,40px)/1.1 var(--f-display);letter-spacing:.01em;margin:0;display:flex;align-items:center;gap:12px;text-wrap:balance}
+.brand .pips{font-family:var(--f-mono);font-size:.55em;color:var(--food);letter-spacing:0}
+.lede{margin:0;color:var(--muted);max-width:70ch}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .wrap{padding-block:12px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+.group{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.label{font:600 11px/1 var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-right:4px}
+.chip{font:14px/1 var(--f-body);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--food);border-color:var(--food);color:var(--food-ink);font-weight:700}
+.status{font:700 15px/1 var(--f-body);font-variant-numeric:tabular-nums}
+.status small{font-weight:400;color:var(--muted)}
+
+.btn{font:700 14px/1 var(--f-body);border-radius:8px;padding:10px 14px;cursor:pointer;border:1px solid var(--line);background:var(--raise);color:var(--fg)}
+.btn:hover{border-color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--food);border-color:var(--food);color:var(--food-ink)}
+.btn.drop{color:var(--redstone);border-color:color-mix(in srgb,var(--redstone) 45%,var(--line))}
+.btn.drop:hover{background:color-mix(in srgb,var(--redstone) 14%,var(--raise))}
+.btn.keep[aria-pressed="true"]{color:var(--food);border-color:var(--food)}
+.btn.win{background:color-mix(in srgb,var(--grass) 18%,var(--raise));border-color:color-mix(in srgb,var(--grass) 55%,var(--line));color:var(--fg);padding:12px 18px;font-size:15px}
+:focus-visible{outline:2px solid var(--food);outline-offset:2px}
+
+main{padding-block:20px 60px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card.liked{border-color:color-mix(in srgb,var(--food) 70%,var(--line))}
+.card-h{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.card-h h3{margin:0;font:700 18px/1.25 var(--f-display);letter-spacing:.01em}
+.card-h p{margin:2px 0 0;color:var(--muted);font-size:14px;max-width:80ch}
+.tag{font:12px/1 var(--f-mono);color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:5px 7px;white-space:nowrap}
+.card-a{display:flex;gap:8px;flex-wrap:wrap}
+
+.term{background:var(--term);border-radius:6px;padding:10px 14px 10px;font:13px/1.45 var(--f-mono);color:var(--term-fg);overflow-x:auto;min-width:0}
+.term .rule{border-top:1px solid #3a3a3a;margin:3px 0}
+.term .prompt{white-space:pre;color:#7a7a7a}
+.term .prompt b{color:#e6e6e6;font-weight:400}
+.term .sl{padding:6px 0 2px 2ch}
+.term .ln{white-space:pre;min-height:1.45em}
+.term .foot{white-space:pre;padding-left:2ch;color:#d7af00}
+.term .foot span{color:#8a8a8a}
+.pl{display:inline-block;height:1.45em;vertical-align:top}
+.pl-arrow{display:inline-block;width:.62em;height:1.45em;vertical-align:top;position:relative}
+.pl-arrow::before{content:"";position:absolute;inset:0;background:var(--from);clip-path:polygon(0 0,100% 50%,0 100%)}
+
+details.tray{background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:10px 14px}
+details.tray summary{cursor:pointer;color:var(--muted);font-weight:700}
+.tray ul{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.tray li{display:flex;justify-content:space-between;gap:10px;align-items:center}
+
+.duel-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.duel-h h2,.tune-h h2{margin:0;font:700 24px/1.2 var(--f-display)}
+.duel-h p{margin:0;color:var(--muted)}
+.side{font:700 14px/1 var(--f-display);color:var(--food-ink);background:var(--food);border-radius:6px;padding:5px 8px}
+.kbd{font:12px/1 var(--f-mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:2px 5px;color:var(--muted)}
+
+.tune-h{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px 22px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.seg{display:flex;flex-wrap:wrap;gap:5px}
+.seg button{font:13px/1 var(--f-mono);background:var(--raise);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:7px 9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--food);border-color:var(--food);color:var(--food-ink);font-weight:700}
+.pals{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:12px}
+.pal{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+.pal:hover{border-color:var(--muted)}
+.pal.on{border:2px solid var(--food);padding:11px}
+.pal:focus-visible{outline:2px solid var(--food);outline-offset:2px}
+.pal-h{display:flex;justify-content:space-between;align-items:center;gap:10px;font:700 15px/1.2 var(--f-display);color:var(--fg)}
+.pal-sw{display:flex;gap:3px}
+.pal-sw i{display:block;width:14px;height:14px;border-radius:3px}
+.pal .term{font-size:12px}
+.scen-title{font:600 11px/1 var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:4px 0 -2px}
+.out{display:flex;flex-direction:column;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.out textarea{width:100%;min-height:150px;resize:vertical;background:var(--term);color:var(--term-fg);border:1px solid var(--line);border-radius:6px;font:12.5px/1.45 var(--f-mono);padding:10px}
+.out .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.note{color:var(--muted);font-size:14px;margin:0}
+.ok{color:var(--grass);font-weight:700}
+@media (prefers-reduced-motion:no-preference){.card{transition:border-color .15s}}
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <h1 class="brand">Hungerbar · round 2 <span class="pips" aria-hidden="true">🍗▰▰▰▰▰▰▰▱▱▱</span></h1>
+  <p class="lede">Every card grows from <b>Hungerbar Classic</b>, the round 1 pick, and uses the four symbols in a different way: <b>↻</b> reset, <b>⏲</b> timer, <b>💳</b> extra credits, <b>💾</b> cache. Drop what you don't like, let the rest face off, pick the colours, fine-tune, then copy the pick out.</p>
+</header>
+
+<div class="bar"><div class="wrap">
+  <div class="group" id="scen" role="group" aria-label="Example situation"></div>
+  <div class="group" id="actions"></div>
+</div></div>
+
+<main class="wrap" id="main"></main>
+
+<script>
+/* ---------- example situations (sample data, not your live numbers) ---------- */
+const SCEN = {
+  normal: { label:'Normal day', model:'Opus 5.5', effort:'high', ctxTok:81000, ctxMax:1000000, ctxPct:8.1, branch:'main', add:1208, del:279, repo:'webapp', cwd:'D:/webapp', ver:'2.1.306',
+    h5:{pct:2.0,left:17340,clock:'21:05'}, week:{pct:82.0,left:345540,clock:'Wed 13:00'}, cache:{hit:98.1,warm:true,left:252}, extra:{used:0,limit:50} },
+  tight: { label:'Close to limits', model:'Opus 5.5', effort:'xhigh', ctxTok:712400, ctxMax:1000000, ctxPct:71.2, branch:'feature/cache', add:42, del:7, repo:'webapp', cwd:'D:/webapp', ver:'2.1.306',
+    h5:{pct:93.4,left:2280,clock:'16:52'}, week:{pct:97.1,left:33120,clock:'Sun 01:30'}, cache:{hit:91.4,warm:false,left:0}, extra:{used:0,limit:50} },
+  fresh: { label:'Fresh start, no git', model:'Opus 5.5', effort:'medium', ctxTok:0, ctxMax:1000000, ctxPct:0, branch:null, add:0, del:0, repo:null, cwd:'C:/Users/Steve', ver:'2.1.306',
+    h5:{pct:0,left:18000,clock:'21:14'}, week:{pct:12.0,left:512340,clock:'Thu 09:00'}, cache:{hit:null,warm:null,left:0}, extra:{used:0,limit:50} },
+  extra: { label:'Using extra credits', model:'Opus 5.5', effort:'high', ctxTok:236900, ctxMax:1000000, ctxPct:23.7, branch:'main', add:12, del:3, repo:'webapp', cwd:'D:/webapp', ver:'2.1.306',
+    h5:{pct:100,left:3900,clock:'17:20'}, week:{pct:100,left:187200,clock:'Tue 18:00'}, cache:{hit:96.0,warm:true,left:175}, extra:{used:4.20,limit:50} },
+};
+
+/* ---------- colour sets ---------- */
+const PAL = {
+  ccs:{model:'#008787',effort:'#af87d7',ctx:'#8a8a8a',bar:'#87afaf',empty:'#3a3a3a',git:'#875f87',chg:'#d7af00',add:'#d7af00',del:'#d7af00',cwd:'#8a8a8a',h5:'#87afff',week:'#87afff',cache:'#5faf00',timer:'#5fd7d7',warm:'#5fd7d7',cold:'#5fd7d7',extra:'#d7af00',ver:'#8a8a8a',sep:'#8a8a8a',warn:'#ffaf00',crit:'#ff5f5f',food:'#d7875f',heart:'#d70000'},
+  vivid:{model:'#5fd7ff',effort:'#d787ff',ctx:'#ffd75f',bar:'#ffd75f',empty:'#3a3a3a',git:'#87ff87',chg:'#87ff87',add:'#5fff5f',del:'#ff5f87',cwd:'#87afd7',h5:'#ffaf5f',week:'#ff87d7',cache:'#5fffd7',timer:'#5fffd7',warm:'#ffaf5f',cold:'#87d7ff',extra:'#ffd700',ver:'#8a8a8a',sep:'#5f5f5f',warn:'#ffaf00',crit:'#ff5f5f',food:'#ffaf5f',heart:'#ff5f5f'},
+  mono:{model:'#e4e4e4',effort:'#bcbcbc',ctx:'#d0d0d0',bar:'#d0d0d0',empty:'#3a3a3a',git:'#d0d0d0',chg:'#a8a8a8',add:'#a8a8a8',del:'#a8a8a8',cwd:'#a8a8a8',h5:'#e4e4e4',week:'#e4e4e4',time:'#8a8a8a',cache:'#e4e4e4',timer:'#a8a8a8',warm:'#ffaf5f',cold:'#87afd7',extra:'#e4e4e4',ver:'#6c6c6c',sep:'#4e4e4e',warn:'#ffaf5f',crit:'#ff5f5f',food:'#ffaf5f',heart:'#ff5f5f',label:'#6c6c6c'},
+  minecraft:{model:'#FFAA00',effort:'#FF55FF',ctx:'#80FF20',bar:'#80FF20',empty:'#3f3f3f',git:'#55FF55',chg:'#FFFF55',add:'#55FF55',del:'#FF5555',cwd:'#AAAAAA',h5:'#E0A458',week:'#FF5555',time:'#AAAAAA',cache:'#55FFFF',timer:'#55FFFF',warm:'#FFAA00',cold:'#55FFFF',extra:'#17DD62',ver:'#555555',sep:'#555555',warn:'#FFFF55',crit:'#FF5555',food:'#E0A458',heart:'#FF5555',label:'#AAAAAA'},
+  nord:{model:'#88C0D0',effort:'#B48EAD',ctx:'#EBCB8B',bar:'#EBCB8B',empty:'#3B4252',git:'#A3BE8C',chg:'#A3BE8C',add:'#A3BE8C',del:'#BF616A',cwd:'#81A1C1',h5:'#D08770',week:'#B48EAD',time:'#7B88A1',cache:'#8FBCBB',timer:'#8FBCBB',warm:'#D08770',cold:'#88C0D0',extra:'#EBCB8B',ver:'#4C566A',sep:'#4C566A',warn:'#EBCB8B',crit:'#BF616A',food:'#D08770',heart:'#BF616A',label:'#616E88'},
+  pastel:{model:'#a5d8ff',effort:'#d0bfff',ctx:'#ffec99',bar:'#ffec99',empty:'#343a40',git:'#b2f2bb',chg:'#b2f2bb',add:'#b2f2bb',del:'#ffc9c9',cwd:'#c5f6fa',h5:'#ffd8a8',week:'#fcc2d7',cache:'#96f2d7',timer:'#96f2d7',warm:'#ffd8a8',cold:'#a5d8ff',extra:'#ffec99',ver:'#868e96',sep:'#495057',warn:'#ffe066',crit:'#ff8787',food:'#ffd8a8',heart:'#ff8787'},
+  dracula:{model:'#8be9fd',effort:'#bd93f9',ctx:'#f1fa8c',bar:'#f1fa8c',empty:'#44475a',git:'#50fa7b',chg:'#50fa7b',add:'#50fa7b',del:'#ff5555',cwd:'#a4b1d6',h5:'#ffb86c',week:'#ff79c6',time:'#a4b1d6',cache:'#8be9fd',timer:'#8be9fd',warm:'#ffb86c',cold:'#8be9fd',extra:'#f1fa8c',ver:'#6272a4',sep:'#6272a4',warn:'#f1fa8c',crit:'#ff5555',food:'#ffb86c',heart:'#ff5555'},
+  gruvbox:{model:'#83a598',effort:'#d3869b',ctx:'#fabd2f',bar:'#fabd2f',empty:'#3c3836',git:'#b8bb26',chg:'#b8bb26',add:'#b8bb26',del:'#fb4934',cwd:'#a89984',h5:'#fe8019',week:'#d3869b',time:'#a89984',cache:'#8ec07c',timer:'#8ec07c',warm:'#fe8019',cold:'#83a598',extra:'#fabd2f',ver:'#7c6f64',sep:'#665c54',warn:'#fabd2f',crit:'#fb4934',food:'#fe8019',heart:'#fb4934'},
+  catppuccin:{model:'#89b4fa',effort:'#cba6f7',ctx:'#f9e2af',bar:'#f9e2af',empty:'#313244',git:'#a6e3a1',chg:'#a6e3a1',add:'#a6e3a1',del:'#f38ba8',cwd:'#94e2d5',h5:'#fab387',week:'#f5c2e7',time:'#9399b2',cache:'#94e2d5',timer:'#94e2d5',warm:'#fab387',cold:'#89dceb',extra:'#f9e2af',ver:'#6c7086',sep:'#585b70',warn:'#f9e2af',crit:'#f38ba8',food:'#fab387',heart:'#f38ba8'},
+  solarized:{model:'#268bd2',effort:'#6c71c4',ctx:'#b58900',bar:'#b58900',empty:'#073642',git:'#859900',chg:'#859900',add:'#859900',del:'#dc322f',cwd:'#2aa198',h5:'#cb4b16',week:'#d33682',time:'#839496',cache:'#2aa198',timer:'#2aa198',warm:'#cb4b16',cold:'#268bd2',extra:'#b58900',ver:'#586e75',sep:'#586e75',warn:'#b58900',crit:'#dc322f',food:'#cb4b16',heart:'#dc322f'},
+};
+const PALNAMES = {ccs:'ccstatusline',vivid:'Vivid',mono:'Mono',minecraft:'Minecraft',nord:'Nord',pastel:'Pastel',dracula:'Dracula',gruvbox:'Gruvbox',catppuccin:'Catppuccin',solarized:'Solarized'};
+
+const LABELS = {
+  full:  {model:'Model: ',effort:'Thinking: ',ctxT:'Ctx: ',ctxB:'Context: ',cwd:'cwd: ',h5:'Session: ',h5r:'Reset: ',week:'Weekly: ',weekr:'Weekly Reset: ',cache:'Cache Hit: ',timer:'Cache: ',extra:'Extra: '},
+  short: {model:'',effort:'',ctxT:'ctx ',ctxB:'ctx ',cwd:'',h5:'5h ',h5r:'5h ↻ ',week:'week ',weekr:'week ↻ ',cache:'cache ',timer:'cache ',extra:'extra '},
+  icons: {model:'✻ ',effort:'🧠 ',ctxT:'◔ ',ctxB:'◔ ',cwd:'📂 ',h5:'⏳ ',h5r:'⏲ ',week:'📅 ',weekr:'⏲ ',cache:'💾 ',timer:'⏲ ',extra:'💳 '},
+  none:  {model:'',effort:'',ctxT:'',ctxB:'',cwd:'',h5:'',h5r:'',week:'',weekr:'',cache:'',timer:'',extra:''},
+  mc:    {model:'Model: ',effort:'Thinking: ',ctxT:'Ctx: ',ctxB:'Context: ',cwd:'cwd: ',h5:'Hunger: ',h5r:'Refill: ',week:'Health: ',weekr:'Regen: ',cache:'Cache Hit: ',timer:'Cache: ',extra:'Extra: '},
+};
+
+/* ---------- the variants ---------- */
+const DATA_VERSION = 'r2-v1';
+const VARIANTS_RAW = /*VARIANTS*/[
+ {
+  "name": "Hungerbar Classic",
+  "note": "The round 1 pick, unchanged, as the reference.",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache"
+    ],
+    [
+     "extra",
+     "cwd",
+     "ver"
+    ]
+   ],
+   "labels": "full",
+   "labelIcons": {},
+   "iconMode": "replace",
+   "pair": "paren",
+   "limitIcon": "↻",
+   "cacheIcon": "⏲",
+   "cacheState": "fire",
+   "sep": "bar",
+   "ctxStyle": "barFull",
+   "limitStyle": "minecraft",
+   "timeFmt": "short",
+   "decimals": 0,
+   "gitStyle": "ccs",
+   "palette": "minecraft",
+   "bold": true
+  }
+ },
+ {
+  "name": "Classic Badges",
+  "note": "Exactly Classic except 💾 and 💳 replace the words Cache Hit and Extra, as in \"💾 98% (🔥 4m12s)\" and \"💳 $4.20/$50\", and the times keep their plain brackets.",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache"
+    ],
+    [
+     "extra",
+     "cwd",
+     "ver"
+    ]
+   ],
+   "labels": "full",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "",
+    "weekr": "",
+    "timer": ""
+   },
+   "iconMode": "replace",
+   "pair": "paren",
+   "limitIcon": "↻",
+   "cacheIcon": "⏲",
+   "cacheState": "fire",
+   "sep": "bar",
+   "ctxStyle": "barFull",
+   "limitStyle": "minecraft",
+   "timeFmt": "short",
+   "decimals": 0,
+   "gitStyle": "ccs",
+   "palette": "minecraft",
+   "bold": true
+  }
+ },
+ {
+  "name": "Classic Plus",
+  "note": "Same as Classic, but 💾 and 💳 sit before the Cache Hit and Extra labels, and ↻ and ⏲ go inside the brackets, as in \"2% (↻ 4h 49m)\" and \"98% (⏲ 🔥 4m12s)\".",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache"
+    ],
+    [
+     "extra",
+     "cwd",
+     "ver"
+    ]
+   ],
+   "labels": "full",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "",
+    "weekr": "",
+    "timer": ""
+   },
+   "iconMode": "before",
+   "pair": "parenIcon",
+   "limitIcon": "↻",
+   "cacheIcon": "⏲",
+   "cacheState": "fire",
+   "sep": "bar",
+   "ctxStyle": "barFull",
+   "limitStyle": "minecraft",
+   "timeFmt": "short",
+   "decimals": 0,
+   "gitStyle": "ccs",
+   "palette": "minecraft",
+   "bold": true
+  }
+ },
+ {
+  "name": "Icon Labels",
+  "note": "💾 and 💳 replace the words Cache Hit and Extra, and ↻ and ⏲ join each value to its time with no brackets and no warm/cold emoji, as in \"2% ↻ 4h 49m\" and \"💾 98% ⏲ 4m12s\".",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache"
+    ],
+    [
+     "extra",
+     "cwd",
+     "ver"
+    ]
+   ],
+   "labels": "full",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "",
+    "weekr": "",
+    "timer": ""
+   },
+   "iconMode": "replace",
+   "pair": "icon",
+   "limitIcon": "↻",
+   "cacheIcon": "⏲",
+   "cacheState": "none",
+   "sep": "bar",
+   "ctxStyle": "barFull",
+   "limitStyle": "minecraft",
+   "timeFmt": "short",
+   "decimals": 0,
+   "gitStyle": "ccs",
+   "palette": "minecraft",
+   "bold": true
+  }
+ },
+ {
+  "name": "Timer Swap",
+  "note": "Swaps the meanings so ⏲ counts down the 5h and weekly resets and ↻ marks the cache that re-warms with each message, as in \"2.0% (⏲ 4h 49m)\" and \"💾 98.0% (↻ 🔥 4m12s)\", with one decimal.",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache"
+    ],
+    [
+     "extra",
+     "cwd",
+     "ver"
+    ]
+   ],
+   "labels": "full",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "",
+    "weekr": "",
+    "timer": ""
+   },
+   "iconMode": "replace",
+   "pair": "parenIcon",
+   "limitIcon": "⏲",
+   "cacheIcon": "↻",
+   "cacheState": "fire",
+   "sep": "bar",
+   "ctxStyle": "barFull",
+   "limitStyle": "minecraft",
+   "timeFmt": "short",
+   "decimals": 1,
+   "gitStyle": "ccs",
+   "palette": "minecraft",
+   "bold": true
+  }
+ },
+ {
+  "name": "Survival Dots",
+  "note": "Uses the Minecraft words Hunger and Health, puts 💾 and 💳 in place of the Cache Hit and Extra words, and joins each time with a middle dot instead of brackets, as in \"Hunger: 2% · 4h 49m\" and \"💾 98% · 🟢 4:12\", so only 💾 and 💳 appear.",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache"
+    ],
+    [
+     "extra",
+     "cwd",
+     "ver"
+    ]
+   ],
+   "labels": "mc",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "",
+    "weekr": "",
+    "timer": ""
+   },
+   "iconMode": "replace",
+   "pair": "dot",
+   "limitIcon": "↻",
+   "cacheIcon": "⏲",
+   "cacheState": "ccs",
+   "sep": "bar",
+   "ctxStyle": "barFull",
+   "limitStyle": "minecraft",
+   "timeFmt": "short",
+   "decimals": 0,
+   "gitStyle": "ccs",
+   "palette": "minecraft",
+   "bold": true
+  }
+ },
+ {
+  "name": "Hunger Clock",
+  "note": "Uses the Minecraft words Hunger and Health, ↻ shows the clock time each limit resets, as in \"(↻ Wed 13:00)\", 💾 and 💳 sit before their labels, and the cache keeps ⏲ with ccstatusline's green, yellow and red dots.",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache"
+    ],
+    [
+     "extra",
+     "cwd",
+     "ver"
+    ]
+   ],
+   "labels": "mc",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "",
+    "weekr": "",
+    "timer": ""
+   },
+   "iconMode": "before",
+   "pair": "parenIcon",
+   "limitIcon": "↻",
+   "cacheIcon": "⏲",
+   "cacheState": "ccs",
+   "sep": "bar",
+   "ctxStyle": "barFull",
+   "limitStyle": "minecraft",
+   "timeFmt": "clock",
+   "decimals": 0,
+   "gitStyle": "ccs",
+   "palette": "minecraft",
+   "bold": true
+  }
+ },
+ {
+  "name": "Split Timers",
+  "note": "Each reset gets its own ↻ item and the cache countdown its own ⏲ item, with 💾 and 💳 before their labels and compact times, and the cache moves to line 3 so line 2 stays short.",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week"
+    ],
+    [
+     "cache",
+     "extra",
+     "cwd",
+     "ver"
+    ]
+   ],
+   "labels": "full",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "↻",
+    "weekr": "↻",
+    "timer": "⏲"
+   },
+   "iconMode": "before",
+   "pair": "split",
+   "limitIcon": "↻",
+   "cacheIcon": "⏲",
+   "cacheState": "fire",
+   "sep": "bar",
+   "ctxStyle": "barFull",
+   "limitStyle": "minecraft",
+   "timeFmt": "compact",
+   "decimals": 0,
+   "gitStyle": "ccs",
+   "palette": "minecraft",
+   "bold": true
+  }
+ },
+ {
+  "name": "Redstone Hourglass",
+  "note": "Uses ⏲ for every countdown with no brackets, as in \"2% ⏲ 4hr 49m\" and \"98% ⏲ 🟢 4:12\", puts 💾 and 💳 before their labels, and switches to pipe separators and ccstatusline's long times.",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache"
+    ],
+    [
+     "extra",
+     "cwd",
+     "ver"
+    ]
+   ],
+   "labels": "full",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "",
+    "weekr": "",
+    "timer": ""
+   },
+   "iconMode": "before",
+   "pair": "icon",
+   "limitIcon": "⏲",
+   "cacheIcon": "⏲",
+   "cacheState": "ccs",
+   "sep": "pipe",
+   "ctxStyle": "barFull",
+   "limitStyle": "minecraft",
+   "timeFmt": "long",
+   "decimals": 0,
+   "gitStyle": "ccs",
+   "palette": "minecraft",
+   "bold": true
+  }
+ },
+ {
+  "name": "Classic Iconic",
+  "note": "Classic squeezed onto two lines, where 💾 and 💳 replace Cache Hit and Extra, resets read (↻ 4h 49m), the cache reads (⏲ 4m12s) without the warm/cold emoji, Context shrinks to bar plus percent, and cwd and version are dropped.",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache",
+     "extra"
+    ]
+   ],
+   "labels": "full",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "",
+    "weekr": "",
+    "timer": ""
+   },
+   "iconMode": "replace",
+   "pair": "parenIcon",
+   "limitIcon": "↻",
+   "cacheIcon": "⏲",
+   "cacheState": "none",
+   "sep": "bar",
+   "ctxStyle": "bar",
+   "limitStyle": "minecraft",
+   "timeFmt": "short",
+   "decimals": 0,
+   "gitStyle": "ccs",
+   "palette": "minecraft",
+   "bold": true
+  }
+ },
+ {
+  "name": "Catppuccin Swap",
+  "note": "Split items where the symbols replace the words, with ⏲ on each reset countdown, ↻ on the cache timer, 💾 for Cache Hit and 💳 for Extra, shown in the softer Catppuccin colours.",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache"
+    ],
+    [
+     "extra",
+     "cwd",
+     "ver"
+    ]
+   ],
+   "labels": "full",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "⏲",
+    "weekr": "⏲",
+    "timer": "↻"
+   },
+   "iconMode": "replace",
+   "pair": "split",
+   "limitIcon": "⏲",
+   "cacheIcon": "↻",
+   "cacheState": "fire",
+   "sep": "bar",
+   "ctxStyle": "barFull",
+   "limitStyle": "minecraft",
+   "timeFmt": "short",
+   "decimals": 0,
+   "gitStyle": "ccs",
+   "palette": "catppuccin",
+   "bold": true
+  }
+ },
+ {
+  "name": "Classic ccstatusline",
+  "note": "Classic hunger and hearts on two lines in ccstatusline's own colours and pipe separators, with \"Ctx: 81.0k\" tokens at one decimal, ↻ and ⏲ inline with no brackets, 💾 and 💳 in place of their words, the 🟢 4:12 cache light, and Thinking, cwd and version dropped.",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache",
+     "extra"
+    ]
+   ],
+   "labels": "full",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "",
+    "weekr": "",
+    "timer": ""
+   },
+   "iconMode": "replace",
+   "pair": "icon",
+   "limitIcon": "↻",
+   "cacheIcon": "⏲",
+   "cacheState": "ccs",
+   "sep": "pipe",
+   "ctxStyle": "tokens",
+   "limitStyle": "minecraft",
+   "timeFmt": "short",
+   "decimals": 1,
+   "gitStyle": "ccs",
+   "palette": "ccs",
+   "bold": true
+  }
+ },
+ {
+  "name": "Nether Powerline",
+  "note": "Uses the words Hunger and Health with ↻ and ⏲ in brackets, puts 💾 and 💳 before their labels, and swaps in powerline segments, Dracula colours and a shorter context bar.",
+  "cfg": {
+   "lines": [
+    [
+     "model",
+     "effort",
+     "ctx",
+     "git"
+    ],
+    [
+     "h5",
+     "week",
+     "cache"
+    ],
+    [
+     "extra",
+     "cwd",
+     "ver"
+    ]
+   ],
+   "labels": "mc",
+   "labelIcons": {
+    "cache": "💾",
+    "extra": "💳",
+    "h5r": "",
+    "weekr": "",
+    "timer": ""
+   },
+   "iconMode": "before",
+   "pair": "parenIcon",
+   "limitIcon": "↻",
+   "cacheIcon": "⏲",
+   "cacheState": "fire",
+   "sep": "powerline",
+   "ctxStyle": "bar",
+   "limitStyle": "minecraft",
+   "timeFmt": "short",
+   "decimals": 0,
+   "gitStyle": "ccs",
+   "palette": "dracula",
+   "bold": true
+  }
+ }
+]/*VARIANTS*/;
+const VARIANTS = VARIANTS_RAW.map((v,i)=>({...v,id:'v'+i}));
+const BYID = Object.fromEntries(VARIANTS.map(v=>[v.id,v]));
+
+/* ---------- formatting ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pctTxt = (p,d) => p==null ? 'n/a' : (d ? p.toFixed(1) : String(Math.round(p))) + '%';
+const tok = n => n>=1e6 ? (n/1e6).toFixed(1)+'M' : n>=1e3 ? (n/1e3).toFixed(1)+'k' : String(n);
+const tokS = n => n>=1e6 ? String(+(n/1e6).toFixed(1))+'M' : n>=1e3 ? Math.round(n/1e3)+'k' : String(n);
+function fmtTime(sec,fmt){
+  const d=Math.floor(sec/86400), h=Math.floor(sec%86400/3600), m=Math.floor(sec%3600/60);
+  if(fmt==='long') return d ? `${d}d ${h}hr ${m}m` : h ? (m ? `${h}hr ${m}m` : `${h}hr`) : `${m}m`;
+  if(fmt==='short') return d ? `${d}d ${h}h` : h ? `${h}h ${m}m` : `${m}m`;
+  return d ? `${d}d${h}h` : h ? `${h}h${m}m` : `${m}m`;
+}
+const cd = (sec,fmt) => { const m=Math.floor(sec/60), s=sec%60; return fmt==='long' ? `${m}m ${s}s` : `${m}m${String(s).padStart(2,'0')}s`; };
+const lab = (t,role,pal) => t ? [{t,c:pal.label||pal[role],lab:true}] : [];
+const lvl = (p,pal,base) => p>=90 ? pal.crit : p>=75 ? pal.warn : base;
+const JOIN = {paren:[' (',')'],dot:[' · ',''],arrow:[' ↻ ',''],slash:['/','']};
+const JOINC = {paren:[' (',')'],dot:[' · ',''],arrow:[' ⏲ ',''],slash:['/','']};
+/* round 2: a symbol can replace a label word ("💾 98%") or sit before it ("💾 Cache Hit: 98%") */
+function lbl(cfg,L,key){ const ic=(cfg.labelIcons||{})[key], base=L[key]??''; return !ic ? base : cfg.iconMode==='before' ? ic+' '+base : ic+' '; }
+function joinFor(cfg,isCache){
+  const ic = isCache ? (cfg.cacheIcon||'⏲') : (cfg.limitIcon||'↻');
+  if(cfg.pair==='icon') return [' '+ic+' ',''];
+  if(cfg.pair==='parenIcon') return [' ('+ic+' ',')'];
+  return (isCache?JOINC:JOIN)[cfg.pair] || JOIN.dot;
+}
+const isFull = cfg => cfg.labels==='full' || cfg.labels==='mc';
+
+/* ---------- item builders: each returns pieces {role, spans:[{t,c,lab,e}]} ---------- */
+function build(key,cfg,s,pal){
+  const L = LABELS[cfg.labels] || LABELS.full;
+  switch(key){
+    case 'model': return [{role:'model',spans:[...lab(L.model,'model',pal),{t:s.model,c:pal.model}]}];
+    case 'effort': return [{role:'effort',spans:[...lab(L.effort,'effort',pal),{t:s.effort,c:pal.effort}]}];
+    case 'cwd': return [{role:'cwd',spans:[...lab(L.cwd,'cwd',pal),{t:isFull(cfg)?s.cwd:s.cwd.split('/').pop(),c:pal.cwd}]}];
+    case 'ver': return [{role:'ver',spans:[{t:'v'+s.ver,c:pal.ver}]}];
+    case 'extra': return s.extra ? [{role:'extra',spans:[...lab(lbl(cfg,L,'extra'),'extra',pal),{t:'$'+s.extra.used.toFixed(2)+'/$'+s.extra.limit,c:pal.extra}]}] : [];
+    case 'ctx': return [ctxPiece(cfg,s,pal,L)];
+    case 'git': return gitPieces(cfg,s,pal);
+    case 'h5': case 'week': return limitPieces(key,cfg,s,pal,L);
+    case 'cache': return cachePieces(cfg,s,pal,L);
+  }
+  return [];
+}
+function ctxPiece(cfg,s,pal,L){
+  const p=s.ctxPct, isBar=String(cfg.ctxStyle).startsWith('bar'), c=lvl(p,pal,pal.ctx), P=pctTxt(p,cfg.decimals);
+  const sp=[...lab(isBar?L.ctxB:L.ctxT,'ctx',pal)];
+  if(cfg.ctxStyle==='tokens') sp.push({t:tok(s.ctxTok),c});
+  else if(cfg.ctxStyle==='pct') sp.push({t:P,c});
+  else if(cfg.ctxStyle==='both') sp.push({t:P+' '+tokS(s.ctxTok)+'/'+tokS(s.ctxMax),c});
+  else {
+    const n=cfg.ctxStyle==='bar'?10:16, f=Math.round(p/100*n);
+    sp.push({t:'[',c:pal.ctx},{t:'█'.repeat(f),c:p>=75?c:pal.bar},{t:'░'.repeat(n-f),c:pal.empty,e:true},{t:']',c:pal.ctx});
+    sp.push({t:cfg.ctxStyle==='bar' ? ' '+P : ' '+tokS(s.ctxTok)+'/'+tok(s.ctxMax)+' ('+P+')',c});
+  }
+  return {role:'ctx',spans:sp};
+}
+function gitPieces(cfg,s,pal){
+  const ic = cfg.labels==='icons' && cfg.gitStyle!=='ccs' ? '⎇ ' : '';
+  if(!s.branch){
+    if(cfg.gitStyle==='ccs') return [{role:'git',spans:[{t:'⎇ no git',c:pal.git}]},{role:'chg',spans:[{t:'(no git)',c:pal.chg}]}];
+    if(cfg.gitStyle==='at') return [{role:'git',spans:[{t:s.cwd.split('/').pop(),c:pal.git}]}];
+    return [{role:'git',spans:[{t:ic+'no git',c:pal.git}]}];
+  }
+  if(cfg.gitStyle==='ccs') return [{role:'git',spans:[{t:'⎇ '+s.branch,c:pal.git}]},{role:'chg',spans:[{t:`(+${s.add},-${s.del})`,c:pal.chg}]}];
+  const head = cfg.gitStyle==='at' ? s.repo+'@'+s.branch : s.branch;
+  return [{role:'git',spans:[{t:ic+head,c:pal.git},{t:' +'+s.add,c:pal.add},{t:' -'+s.del,c:pal.del}]}];
+}
+function limitPieces(key,cfg,s,pal,L){
+  const d=s[key], p=d.pct, c=lvl(p,pal,pal[key]), P=pctTxt(p,cfg.decimals), mc=cfg.limitStyle==='minecraft';
+  const sp=[...lab(mc && cfg.labels==='icons' ? '' : L[key],key,pal)];
+  if(cfg.limitStyle==='bar'){ const f=Math.round(p/100*8); sp.push({t:'█'.repeat(f),c},{t:'░'.repeat(8-f),c:pal.empty,e:true},{t:' '+P,c}); }
+  else if(cfg.limitStyle==='dots'){ const f=Math.round(p/20); sp.push({t:'●'.repeat(f),c},{t:'○'.repeat(5-f),c:pal.empty,e:true},{t:' '+P,c}); }
+  else if(mc){
+    const left=Math.max(0,Math.min(10,Math.round((100-p)/10)));
+    if(key==='h5') sp.push({t:p>=90?'🦴':'🍗'},{t:'▰'.repeat(left),c:pal.food},{t:'▱'.repeat(10-left),c:pal.empty,e:true},{t:' '+P,c});
+    else sp.push({t:'♥'.repeat(left),c:pal.heart},{t:'♥'.repeat(10-left),c:pal.empty,e:true},{t:' '+P,c});
+  }
+  else sp.push({t:P,c});
+  const T = cfg.timeFmt==='clock' ? d.clock : fmtTime(d.left,cfg.timeFmt), tc = pal.time || pal[key];
+  if(cfg.pair==='split') return [{role:key,spans:sp},{role:key,spans:[...lab(lbl(cfg,L,key+'r'),key,pal),{t:T,c:tc}]}];
+  const J = joinFor(cfg,false);
+  sp.push({t:J[0]+T+J[1],c:tc});
+  return [{role:key,spans:sp}];
+}
+function cachePieces(cfg,s,pal,L){
+  const k=s.cache, sp=[...lab(lbl(cfg,L,'cache'),'cache',pal),{t:pctTxt(k.hit,cfg.decimals),c:pal.cache}];
+  const cs = cfg.cacheState || (cfg.cacheTimer==='ccs' ? 'ccs' : cfg.cacheIcons ? 'fire' : 'none');
+  let T=null, tc=pal.timer;
+  if(cs==='ccs'){ /* ccstatusline's own timer: 🟢/🟡/🔴 by time left of the 5m TTL, m:ss, ❄️ COLD */
+    if(k.warm===true){ const f=k.left/295; T=(f>0.5?'🟢':f>0.2?'🟡':'🔴')+' '+Math.floor(k.left/60)+':'+String(k.left%60).padStart(2,'0'); }
+    else if(k.warm===false) T='❄️ COLD';
+  }
+  else if(k.warm===true){ T=(cs==='fire'?'🔥 ':'')+cd(k.left,cfg.timeFmt); tc=pal.warm; }
+  else if(k.warm===false){ T=(cs==='fire'?'❄ ':'')+(isFull(cfg)?'COLD':'cold'); tc=pal.cold; }
+  if(cfg.pair==='split') return [{role:'cache',spans:sp},{role:'timer',spans:[...lab(lbl(cfg,L,'timer'),'timer',pal),{t:T??'n/a',c:tc}]}];
+  if(T){ const J=joinFor(cfg,true); sp.push({t:J[0]+T+J[1],c:tc}); }
+  return [{role:'cache',spans:sp}];
+}
+
+/* ---------- rendering ---------- */
+function lineHTML(pieces,cfg,pal){
+  const B = s => cfg.bold && !s.lab;
+  const sp = s => `<span style="${s.c?'color:'+s.c+';':''}${B(s)?'font-weight:700;':''}">${esc(s.t)}</span>`;
+  if(cfg.sep==='powerline'){
+    return pieces.map((p,i)=>{
+      const bg=pal[p.role]||pal.model, nx=pieces[i+1] ? (pal[pieces[i+1].role]||pal.model) : '';
+      return `<span class="pl" style="background:${bg}"> ${p.spans.map(s=>sp({...s,c:s.e?'rgba(0,0,0,.38)':'#141414'})).join('')} </span><span class="pl-arrow" style="--from:${bg};${nx?'background:'+nx:''}"></span>`;
+    }).join('');
+  }
+  if(cfg.sep==='brackets') return pieces.map(p=>sp({t:'[',c:pal.sep})+p.spans.map(sp).join('')+sp({t:']',c:pal.sep})).join(' ');
+  const S = {pipe:' | ',bar:' │ ',dot:' · ',space:'    '}[cfg.sep] || ' | ';
+  return pieces.map(p=>p.spans.map(sp).join('')).join(sp({t:S,c:pal.sep}));
+}
+function statusHTML(cfg,s){
+  const pal = PAL[cfg.palette] || PAL.ccs;
+  return cfg.lines.map(keys=>keys.flatMap(k=>build(k,cfg,s,pal))).filter(l=>l.length)
+    .map(l=>`<div class="ln">${lineHTML(l,cfg,pal)}</div>`).join('');
+}
+function termHTML(cfg,s,bare){
+  if(bare) return `<div class="term" role="img" aria-label="Status line preview"><div class="ln-wrap">${statusHTML(cfg,s)}</div></div>`;
+  return `<div class="term" role="img" aria-label="Status line preview">
+    <div class="rule"></div><div class="prompt"><b>❯</b> Try "how does &lt;filepath&gt; work?"</div><div class="rule"></div>
+    <div class="sl">${statusHTML(cfg,s)}</div>
+    <div class="foot">⏵⏵ auto mode on <span>(shift+tab to cycle)</span></div></div>`;
+}
+
+/* ---------- state ---------- */
+const KEY = 'hungerbar-picker-' + DATA_VERSION;
+const blank = () => ({scen:'normal',dropped:[],liked:[],mode:'drop',queue:null,total:0,winner:null,tune:null,hist:[]});
+function load(){ try { const v=JSON.parse(localStorage.getItem(KEY)); return v && typeof v==='object' ? v : null; } catch(e){ return null; } }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
+let st = Object.assign(blank(), load() || {});
+if(!SCEN[st.scen]) st.scen='normal';
+st.dropped = (st.dropped||[]).filter(id=>BYID[id]); st.liked=(st.liked||[]).filter(id=>BYID[id]);
+if(st.winner && !BYID[st.winner]) Object.assign(st, blank());
+
+const remaining = () => VARIANTS.filter(v=>!st.dropped.includes(v.id));
+const PRESETS = {
+  two:[['model','effort','ctx','git','cwd'],['h5','week','cache','extra','ver']],
+  three:[['model','effort','ctx','git'],['h5','week','cache'],['extra','cwd','ver']],
+  one:[['model','effort','ctx','git','h5','week','cache','extra','cwd','ver']],
+  limits:[['h5','week','cache','extra'],['model','effort','ctx','git','cwd','ver']],
+};
+const OPTIONAL = ['effort','cwd','extra','ver'];
+function tunedCfg(){
+  const w=BYID[st.winner], t=st.tune;
+  let lines = (t.layout==='own' ? w.cfg.lines : PRESETS[t.layout]).map(l=>l.filter(k=>!OPTIONAL.includes(k) || t.show[k]));
+  if(t.layout==='own'){ const present=new Set(lines.flat()); OPTIONAL.forEach(k=>{ if(t.show[k] && !present.has(k)) lines[lines.length-1].push(k); }); }
+  lines = lines.filter(l=>l.length);
+  const {layout,show,...rest} = t;
+  return {...rest, lines};
+}
+
+/* ---------- views ---------- */
+const $main = document.getElementById('main'), $scen = document.getElementById('scen'), $act = document.getElementById('actions');
+function render(){
+  $scen.innerHTML = `<span class="label">Situation</span>` + Object.entries(SCEN).map(([k,v])=>`<button class="chip" data-act="scen" data-k="${k}" aria-pressed="${st.scen===k}">${esc(v.label)}</button>`).join('');
+  const s = SCEN[st.scen], left = remaining();
+  if(st.mode==='drop'){
+    $act.innerHTML = `<span class="status">${left.length} left <small>of ${VARIANTS.length}</small></span>
+      <button class="btn" data-act="undo" ${st.hist.length?'':'disabled'}>Undo</button>
+      <button class="btn primary" data-act="duel" ${left.length>=2?'':'disabled'}>${left.length<=4?'Start the face-off':'Face-off now'} (${left.length})</button>`;
+    const n = i => VARIANTS.indexOf(i)+1;
+    $main.innerHTML = left.map(v=>`<article class="card ${st.liked.includes(v.id)?'liked':''}">
+        <div class="card-h"><div><h3>${esc(v.name)}</h3><p>${esc(v.note)}</p></div><span class="tag">#${n(v)}</span></div>
+        ${termHTML(v.cfg,s)}
+        <div class="card-a"><button class="btn drop" data-act="drop" data-id="${v.id}">✕ Drop</button>
+        <button class="btn keep" data-act="like" data-id="${v.id}" aria-pressed="${st.liked.includes(v.id)}">♥ ${st.liked.includes(v.id)?'Liked':'Like'}</button></div></article>`).join('')
+      + (st.dropped.length ? `<details class="tray"><summary>Dropped (${st.dropped.length})</summary><ul>${st.dropped.map(id=>`<li><span>#${n(BYID[id])} ${esc(BYID[id].name)}</span><button class="btn" data-act="restore" data-id="${id}">Bring back</button></li>`).join('')}</ul></details>` : '')
+      + `<p class="note">♥ Like marks your favourites: they go first in the face-off. The numbers in the cards are sample data, not your live usage.</p>`;
+  }
+  else if(st.mode==='duel'){
+    const [a,b] = st.queue.map(id=>BYID[id]); const round = st.total - st.queue.length + 1;
+    $act.innerHTML = `<span class="status">Round ${round} <small>of ${st.total-1}</small></span><button class="btn" data-act="back">Back to dropping</button>`;
+    $main.innerHTML = `<div class="duel-h"><h2>Which one is better?</h2><p>Press <span class="kbd">A</span> or <span class="kbd">B</span>, or use the buttons. The loser is dropped.</p></div>
+      ${[a,b].map((v,i)=>`<article class="card"><div class="card-h"><div><h3><span class="side">${'AB'[i]}</span> ${esc(v.name)}</h3><p>${esc(v.note)}</p></div></div>
+        ${termHTML(v.cfg,s)}<div class="card-a"><button class="btn win" data-act="pick" data-i="${i}">${'AB'[i]} is better</button></div></article>`).join('')}`;
+  }
+  else {
+    const w=BYID[st.winner], cfg=tunedCfg(), t=st.tune;
+    $act.innerHTML = `<span class="status">Winner: ${esc(w.name)}</span><button class="btn" data-act="reset">Start over</button>`;
+    const seg = (key,title,opts) => `<div class="ctl"><span class="label">${title}</span><div class="seg">${opts.map(([v,l])=>`<button data-act="set" data-k="${key}" data-v='${JSON.stringify(v)}' aria-pressed="${JSON.stringify(t[key])===JSON.stringify(v)}">${esc(l)}</button>`).join('')}</div></div>`;
+    $main.innerHTML = `<div class="tune-h"><h2>Pick the colours</h2><p class="note">Your winner, ${esc(w.name)}, in every colour set. Click the one you like.</p></div>
+      <section class="pals">${Object.keys(PAL).map(k=>`<button class="pal ${t.palette===k?'on':''}" data-act="set" data-k="palette" data-v='${JSON.stringify(k)}' aria-pressed="${t.palette===k}">
+        <span class="pal-h"><span>${esc(PALNAMES[k])}</span><span class="pal-sw">${['model','ctx','git','h5','week','cache'].map(r=>`<i style="background:${PAL[k][r]}"></i>`).join('')}</span></span>
+        ${termHTML({...cfg,palette:k},s,true)}</button>`).join('')}</section>
+      <div class="tune-h"><h2>Fine-tune the details</h2><p class="note">Every change shows in all four situations below.</p></div>
+      <section class="controls">
+        ${seg('layout','Lines',[['own','as designed'],['two','2 lines'],['three','3 lines'],['one','1 line'],['limits','limits first']])}
+        <div class="ctl"><span class="label">Show</span><div class="seg">${[['effort','effort'],['cwd','folder'],['extra','extra credits'],['ver','version']].map(([k,l])=>`<button data-act="show" data-k="${k}" aria-pressed="${!!t.show[k]}">${l}</button>`).join('')}</div></div>
+        ${seg('labels','Labels',[['full','Session: / Weekly:'],['mc','Hunger: / Health:'],['short','5h / week'],['none','none']])}
+        ${seg('pair','Limit + time left',[['paren','2% (4h 49m)'],['parenIcon','2% (↻ 4h 49m)'],['icon','2% ↻ 4h 49m'],['dot','2% · 4h 49m'],['split','split in two']])}
+        ${seg('limitIcon','Reset symbol',[['↻','↻'],['⏲','⏲']])}
+        ${seg('cacheIcon','Cache timer symbol',[['⏲','⏲'],['↻','↻']])}
+        ${seg('cacheState','Cache warm / cold',[['fire','🔥 4m12s / ❄ cold'],['ccs','🟢 4:12 / ❄️ COLD'],['none','4m12s / cold']])}
+        <div class="ctl"><span class="label">Symbols instead of words</span><div class="seg">
+          ${[['cache','💾','💾 cache'],['extra','💳','💳 extra'],['h5r','↻','↻ resets (split)'],['h5r','⏲','⏲ resets (split)'],['timer','⏲','⏲ cache timer (split)']].map(([k,v,l])=>`<button data-act="icon" data-k="${k}" data-v="${v}" aria-pressed="${(t.labelIcons||{})[k]===v}">${l}</button>`).join('')}</div></div>
+        ${seg('iconMode','Symbol and word',[['replace','💾 98%'],['before','💾 Cache Hit: 98%']])}
+        ${seg('sep','Separator',[['bar',' │ '],['pipe',' | '],['dot',' · '],['brackets','[ ]'],['powerline','blocks']])}
+        ${seg('timeFmt','Time',[['long','3d 23hr 59m'],['short','3d 23h'],['compact','3d23h'],['clock','Wed 13:00']])}
+        ${seg('ctxStyle','Context',[['tokens','81.0k'],['pct','8%'],['both','8% 81k/1M'],['bar','bar + %'],['barFull','bar + tokens']])}
+        ${seg('limitStyle','Limits',[['pct','numbers'],['bar','bars'],['dots','dots'],['minecraft','🍗 ♥']])}
+        ${seg('gitStyle','Git',[['ccs','⎇ main (+12,-3)'],['compact','main +12 -3'],['at','repo@main']])}
+        ${seg('palette','Colours',Object.entries(PALNAMES))}
+        ${seg('decimals','Decimals',[[1,'82.0%'],[0,'82%']])}
+        ${seg('bold','Bold values',[[false,'off'],[true,'on']])}
+      </section>
+      ${Object.values(SCEN).map(sc=>`<div class="scen-title">${esc(sc.label)}</div>${termHTML(cfg,sc)}`).join('')}
+      <section class="out"><span class="label">Send this back to Claude</span>
+        <textarea id="outText" readonly>${esc(summary(w,cfg))}</textarea>
+        <div class="row"><button class="btn primary" data-act="copy">Copy my pick</button><span id="copied" class="ok" hidden>Copied. Paste it in the chat.</span></div></section>`;
+  }
+}
+function summary(w,cfg){
+  const names = {labels:'Labels',pair:'Limit + time',limitIcon:'Reset symbol',cacheIcon:'Cache timer symbol',cacheState:'Cache warm/cold',iconMode:'Symbol and word',sep:'Separator',timeFmt:'Time',ctxStyle:'Context',limitStyle:'Limits',gitStyle:'Git',palette:'Colours',decimals:'Decimals',bold:'Bold'};
+  const ic = Object.entries(cfg.labelIcons||{}).filter(([,v])=>v).map(([k,v])=>`${k}=${v}`).join(', ') || 'none';
+  return `Hungerbar round 2 pick, started from "${w.name}"\n`
+    + `Lines: ${cfg.lines.map(l=>l.join(' ')).join(' / ')}\n`
+    + `Symbols: ${ic}\n`
+    + Object.entries(names).map(([k,l])=>`${l}: ${cfg[k]}`).join(' · ') + '\n'
+    + `config: ${JSON.stringify(cfg)}`;
+}
+
+/* ---------- actions ---------- */
+function startDuel(){
+  const left = remaining().map(v=>v.id);
+  const liked = left.filter(id=>st.liked.includes(id)), rest = left.filter(id=>!st.liked.includes(id));
+  st.queue=[...liked,...rest]; st.total=st.queue.length; st.mode='duel';
+  if(st.queue.length===1) finish(st.queue[0]);
+}
+function finish(id){
+  const v=BYID[id]; st.winner=id; st.mode='tune';
+  const has=new Set(v.cfg.lines.flat());
+  st.tune={...JSON.parse(JSON.stringify(v.cfg)), layout:'own', show:Object.fromEntries(OPTIONAL.map(k=>[k,has.has(k)]))};
+  st.tune.labelIcons = st.tune.labelIcons || {};
+}
+function pick(i){
+  const win=st.queue[i], lose=st.queue[1-i];
+  st.dropped.push(lose); st.hist.push(lose);
+  st.queue=[win,...st.queue.slice(2)];
+  if(st.queue.length===1) finish(win);
+  save(); render(); window.scrollTo({top:0});
+}
+document.addEventListener('click', e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const a=b.dataset.act, id=b.dataset.id;
+  if(a==='scen') st.scen=b.dataset.k;
+  else if(a==='drop'){ st.dropped.push(id); st.hist.push(id); st.liked=st.liked.filter(x=>x!==id); }
+  else if(a==='undo'){ const last=st.hist.pop(); st.dropped=st.dropped.filter(x=>x!==last); }
+  else if(a==='restore'){ st.dropped=st.dropped.filter(x=>x!==id); st.hist=st.hist.filter(x=>x!==id); }
+  else if(a==='like'){ st.liked = st.liked.includes(id) ? st.liked.filter(x=>x!==id) : [...st.liked,id]; }
+  else if(a==='duel'){ startDuel(); window.scrollTo({top:0}); }
+  else if(a==='back'){ st.mode='drop'; st.queue=null; }
+  else if(a==='pick'){ pick(+b.dataset.i); return; }
+  else if(a==='set'){ st.tune[b.dataset.k]=JSON.parse(b.dataset.v); }
+  else if(a==='show'){ st.tune.show[b.dataset.k]=!st.tune.show[b.dataset.k]; }
+  else if(a==='icon'){
+    const li=st.tune.labelIcons=st.tune.labelIcons||{}, k=b.dataset.k, v=b.dataset.v, on=li[k]===v;
+    const keys = k==='h5r' ? ['h5r','weekr'] : [k];
+    keys.forEach(x=>{ li[x] = on ? '' : v; });
+  }
+  else if(a==='reset'){ st=blank(); }
+  else if(a==='copy'){
+    const ta=document.getElementById('outText'), ok=document.getElementById('copied');
+    const done=()=>{ ok.hidden=false; };
+    const fallback=()=>{ ta.focus(); ta.select(); try{ document.execCommand('copy'); done(); }catch(err){} };
+    try { navigator.clipboard.writeText(ta.value).then(done, fallback); } catch(err){ fallback(); }
+    return;
+  }
+  save(); render();
+});
+document.addEventListener('keydown', e=>{
+  if(st.mode!=='duel' || e.ctrlKey || e.metaKey || e.altKey) return;
+  const k=e.key.toLowerCase();
+  if(k==='a'||k==='1') pick(0); else if(k==='b'||k==='2') pick(1);
+});
+render();
+</script>
+</body>
+</html>

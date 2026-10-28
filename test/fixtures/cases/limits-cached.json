@@ -1,0 +1,73 @@
+{
+  "note": "No rate_limits on stdin: the last-known values, dimmed with ~.",
+  "payload": {
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "transcript_path": "{{TRANSCRIPT}}",
+    "cwd": "D:\\webapp",
+    "version": "2.1.306",
+    "model": {
+      "id": "claude-opus-5-5[1m]",
+      "display_name": "Opus 5.5 (1M context)"
+    },
+    "effort": {
+      "level": "high"
+    },
+    "workspace": {
+      "current_dir": "D:\\webapp",
+      "project_dir": "D:\\webapp"
+    },
+    "cost": {
+      "total_lines_added": 412,
+      "total_lines_removed": 97
+    },
+    "context_window": {
+      "context_window_size": 1000000,
+      "used_percentage": 8,
+      "remaining_percentage": 92,
+      "total_input_tokens": 81000,
+      "current_usage": {
+        "input_tokens": 6,
+        "output_tokens": 812,
+        "cache_creation_input_tokens": 1494,
+        "cache_read_input_tokens": 79500
+      }
+    },
+    "prompt_cache": {
+      "warm": true,
+      "caching_observed": true,
+      "ttl": "5m",
+      "expires_at": "{{NOW+252}}",
+      "hit_ratio": 0.981,
+      "requests": 127,
+      "misses": 1
+    }
+  },
+  "fs": {
+    "D:/webapp": {
+      ".git/HEAD": "ref: refs/heads/main\n"
+    }
+  },
+  "state": {
+    "git": {
+      "for": "D:/webapp",
+      "added": 1208,
+      "removed": 279,
+      "files": 3
+    },
+    "limits": {
+      "v": 1,
+      "five_hour": {
+        "pct": 2.4,
+        "resets_at": "{{NOW+17340}}"
+      },
+      "seven_day": {
+        "pct": 86.1,
+        "resets_at": "{{NOW+84539}}"
+      },
+      "at": "{{NOW-600}}"
+    }
+  },
+  "config": {
+    "look": "classic"
+  }
+}
