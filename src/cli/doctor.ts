@@ -33,8 +33,12 @@ export function ccShell(env: Env): string | null {
   return cands.find((c): c is string => !!c && existsSync(c)) ?? null;
 }
 
-/** Every node.exe, git.exe and gh.exe here, one `<pid> <command line>` a line (Windows). */
-export const LEFTOVER_PS = "Get-CimInstance Win32_Process -Filter \"Name='node.exe' or Name='git.exe' or Name='gh.exe'\" | ForEach-Object { \"$($_.ProcessId) $($_.CommandLine)\" }";
+/**
+ * Every node.exe, git.exe and gh.exe here, one `<pid> <command line>` a line (Windows). The WMI query goes through
+ * [wmisearcher], which needs no module: Get-CimInstance first loads CimCmdlets, and without PSModulePath, as in the
+ * tests' trimmed environment, that took 22 to 37 s on GitHub's Windows runner against 0.23 s for this.
+ */
+export const LEFTOVER_PS = "([wmisearcher]\"SELECT ProcessId, CommandLine FROM Win32_Process WHERE Name='node.exe' or Name='git.exe' or Name='gh.exe'\").Get() | ForEach-Object { \"$($_.ProcessId) $($_.CommandLine)\" }";
 
 const STATUS = statusArgs('.');
 /** The git refresher's status command after its root: `status --porcelain=v2 --branch`. */
@@ -55,12 +59,19 @@ export function isLeftover(line: string, pid: number): boolean {
   return line.includes(GH_TAIL);
 }
 
-function leftovers(): string[] {
-  if (process.platform !== 'win32') return [];
+/** The leftovers, or why the process list could not be read: then nothing was checked, so doctor must not say ok. */
+function leftovers(): { lines: string[]; problem: string | null } {
+  if (process.platform !== 'win32') return { lines: [], problem: null };
   const r = childProcess().spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', LEFTOVER_PS], { encoding: 'utf8', windowsHide: true, timeout: 15000 });
-  return String(r.stdout ?? '')
-    .split(/\r?\n/)
-    .filter((l) => isLeftover(l, process.pid));
+  const code = (r.error as NodeJS.ErrnoException | undefined)?.code;
+  if (r.error) return { lines: [], problem: code === 'ETIMEDOUT' ? 'took over 15 s' : code === 'ENOENT' ? 'was not found' : r.error.message };
+  if (r.status !== 0) return { lines: [], problem: `exited with ${r.status}${r.stderr ? ': ' + String(r.stderr).trim().split(/\r?\n/)[0] : ''}` };
+  return {
+    lines: String(r.stdout ?? '')
+      .split(/\r?\n/)
+      .filter((l) => isLeftover(l, process.pid)),
+    problem: null,
+  };
 }
 
 /** Said while HUNGERBAR_NO_SPAWN is set: no render queues a background worker. */
@@ -188,7 +199,9 @@ export function doctor(argv: string[], env: Env, self: string): number {
   if (process.platform === 'win32') {
     say('\nProcesses');
     const left = leftovers();
-    left.length ? left.forEach((l) => warn(`still running: ${l.slice(0, 160)}`)) : ok('no leftover hungerbar node.exe, git.exe or gh.exe');
+    if (left.problem) warn(`could not list the running processes (powershell.exe ${left.problem}), so leftovers were not checked`);
+    else if (left.lines.length) left.lines.forEach((l) => warn(`still running: ${l.slice(0, 160)}`));
+    else ok('no leftover hungerbar node.exe, git.exe or gh.exe');
   }
 
   if (shell && sl?.command) {

@@ -1137,6 +1137,11 @@ test("doctor's leftover check sees every child 0.7.0 starts: the git status, gh 
     const r = w.run(['doctor'], { PATH: join(w.dir, 'no-bin'), HUNGERBAR_NO_SPAWN: '1', HUNGERBAR_NOW: String(NOW) });
     assert.equal(r.status, 0, r.stderr);
     assert.ok(r.stdout.includes(`  warn  ${NO_SPAWN_WARNING}\n`), r.stdout);
+    // no powershell.exe on this PATH: the process list was not read, so there is no ok for it (fix after the first CI run)
+    if (process.platform === 'win32') {
+      assert.ok(r.stdout.includes('  warn  could not list the running processes (powershell.exe was not found), so leftovers were not checked\n'), r.stdout);
+      assert.ok(!r.stdout.includes('no leftover'), r.stdout);
+    }
   } finally {
     w.cleanup();
   }
