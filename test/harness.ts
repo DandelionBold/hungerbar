@@ -225,8 +225,8 @@ export interface RunOut {
   status: number | null;
 }
 
-export function runDist(stdin: string, env: Record<string, string>, args: string[] = []): RunOut {
-  const r = spawnSync(process.execPath, [DIST, ...args], { input: stdin, env, encoding: 'utf8', windowsHide: true, timeout: 15000 });
+export function runDist(stdin: string, env: Record<string, string>, args: string[] = [], timeout = 15000): RunOut {
+  const r = spawnSync(process.execPath, [DIST, ...args], { input: stdin, env, encoding: 'utf8', windowsHide: true, timeout });
   return { stdout: r.stdout, stderr: r.stderr, status: r.status };
 }
 

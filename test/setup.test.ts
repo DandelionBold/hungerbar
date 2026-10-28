@@ -149,7 +149,8 @@ test('mirror copies source, tests, docs and build, never node_modules or .git, s
     mkdirSync(join(snap, 'src'), { recursive: true });
     writeFileSync(join(snap, 'src', 'gone.ts'), '');
     writeFileSync(join(snap, 'hungerbar-0.0.1.tgz'), 'an earlier release');
-    const r = runDist('', { PATH: process.env.PATH ?? '', SystemRoot: process.env.SystemRoot ?? 'C:\\Windows' }, ['mirror', snap]);
+    // the copy is about 700 files with 4 MB of pictures: it took 18 s on a GitHub Windows runner, past the usual 15 s
+    const r = runDist('', { PATH: process.env.PATH ?? '', SystemRoot: process.env.SystemRoot ?? 'C:\\Windows' }, ['mirror', snap], 60000);
     assert.equal(r.status, 0, r.stderr);
     const top = readdirSync(snap);
     for (const f of ['src', 'test', 'bench', 'dist', 'docs', 'scripts', '.github', 'package.json', 'SPEC.md', 'README.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'LICENSE', 'schema.json', 'gitignore', '.gitattributes']) {
