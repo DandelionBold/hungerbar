@@ -2,6 +2,11 @@
 
 What changed for users in each version. Versions before 1.0.0 were private builds; 1.0.0 is the first public release.
 
+## 1.0.1 (unreleased)
+
+- **`hungerbar doctor` lists processes without loading a PowerShell module.** It looked for leftover refreshers through `Get-CimInstance`, which loads the CimCmdlets module first. Where `PSModulePath` is not set and many modules are installed, as on GitHub's Windows runners, that took 22 to 37 seconds. The same WMI query now goes through `[wmisearcher]` and takes about a quarter of a second anywhere.
+- **doctor no longer says "no leftover" when it could not look.** If the process list cannot be read (no `powershell.exe`, an error, or over 15 seconds), doctor warns that leftovers were not checked.
+
 ## 1.0.0 (2026-10-28)
 
 The first public release. The Minecraft HUD is now the default look.

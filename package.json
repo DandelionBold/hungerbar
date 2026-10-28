@@ -1,6 +1,6 @@
 {
   "name": "hungerbar",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Claude Code status line where your limits drain and refill like a Minecraft hunger bar.",
   "private": true,
   "type": "module",
