@@ -15,13 +15,17 @@ concurrency:
 
 jobs:
   test:
-    name: Windows, Node ${{ matrix.node }}
-    runs-on: windows-latest
+    name: ${{ matrix.label }}, Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        node: [22, 24]
+        include:
+          - { os: windows-latest, label: Windows, node: 22 }
+          - { os: windows-latest, label: Windows, node: 24 }
+          - { os: ubuntu-latest, label: Linux, node: 24 }
+          - { os: macos-latest, label: macOS, node: 24 }
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
