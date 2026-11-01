@@ -1,12 +1,11 @@
 // The two icon styles: the Windows Terminal font-face switch (SPEC §0.7). Never touches the real settings.json.
 import assert from 'node:assert/strict';
-import { chmodSync, existsSync, linkSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { chmodSync, existsSync, linkSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { faceFor, readFontState, setDefaultFace } from '../src/cli/icons.ts';
 import { scan } from '../src/cli/jsonc.ts';
-import { runDist } from './harness.ts';
+import { runDist, tempDir } from './harness.ts';
 
 /** A real layout (WT 1.25) with comments and a trailing comma added, as hand-edited files have. */
 const WT = `{
@@ -94,7 +93,7 @@ test('a missing face is inserted where Windows Terminal reads it', () => {
 });
 
 function world(settings: string | null) {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-icons-'));
+  const dir = tempDir('hb-icons-');
   const file = join(dir, 'settings.json');
   if (settings !== null) writeFileSync(file, settings);
   const env = { PATH: process.env.PATH ?? '', SystemRoot: process.env.SystemRoot ?? 'C:\\Windows', HUNGERBAR_WT_SETTINGS: file, CLAUDE_CONFIG_DIR: join(dir, 'claude'), HUNGERBAR_CACHE_DIR: join(dir, 'cache') };
@@ -252,7 +251,7 @@ test('a hard-linked settings.json is written in place, so every link changes', (
 });
 
 test('stable and Preview installed: both are switched, each with its own backup', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-icons-multi-'));
+  const dir = tempDir('hb-icons-multi-');
   try {
     const stable = join(dir, 'Packages', 'Microsoft.WindowsTerminal_8wekyb3d8bbwe', 'LocalState');
     const preview = join(dir, 'Packages', 'Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe', 'LocalState');

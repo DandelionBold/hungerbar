@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { appendFileSync, closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { appendFileSync, closeSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
@@ -11,7 +11,7 @@ import {
   fold, freshTx, readTranscript, refreshTranscript, summarize, TX_BUDGET, txId, txLockPath, txStatePath, WAITS_ON_USER, type TxState, type TxSummary,
 } from '../src/transcript.ts';
 import type { Payload } from '../src/payload.ts';
-import { DIST, ROOT } from './harness.ts';
+import { DIST, ROOT, tempDir } from './harness.ts';
 
 const fresh = (): TxState => freshTx('x');
 const row = (id: string, ts: string, u: Record<string, unknown>, more: Record<string, unknown> = {}): string =>
@@ -28,7 +28,7 @@ const SYNTH = [
   'not json at all "assistant"',
 ];
 
-const tmp = (): string => mkdtempSync(join(tmpdir(), 'hb-tx-'));
+const tmp = (): string => tempDir('hb-tx-');
 
 test('synthetic rows: duplicates, sidechains, API errors and attachments are skipped', () => {
   const st = fresh();

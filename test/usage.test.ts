@@ -2,8 +2,7 @@
 import assert from 'node:assert/strict';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { after, before, test } from 'node:test';
 import { VERSION } from '../src/env.ts';
@@ -12,7 +11,7 @@ import { acctDir } from '../src/store.ts';
 import { getToken, keychainService, type KeychainReader } from '../src/usage/creds.ts';
 import { readUsage, usageLockPath } from '../src/usage/file.ts';
 import { refreshUsage, usageUrl } from '../src/usage/refresh.ts';
-import { listFiles, NOW } from './harness.ts';
+import { listFiles, NOW, tempDir } from './harness.ts';
 
 const TOKEN = 'sk-ant-oat01-TEST-ONLY-never-shown-7f3a';
 let handler: (req: IncomingMessage, res: ServerResponse) => void = (_q, s) => s.end();
@@ -39,7 +38,7 @@ const BODY = {
 };
 
 function world() {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-usage-'));
+  const dir = tempDir('hb-usage-');
   const env: Record<string, string> = {
     HUNGERBAR_CACHE_DIR: join(dir, 'cache'), CLAUDE_CONFIG_DIR: join(dir, 'claude'), HUNGERBAR_NOW: String(NOW),
     HUNGERBAR_USAGE_URL: url, HUNGERBAR_USAGE_TIMEOUT_MS: '300', CLAUDE_CODE_OAUTH_TOKEN: TOKEN,

@@ -4,7 +4,7 @@
 // setup.test.ts.
 import assert from 'node:assert/strict';
 import { spawn, type ChildProcess } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -31,7 +31,7 @@ import type { PrInfo } from '../src/pr/gh.ts';
 import { renderPayload } from '../src/render.ts';
 import { acctDir } from '../src/store.ts';
 import { whoAmI } from '../src/whoami.ts';
-import { listFiles, NOW, ROOT, runDist } from './harness.ts';
+import { listFiles, NOW, ROOT, runDist, tempDir } from './harness.ts';
 import { cellWidth } from './hud/ref.ts';
 
 const SCHEMA_URL = pathToFileURL(join(ROOT, 'schema.json')).href;
@@ -49,7 +49,7 @@ const CONSENT = /comes from the opt-in usage API, so this turns it on[\s\S]*\.cr
 
 /** A temp Claude config dir (with this hungerbar.json and settings.json, when given), a temp cache, and dist run in them. */
 function world(config: string | Buffer | null = null, settings: string | null = '{\n  "theme": "dark"\n}\n') {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-look-'));
+  const dir = tempDir('hb-look-');
   const claude = join(dir, 'claude'), cache = join(dir, 'cache');
   mkdirSync(claude);
   const cfg = join(claude, 'hungerbar.json'), settingsFile = join(claude, 'settings.json');

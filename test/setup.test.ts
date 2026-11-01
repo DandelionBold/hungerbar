@@ -1,8 +1,7 @@
 // hungerbar setup / --print / --restore against temp Claude config dirs (SPEC §16.8), and setup's look (plan §8, §10.9).
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { chmodSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { test } from 'node:test';
@@ -169,7 +168,7 @@ test('a symlinked settings.json is followed, the link kept', (t) => {
 });
 
 test('mirror copies source, tests, docs and build, never node_modules or .git, stores .gitignore without the dot, and keeps earlier tarballs', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-mirror-'));
+  const dir = tempDir('hb-mirror-');
   try {
     const snap = join(dir, 'snap');
     // a copy made before: an earlier release's tarball and a stale item

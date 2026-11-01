@@ -1,7 +1,7 @@
 // Real git repos in temp folders (SPEC §16.4, §16.5).
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import { test } from 'node:test';
@@ -99,7 +99,7 @@ test('git binary: only absolute PATH entries; a git planted in the repo never re
 });
 
 test('git binary: a git that is not executable is skipped (macOS, Linux)', { skip: process.platform === 'win32' }, () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-gitbin-'));
+  const dir = tempDir('hb-gitbin-');
   try {
     const [plain, runs] = [join(dir, 'plain'), join(dir, 'runs')];
     for (const d of [plain, runs]) {

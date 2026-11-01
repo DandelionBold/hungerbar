@@ -4,9 +4,8 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { defaults } from '../src/config.ts';
@@ -20,7 +19,7 @@ import {
 import { fromState, readHist, type Bucket, type Hist } from '../src/hud/input.ts';
 import { diskSources } from '../src/render.ts';
 import { fnv1a, pruneOld } from '../src/store.ts';
-import { ROOT } from './harness.ts';
+import { ROOT, tempDir } from './harness.ts';
 import { loadCache, plain, SESSION, type CacheEntry, type CacheGit } from './hud/ref.ts';
 
 const ZERO = '0'.repeat(40);
@@ -168,7 +167,7 @@ test('session4 replay: every frame equals its own hist (readHist) and the vendor
 
 test('session4 replay through the disk: logs/HEAD appended as git would, the file written only by the after hooks', async (t) => {
   const logAt = await session4Log();
-  const dir = mkdtempSync(join(tmpdir(), 'hb-hist-'));
+  const dir = tempDir('hb-hist-');
   try {
     const gitDir = join(dir, 'repo', '.git');
     mkdirSync(join(gitDir, 'logs'), { recursive: true });
@@ -484,7 +483,7 @@ const NOGIT = { skip: !GIT ? 'git not found' : false } as const;
 
 interface World { dir: string; cache: string; env: NodeJS.ProcessEnv; cleanup(): void }
 function world(): World {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-hist-git-'));
+  const dir = tempDir('hb-hist-git-');
   const cfg = join(dir, 'gitconfig');
   writeFileSync(cfg, '');
   // the user's own git config never applies here, nor an inherited GIT_DIR or GIT_INDEX_FILE (a run from a git hook)
@@ -868,7 +867,7 @@ test('no process: the history step in a real repo, with child_process trapped, s
 // ---------------------------------------------------------------------------------------------------------------------
 
 test('write policy: none when only now changed, one per new quarter or raised bucket, none with persist=false, after stdout only', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-hist-w-'));
+  const dir = tempDir('hb-hist-w-');
   try {
     const d = join(dir, 'repo'), logs = join(d, '.git', 'logs');
     mkdirSync(logs, { recursive: true });
@@ -927,7 +926,7 @@ test('write policy: none when only now changed, one per new quarter or raised bu
 });
 
 test('prune: history files untouched for 7 days and .tmp files older than an hour go; fresh ones stay', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-hist-p-'));
+  const dir = tempDir('hb-hist-p-');
   try {
     const hud = join(dir, 'hud');
     mkdirSync(hud, { recursive: true });
@@ -946,7 +945,7 @@ test('prune: history files untouched for 7 days and .tmp files older than an hou
 });
 
 test('an unreadable logs/HEAD: an anchor nothing continues from; a failing stat: no history this render and no write', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-hist-u-'));
+  const dir = tempDir('hb-hist-u-');
   try {
     const p = join(dir, 'HEAD');
     writeFileSync(p, L0);

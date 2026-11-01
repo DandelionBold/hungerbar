@@ -6,7 +6,7 @@
 // settings change nothing here.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -18,7 +18,7 @@ import { findRepo } from '../src/git/head.ts';
 import { readOp } from '../src/git/status.ts';
 import { NO_MARKS, type GitMarks } from '../src/hud/gitstate.ts';
 import { renderPayload, type RenderResult } from '../src/render.ts';
-import { DIST, stripAnsi } from './harness.ts';
+import { DIST, stripAnsi, tempDir } from './harness.ts';
 import { plainDefaults } from './plain-config.ts';
 
 const GIT = findGit(process.env.PATH ?? '');
@@ -27,7 +27,7 @@ const HUD: Config = { ...plainDefaults(), look: 'hud' };
 interface World { dir: string; repo: string; cache: string; env: Record<string, string>; git(cwd: string, ...args: string[]): string; cleanup(): void }
 
 function world(): World {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-gitstate-'));
+  const dir = tempDir('hb-gitstate-');
   const repo = join(dir, 'repo'), cache = join(dir, 'cache'), cfg = join(dir, 'gitconfig');
   writeFileSync(cfg, '');
   mkdirSync(repo);

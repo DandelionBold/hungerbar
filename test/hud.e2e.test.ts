@@ -37,7 +37,7 @@ import { DEMOS, DEMO_NOW, demoSources } from '../src/demo.ts';
 import { PR_TTL, PR_TTL_LONG } from '../src/pr/cache.ts';
 import { PR_ARGS } from '../src/pr/gh.ts';
 import { renderPayload } from '../src/render.ts';
-import { caseNames, DIST, fill, GOLDEN, loadCase, MODES, prepare, ROOT, runDist, stripAnsi, type Case } from './harness.ts';
+import { caseNames, DIST, fill, GOLDEN, loadCase, MODES, prepare, ROOT, runDist, stripAnsi, tempDir, type Case } from './harness.ts';
 import { budgetOf, centredText, centreOracle, widestOf } from './hud/align-oracle.ts';
 import { frameOracle } from './hud/frame-oracle.ts';
 import { gitOracle, UNKNOWN, type OracleGit } from './hud/gitstate-oracle.ts';
@@ -148,7 +148,7 @@ test('(a) the shifted histories draw exactly the frozen spec renders: round 7 no
 
 /** A temp Claude config dir with this hungerbar.json, and the env dist runs in. */
 function world(config: unknown): { env: Record<string, string>; cache: string; cleanup(): void } {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-e2e-'));
+  const dir = tempDir('hb-e2e-');
   mkdirSync(join(dir, 'claude'));
   writeFileSync(join(dir, 'claude', 'hungerbar.json'), JSON.stringify(config));
   const cache = join(dir, 'cache');
