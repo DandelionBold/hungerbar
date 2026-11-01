@@ -110,6 +110,48 @@
       "originDate": "2026-10-27T23:17:49Z",
       "sha256": "78ac0963453a248ceedcba8000ec392d9df05bc37c951335b7201bef6965b559",
       "note": "Design round 8, the pick for a session getting too long: the option phantoms of toolong.json, its rows verbatim but for the sample names, with the situations they were drawn from (build.cjs SITUATIONS). test/unit/hud-player.test.ts renders each through Hungerbar and compares span for span."
+    },
+    "round9/ultra.json": {
+      "kind": "extract",
+      "origin": [
+        "round9/ultra.json",
+        "round9/build.cjs"
+      ],
+      "originSha256": {
+        "round9/ultra.json": "8c08ad773aa47967db963070db4b6a8b114e38cbb24b89916dd776caab346212",
+        "round9/build.cjs": "ba2380644843491ce6cfed66ef1a850fe03cdf5577f0a87616fdc6f214b3158b"
+      },
+      "originDate": "2026-11-01T18:26:55Z",
+      "sha256": "1d204edd8b86f96f7c4e0f004cb44f3375b87e26db3cb06e78c84078f9ab4e77",
+      "note": "Design round 9, the pick for an account with no 5-hour window (the Ultra plan): the option ultra-apple of ultra.json, its rows verbatim, with the situations they were drawn from. test/unit/hud-vitals.test.ts renders each through Hungerbar and compares span for span."
+    },
+    "round9/stale.json": {
+      "kind": "extract",
+      "origin": [
+        "round9/stale.json",
+        "round9/build.cjs"
+      ],
+      "originSha256": {
+        "round9/stale.json": "8ea9b27cc7b8d659e9da691e9293fff7da3d4df92f05b9fb035a3384ae010590",
+        "round9/build.cjs": "ba2380644843491ce6cfed66ef1a850fe03cdf5577f0a87616fdc6f214b3158b"
+      },
+      "originDate": "2026-11-01T18:26:55Z",
+      "sha256": "934c9f1863932ba94cbaa783c63475c927f010385f717a46c62f04a987cd115b",
+      "note": "Design round 9, the pick for limits that are not live: the option stale-tilde of stale.json, its rows verbatim, with the situations they were drawn from. test/unit/hud-vitals.test.ts renders each through Hungerbar and compares span for span."
+    },
+    "round9/paying.json": {
+      "kind": "extract",
+      "origin": [
+        "round9/paying.json",
+        "round9/build.cjs"
+      ],
+      "originSha256": {
+        "round9/paying.json": "5dcdd567044e62b3f3e43247f82c2747cc2ab750ccb1806a4dcf039770da63bb",
+        "round9/build.cjs": "ba2380644843491ce6cfed66ef1a850fe03cdf5577f0a87616fdc6f214b3158b"
+      },
+      "originDate": "2026-11-01T18:26:55Z",
+      "sha256": "4a3e4dd10706fbebc2af36ae084ac7b51009a1a5222e4733b994b20e3c0a3b62",
+      "note": "Design round 9, the pick for while the extra credits pay: the option pay-poison of paying.json, its rows verbatim, with the situations they were drawn from (the credits-out row as the design drew it: see its note). test/unit/hud-vitals.test.ts renders each through Hungerbar and compares span for span."
     }
   }
 }

@@ -19,8 +19,10 @@ const ALL: Array<[string, RefState]> = [...r6.map(([k, v]) => [`r6 ${k}`, v.stat
 const json = (v: unknown): string => JSON.stringify(v);
 
 test('every vendored file has the sha256 SOURCES.json pins, and copies equal their origin', () => {
-  // the engine's files, and the rows of each round-8 design picked (test/reference/round8/, 0.7.0)
-  const vendored = [...readdirSync(REF).filter((f) => /^(hud|extract-spec)/.test(f)), ...readdirSync(join(REF, 'round8')).map((f) => `round8/${f}`)].sort();
+  // the engine's files, and the rows of each design picked in round 8 (test/reference/round8/, 0.7.0) and round 9
+  // (test/reference/round9/, 1.1.0)
+  const vendored = [...readdirSync(REF).filter((f) => /^(hud|extract-spec)/.test(f)),
+    ...['round8', 'round9'].flatMap((dir) => readdirSync(join(REF, dir)).map((f) => `${dir}/${f}`))].sort();
   assert.deepEqual(Object.keys(SOURCES.files).sort(), vendored, 'SOURCES.json lists every vendored file');
   for (const [file, e] of Object.entries(SOURCES.files)) {
     assert.equal(sha256(readFileSync(join(REF, file))), e.sha256, `${file} sha256`);
