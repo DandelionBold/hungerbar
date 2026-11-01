@@ -6,7 +6,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { entryPath, readEntry } from '../../src/git/cache.ts';
+import { findRepo, indexMtime } from '../../src/git/head.ts';
 import { parseStatus, readOp, readStatus, statusArgs, statusCounter } from '../../src/git/status.ts';
+import { renderPayload } from '../../src/render.ts';
+import { lockLive, statSafe } from '../../src/store.ts';
+import { plainDefaults } from '../plain-config.ts';
 
 // git 2.52's output for a merge stopped on a conflict, with a rename, an untracked file and folder, and an upstream
 const OUT = [
@@ -136,6 +140,30 @@ test('readOp: rebase (merge and apply backends, not git am), merge, cherry-pick,
     assert.equal(readOp(g('mdir')), null, 'a MERGE_HEAD folder is no merge');
     put('file/rebase-merge', 'not a folder');
     assert.equal(readOp(g('file')), null);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a folder whose name is over 255 bytes (ENAMETOOLONG on macOS and Linux) is no repo of its own: the render goes on, from the repo above it', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'hb-long-'));
+  try {
+    mkdirSync(join(dir, '.git'));
+    writeFileSync(join(dir, '.git', 'HEAD'), 'ref: refs/heads/main\n');
+    // one part of 300 bytes is over every file system's 255, so a stat of anything under it fails
+    const long = join(dir, 'x'.repeat(300)), under = join(long, '.git');
+    assert.equal(statSafe(under), undefined);
+    assert.equal(lockLive(join(long, 'x.lock'), 10_000, Date.now()), false);
+    assert.equal(readOp(under), null);
+    const repo = findRepo(long);
+    assert.equal(repo?.branch, 'main', 'the repo above it');
+    assert.equal(indexMtime({ ...repo!, gitDir: under }), null);
+    const env = { HUNGERBAR_CACHE_DIR: join(dir, 'cache'), CLAUDE_CONFIG_DIR: join(dir, 'claude'), FORCE_COLOR: '3' };
+    for (const look of ['classic', 'hud'] as const) {
+      const r = renderPayload(JSON.stringify({ model: { display_name: 'Opus 5.5' }, workspace: { current_dir: long } }), { env, config: { ...plainDefaults(), look }, now: 1792859460 });
+      assert.equal(!!r.hud, look === 'hud', `${look} drew ${r.hud ? 'the HUD' : 'classic'}`);
+      assert.match(r.text.replace(/\x1b\[[0-9;]*m/g, '').replace(/\u00a0/g, ' '), /⎇ main/, look);
+    }
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

@@ -1,5 +1,5 @@
 // Cache directories, atomic writes, wx locks and FNV-1a keys (SPEC §10).
-import { closeSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, statSync, unlinkSync, utimesSync, writeFileSync } from 'node:fs';
+import { closeSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, statSync, unlinkSync, utimesSync, writeFileSync, type Stats } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { claudeDir, slash, type Env } from './env.ts';
@@ -24,6 +24,19 @@ export function fnv1a(s: string): string {
     h = Math.imul(h, 0x01000193) >>> 0;
   }
   return h.toString(16).padStart(8, '0');
+}
+
+/**
+ * statSync that never throws. throwIfNoEntry: false spares only a missing entry; on macOS and Linux a path part over
+ * 255 bytes (ENAMETOOLONG), a path over PATH_MAX, a loop or a folder without permission throws, and a payload's folder
+ * can be any of those. Every one of them is "no entry" here.
+ */
+export function statSafe(path: string): Stats | undefined {
+  try {
+    return statSync(path, { throwIfNoEntry: false });
+  } catch {
+    return undefined;
+  }
 }
 
 export function readJson<T>(path: string): T | null {
@@ -66,7 +79,7 @@ export function writeJson(path: string, obj: unknown): void {
 
 /** True while another process holds the lock and it is younger than staleMs. */
 export function lockLive(path: string, staleMs: number, nowMs: number): boolean {
-  const st = statSync(path, { throwIfNoEntry: false });
+  const st = statSafe(path);
   return st !== undefined && nowMs - st.mtimeMs < staleMs;
 }
 
@@ -100,7 +113,7 @@ const HOUR = 3_600_000, DAY = 24 * HOUR;
  */
 export function pruneOld(dir: string, nowMs: number, max = 200): number {
   const stamp = join(dir, '.pruned');
-  const last = statSync(stamp, { throwIfNoEntry: false })?.mtimeMs;
+  const last = statSafe(stamp)?.mtimeMs;
   if (last !== undefined && nowMs >= last && nowMs - last < DAY) return 0;
   try {
     writeFileSync(stamp, '');
@@ -116,7 +129,7 @@ export function pruneOld(dir: string, nowMs: number, max = 200): number {
     for (const f of names(d)) {
       if (removed >= max) return;
       const p = join(d, f);
-      const st = statSync(p, { throwIfNoEntry: false });
+      const st = statSafe(p);
       if (!st?.isFile()) continue;
       const age = nowMs - st.mtimeMs;
       if ((f.endsWith('.tmp') && age > HOUR) || (oldAll && age > 7 * DAY)) {

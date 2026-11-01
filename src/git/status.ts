@@ -10,6 +10,7 @@
 //     (CHERRY_PICK_HEAD). The order is git-prompt.sh's. They live in the per-worktree git dir.
 import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { statSafe } from '../store.ts';
 
 /** What `git status --porcelain=v2 --branch` counted; ahead and behind are null with no upstream. */
 export interface GitStatus {
@@ -94,8 +95,9 @@ function text(p: string): string | null {
     return null;
   }
 }
-const isDir = (p: string): boolean => statSync(p, { throwIfNoEntry: false })?.isDirectory() ?? false;
-const isFile = (p: string): boolean => statSync(p, { throwIfNoEntry: false })?.isFile() ?? false;
+// statSafe: the git dir may come from a .git file's gitdir line, and a bad one must not end the render
+const isDir = (p: string): boolean => statSafe(p)?.isDirectory() ?? false;
+const isFile = (p: string): boolean => statSafe(p)?.isFile() ?? false;
 /** A whole number written by git (`2\n`), else null. */
 function int(p: string): number | null {
   const m = /^\s*(\d{1,9})\s*$/.exec(text(p) ?? '');

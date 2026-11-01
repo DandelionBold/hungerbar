@@ -1,6 +1,7 @@
 // .git discovery and HEAD, read straight from disk with no process (SPEC §9).
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { statSafe } from '../store.ts';
 
 export interface Repo {
   root: string;
@@ -25,7 +26,8 @@ function readText(p: string): string | null {
 
 function gitDirOf(dir: string): string | null {
   const dotgit = join(dir, '.git');
-  const st = statSync(dotgit, { throwIfNoEntry: false });
+  // statSafe: the start folder is the payload's, and a part of it over 255 bytes throws on macOS and Linux
+  const st = statSafe(dotgit);
   if (!st) return null;
   if (st.isDirectory()) return dotgit;
   const m = /^gitdir:\s*(.+?)\s*$/m.exec(readText(dotgit) ?? '');
@@ -78,5 +80,5 @@ export function isUnborn(repo: Repo): boolean {
 }
 
 export function indexMtime(repo: Repo): number | null {
-  return statSync(join(repo.gitDir, 'index'), { throwIfNoEntry: false })?.mtimeMs ?? null;
+  return statSafe(join(repo.gitDir, 'index'))?.mtimeMs ?? null;
 }
