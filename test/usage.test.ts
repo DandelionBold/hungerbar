@@ -9,6 +9,7 @@ import { after, before, test } from 'node:test';
 import { VERSION } from '../src/env.ts';
 import { renderPayload } from '../src/render.ts';
 import { acctDir } from '../src/store.ts';
+import { getToken, keychainService, type KeychainReader } from '../src/usage/creds.ts';
 import { readUsage, usageLockPath } from '../src/usage/file.ts';
 import { refreshUsage, usageUrl } from '../src/usage/refresh.ts';
 import { listFiles, NOW } from './harness.ts';
@@ -132,6 +133,41 @@ test('the credentials file is used when not expired', async () => {
     writeFileSync(join(env.CLAUDE_CONFIG_DIR!, '.credentials.json'), JSON.stringify({ claudeAiOauth: { accessToken: TOKEN, expiresAt: Date.now() + 3_600_000 } }));
     await refreshUsage(env);
     assert.equal(seen[0]?.headers.authorization, `Bearer ${TOKEN}`);
+  } finally {
+    w.cleanup();
+  }
+});
+
+test("getToken: the variable, then an unexpired .credentials.json, then on macOS only Claude Code's Keychain item (a stub: the real security never runs)", () => {
+  const w = world();
+  try {
+    const dir = w.env.CLAUDE_CONFIG_DIR!, env = { CLAUDE_CONFIG_DIR: dir }, now = Date.now();
+    const asked: string[] = [];
+    const item = (text: string | null): KeychainReader => (service) => {
+      asked.push(service);
+      return text;
+    };
+    const good = JSON.stringify({ claudeAiOauth: { accessToken: TOKEN, expiresAt: now + 3_600_000 } });
+    // the variable first: nothing else is asked
+    assert.equal(getToken({ ...env, CLAUDE_CODE_OAUTH_TOKEN: ' x ' }, now, 'darwin', item(good)), 'x');
+    assert.deepEqual(asked, []);
+    // no file: macOS asks for the service name Claude Code uses with this CLAUDE_CONFIG_DIR; elsewhere nothing is asked
+    assert.equal(getToken(env, now, 'darwin', item(good)), TOKEN);
+    assert.deepEqual(asked, [keychainService(env)]);
+    assert.match(asked[0]!, /^Claude Code-credentials-[0-9a-f]{8}$/);
+    assert.equal(keychainService({}), 'Claude Code-credentials', 'no CLAUDE_CONFIG_DIR: the plain name');
+    for (const platform of ['linux', 'win32'] as const) assert.equal(getToken(env, now, platform, item(good)), null, platform);
+    assert.equal(asked.length, 1);
+    // an expired item, one that is not JSON, or none: no token
+    assert.equal(getToken(env, now, 'darwin', item(JSON.stringify({ claudeAiOauth: { accessToken: TOKEN, expiresAt: now - 1 } }))), null);
+    assert.equal(getToken(env, now, 'darwin', item('not json')), null);
+    assert.equal(getToken(env, now, 'darwin', item(null)), null);
+    // an unexpired file comes before the Keychain
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, '.credentials.json'), JSON.stringify({ claudeAiOauth: { accessToken: 'from-file', expiresAt: now + 60_000 } }));
+    asked.length = 0;
+    assert.equal(getToken(env, now, 'darwin', item(good)), 'from-file');
+    assert.deepEqual(asked, []);
   } finally {
     w.cleanup();
   }
