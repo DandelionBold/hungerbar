@@ -83,7 +83,7 @@ This is one render. The Claude Code session is about four and a half hours old a
 | 12 | Spawn point | ⌂ and the folder Claude Code runs in. A long path is cut from the front. | Your spawn point: home, where you come back to. |
 | 13 | Operator | Your user name before the folder (`hud.user`). While Claude Code runs as Administrator (root elsewhere), the name turns bold gold (`hud.op gold`, the default). With `tag`, a red `[OP]` shows instead. | An operator: a player with admin rights on a server. Servers often show it as a coloured name or an `[OP]` rank in chat. |
 | 14 | Version | Claude Code's version, in dark grey. | The version in the corner of the title screen. |
-| 15 | Offhand | ◆ The extra credits left, in whole dollars, when the account has extra usage. Its frame turns green while a limit is used up and the extra credits pay. | The offhand slot, holding an emerald, the villagers' money. |
+| 15 | Offhand | ◆ The extra credits left, in whole dollars, when the account has extra usage; from $100 the emerald gives up its spare cell for three digits (◆250, then ◆ 1k to ◆99k). The count turns grey when the credits were last read more than 15 minutes ago. Its frame turns green while a limit is used up and the extra credits pay, and stays grey when they are out. While you have credits, the totem ☥ waits in hotbar slot 5 (`hud.totem`); when a limit is at 10% or less it takes the emerald's place with your dollars, and when a limit hits 0 it pops there for 30 seconds, between gold sides. | The offhand slot, holding an emerald, the villagers' money. A Totem of Undying held there saves you from dying once, and pops. |
 | 16 | Pickaxe | The selected slot, in the mint selection frame. The pickaxe takes its colour from the model's family. The effort shows as a numeral (Ⅰ to Ⅴ) on a glint that turns a deeper purple with more effort. | The selected hotbar slot, holding a pickaxe. Enchanted items shimmer with a purple glint. |
 | 17 | Book and quill | 📖 The prompts you sent this session, typed or sent while Claude was working. Slash commands, interrupts and notifications do not count. 100 or more shows 99 in yellow. | The book and quill, a book you write in. |
 | 18 | Gold | The session's cost, in whole dollars. | A gold ingot. |
@@ -93,7 +93,7 @@ This is one render. The Claude Code session is about four and a half hours old a
 | 22 | Counts | The exact `+added -removed`, in green and red. | Like the count on a stack of items. |
 | 23 | Branch | ⎇ is coloured by your files: green when clean, yellow when changed, aqua when only new untracked files exist, red with a conflict. The branch is coloured by its commits: white, purple during a merge, rebase or cherry-pick, gold when ahead of or behind its upstream, grey `@sha` on a detached HEAD. Short marks follow it, such as `merge`, `!2`, `?3` and `↑2↓1`. | The chat colours: green, yellow, aqua, red, purple and gold. |
 | 24 | Pull request | The branch's pull request (`hud.pr`, with your own `gh`). It shows `#128`, then the checks: gold ● still running, green ✓ passed, red × failed. At most one more mark follows: ✓ approved, ± changes requested, ‼ a conflict, ◌ a draft. A merged PR shows in purple and a closed one in dark grey. | No counterpart. It uses the chat colours too. |
-| 25 | Hotbar frame | A thin edge under the hotbar: mint under the selected slot, grey under the rest. The offhand gets an edge under and over it, green while the extra credits pay. | The frame of the hotbar, and the box around the selected slot. |
+| 25 | Hotbar frame | A thin edge under the hotbar: mint under the selected slot, grey under the rest. The offhand gets an edge under and over it, green while the extra credits pay, gold while the totem pops. | The frame of the hotbar, and the box around the selected slot. |
 
 ## Features
 
@@ -139,6 +139,25 @@ Three looks for the hearts line, picked in round 9 of the design picker:
 ```
 
 Ultra and poison are on by default. `hungerbar look hud --ultra off --poison off` brings back 1.0's `?`, skull and dark hearts.
+
+### The totem and the emerald
+
+Four changes to the offhand; the totem and the count were picked in round 9 of the design picker:
+
+- **The Totem of Undying** (`hud.totem`). While you have extra credits, a gold ☥ waits in hotbar slot 5, the way a Minecraft player keeps a totem for a bad fight. When the 5-hour window or the week drops to 10% left or less, the totem swaps into the offhand with your dollars, a warning that the credits are about to take over. When a window hits 0 it pops there for 30 seconds: ☥✦ between gold sides, the frame's edges gold with them. Then the green paying emerald is back, and the totem is used until the window resets. No credits, no totem.
+- **Dollars past $99** (no key). The emerald had two cells for its count, so $500 showed a yellow 99. From $100 it gives up its spare cell: ◆250, then ◆ 1k to ◆99k, and a yellow ◆99k from $100,000. The totem counts the same way.
+- **An old count** (no key). Credits the usage API read more than 15 minutes ago are counted in grey, not white.
+- **No green frame without credits** (no key). When a limit is used up and no credits are left, the offhand's frame stays grey; 1.0 lit it green, as if the credits paid.
+
+Safe and a limit at 7%, with $50 of credits, then the pop with $45.80 left:
+
+```
+v2.1.306  ◆ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3      ☥                 ▆ ▀▀▂▂  +1208 -279  ⎇ main
+v2.1.306  ☥ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3                        ▆ ▀▀▂▂  +1208 -279  ⎇ main
+v2.1.306 ▐☥✦45▌ ▐⛏ Ⅲ ▌📖42 ▄▄ 3                        ▆ ▀▀▂▂  +1208 -279  ⎇ main
+```
+
+The totem is on by default. `hungerbar look hud --totem off` brings back 1.0's slot 5 and offhand. To see the pop, Hungerbar keeps what it last drew in a small file per session (see [What it writes](#privacy-and-network)).
 
 ### Git state
 
@@ -284,7 +303,7 @@ In a terminal, `setup` asks a few questions. Each answer is shown as a preview d
 
 If you already have a `hungerbar.json`, Enter keeps what it has. The two network questions pre-select yes unless the file sets the key they ask about; then Enter keeps the file's value. The pull request question's key is `hud.pr`. The usage API question's key is `network.usageApi`; when the usage API is on already, setup asks about `network.scopedWeekly` (Fable's weekly) instead. Each no is saved, so the next setup keeps it: a no to the pull request status as `"pr": "off"`, a no to the usage API as `"usageApi": false` (or `"scopedWeekly": false`).
 
-Flags answer for setup: `--look classic|hud`, then, for the HUD, `--fable off|tail|tooltip|boss|beacon`, `--align left|center`, `--user off|user|user@host`, `--op off|tag|gold`, `--pr on|off`, `--bed on|off`, `--phantoms on|off`, `--ultra on|off` and `--poison on|off` (setup asks no question for the last two). The HUD's flags go with `--look hud`, for example `hungerbar setup --look hud --fable boss --pr on`. Without a terminal, setup asks nothing. Whenever it asks nothing (no terminal, or flags), it prints what of the HUD still waits for your yes, such as `hungerbar look hud --fable boss --pr on`. The pull request status is named only when `gh` is found, and a no you already gave (such as `"pr": "off"`) is not named again.
+Flags answer for setup: `--look classic|hud`, then, for the HUD, `--fable off|tail|tooltip|boss|beacon`, `--align left|center`, `--user off|user|user@host`, `--op off|tag|gold`, `--pr on|off`, `--bed on|off`, `--phantoms on|off`, `--ultra on|off`, `--poison on|off` and `--totem on|off` (setup asks no question for the last three). The HUD's flags go with `--look hud`, for example `hungerbar setup --look hud --fable boss --pr on`. Without a terminal, setup asks nothing. Whenever it asks nothing (no terminal, or flags), it prints what of the HUD still waits for your yes, such as `hungerbar look hud --fable boss --pr on`. The pull request status is named only when `gh` is found, and a no you already gave (such as `"pr": "off"`) is not named again.
 
 Then setup backs up `~/.claude/settings.json` to `settings.json.bak.<timestamp>`, remembers your old `statusLine`, and changes only that key:
 
@@ -329,6 +348,7 @@ The file is strict JSON. Unknown keys are ignored, and a value that is not allow
 | `hud.phantoms` | `on` | `on`, `off` | the phantoms of a long session |
 | `hud.ultra` | `on` | `on`, `off` | the [golden hearts](#hearts-that-tell-more) when the account has no 5-hour limit (the Ultra plan) |
 | `hud.poison` | `on` | `on`, `off` | the poisoned hearts while the extra credits pay for a used-up 5-hour window |
+| `hud.totem` | `on` | `on`, `off` | the [totem](#the-totem-and-the-emerald) in hotbar slot 5 while you have credits, in the offhand while a limit is at 10% or less, popping for 30 s when one hits 0 |
 
 **Both looks**
 
@@ -388,7 +408,7 @@ hungerbar                      render from stdin (in a terminal it shows a demo)
 hungerbar setup                switch Claude Code's status line to Hungerbar (a terminal asks for the look)
 hungerbar setup --restore      put the previous status line back
 hungerbar look [classic|hud]   show or switch the look; --fable, --align, --pr, --user, --op, --bed,
-                               --phantoms, --ultra, --poison; --print shows the change and writes nothing
+                               --phantoms, --ultra, --poison, --totem; --print shows the change and writes nothing
 hungerbar preview              draw sample situations (normal, tight, fresh, extra, fable); writes nothing
 hungerbar doctor [--bench]     check the install and time a render
 hungerbar refresh usage        ask the usage API now and print what came back (when network.usageApi is on)
@@ -449,7 +469,7 @@ Hungerbar runs on your machine and keeps what it learns there. Two features use 
 
 **What it writes**
 
-- Its cache folder: `%LOCALAPPDATA%\hungerbar` on Windows, `~/Library/Caches/hungerbar` on macOS, `$XDG_CACHE_HOME/hungerbar` or `~/.cache/hungerbar` on Linux. It holds small JSON files: the git answers, the last known limits, the usage API's answer, the PR answers, the HUD's terrain history, the transcript counts and, after `setup`, your previous status line (and, with `setup --launcher`, `statusline.cmd`). Terrain histories, transcript counts and PR answers untouched for a week are deleted (checked at most once a day).
+- Its cache folder: `%LOCALAPPDATA%\hungerbar` on Windows, `~/Library/Caches/hungerbar` on macOS, `$XDG_CACHE_HOME/hungerbar` or `~/.cache/hungerbar` on Linux. It holds small JSON files: the git answers, the last known limits, the usage API's answer, the PR answers, the HUD's terrain history, the totem's memory (what the HUD last drew, one small file per session, so it sees when a limit hits 0), the transcript counts and, after `setup`, your previous status line (and, with `setup --launcher`, `statusline.cmd`). Terrain histories, the totem's files, transcript counts and PR answers untouched for a week are deleted (checked at most once a day).
 - `settings.json` (only the `statusLine` key, with a backup) when you run `setup` or `setup --restore`.
 - `hungerbar.json` (with a backup) when you run `setup` or `look`.
 - Windows Terminal's `settings.json` (only the font face, with a backup) when you run `icons plain` or `icons colour`, or `setup --icons plain` or `setup --icons colour`.

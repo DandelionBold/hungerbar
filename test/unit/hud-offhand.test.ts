@@ -151,6 +151,14 @@ test('round 9: paying.json\'s credits-out row is the offhand\'s; its other rows 
   });
 });
 
+test('the README\'s totem sample is the hotbar line of the totem-mix rows t-safe, t-h5-7 and t-pop', () => {
+  const readme = readFileSync(join(REF, '..', '..', 'README.md'), 'utf8').replace(/\r\n/g, '\n');
+  const block = /\n### The totem and the emerald\n[\s\S]*?```\n([\s\S]*?)\n```/.exec(readme);
+  assert.ok(block, 'README has the totem sample');
+  const bar = (id: string): string => { const l = ALL.find(({ s }) => s.id === id)!.lines; return text(l[l.length - 2] as Span[]); };
+  assert.deepEqual(block[1]!.split('\n'), [bar('t-safe'), bar('t-h5-7'), bar('t-pop')]);
+});
+
 // ---------------------------------------------------------------------------------------------------------------------
 // The real HUD path
 // ---------------------------------------------------------------------------------------------------------------------
