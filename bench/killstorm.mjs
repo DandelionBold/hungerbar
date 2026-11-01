@@ -23,7 +23,12 @@ const N = opt('--n', 500), CONC = opt('--conc', 8), MAX = opt('--max-ms', 1000);
 const fwd = (p) => p.replace(/\\/g, '/');
 const shell = [process.env.CLAUDE_CODE_GIT_BASH_PATH, 'C:/Program Files/Git/bin/bash.exe'].find((p) => p && existsSync(p));
 if (process.platform !== 'win32' || !shell) {
-  console.log('kill-storm is a Windows + Git Bash test; skipped');
+  // What it proves is Windows': a status line killed mid-render through Git Bash, its .cmd launcher, and no node.exe,
+  // cmd.exe or git.exe left over, counted through PowerShell's process list. On macOS and Linux run() kills a whole
+  // process group, and the tests check that (test/git.test.ts, a slow git).
+  console.log(process.platform !== 'win32'
+    ? `kill-storm skipped: it is a Windows test (Git Bash, the .cmd launcher and PowerShell's process list), and this is ${process.platform}`
+    : 'kill-storm skipped: no Git Bash found (set CLAUDE_CODE_GIT_BASH_PATH, or install Git for Windows)');
   process.exit(0);
 }
 const dir = mkdtempSync(join(tmpdir(), 'hb-killstorm-'));

@@ -95,7 +95,8 @@ const ROWS = [
   { name: 'Git Bash floor (true)', cmd: 'true', budget: null },
   { name: 'bare node (empty.mjs)', cmd: `"${fwd(process.execPath)}" "${fwd(empty)}"`, budget: null, floor: true },
   { name: 'hungerbar --direct, cache hit', cmd: direct, budget: 160, env: () => ({ ...env, HUNGERBAR_DEBUG: '1' }) },
-  { name: 'hungerbar via the .cmd launcher', cmd: `exec "${fwd(launcher)}"`, budget: 200 },
+  // the .cmd launcher is Windows' (setup --launcher); sh elsewhere cannot run it
+  ...(process.platform === 'win32' ? [{ name: 'hungerbar via the .cmd launcher', cmd: `exec "${fwd(launcher)}"`, budget: 200 }] : []),
   { name: 'stale render that spawns the refresher', cmd: direct, budget: 215, env: (i) => ({ ...env, HUNGERBAR_CACHE_DIR: join(dir, `stale${i}`) }) },
   { name: "hungerbar classic, the HUD row's input", cmd: direct, budget: null, env: () => hudEnv('classic'), input: hudPayload, pair: true },
   { name: 'hungerbar hud (fable boss, history)', cmd: direct, budget: null, env: () => hudEnv('hud'), input: hudPayload, hud: true },
