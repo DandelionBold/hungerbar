@@ -14,6 +14,7 @@ import { parseArgs } from '../src/cli/args.ts';
 import {
   alignFlag, alignNote, choiceOptions, demoLines, diffLines, elevatedAs, handSteps, HUD_FLAG_KEYS, HUD_FLAGS, hudFlag, hudOptions, mergeLook, opSummary, ownSentence,
   parseAlign, parseFable, parseHudOption, parseLook, promptName, promptSentence, sentences, gateHere, V11_FLAG_KEYS, vitalsSummary,
+  histFiles, HUD_OPTION_NAMES, offhandSummary, playerNotes, shownFiles,
 } from '../src/cli/look.ts';
 import { isLeftover, LEFTOVER_PS, listProcesses, NO_SPAWN_WARNING, paddingWarning, processSource } from '../src/cli/doctor.ts';
 import { gitArgs } from '../src/git/refresh.ts';
@@ -29,6 +30,7 @@ import { playerHud, type PlayerMarks } from '../src/hud/player.ts';
 import { prBadge } from '../src/hud/prci.ts';
 import { renderHud } from '../src/hud/fable.ts';
 import { S } from '../src/hud/spans.ts';
+import { offhandHud, type OffhandMarks } from '../src/hud/offhand.ts';
 import { heartsHud, type VitalMarks } from '../src/hud/vitals.ts';
 import type { PrInfo } from '../src/pr/gh.ts';
 import { renderPayload } from '../src/render.ts';
@@ -635,7 +637,7 @@ test('look hud --align left|center: a backup, hud.align next to the other hud ke
 
 test('refused before any write: a bad --fable, --fable without hud, an unknown look, invalid JSON, a non-object, non-UTF-8', () => {
   const cases: Array<[string | Buffer, string[], RegExp]> = [
-    ['{"a": 1}', ['look', 'hud', '--align', 'middle'], /--align takes left or center \(got "middle"\)\nusage: hungerbar look \[classic\|hud\] \[--fable [^\]]*\] \[--align left\|center\] \[--pr on\|off\] \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\] \[--ultra on\|off\] \[--poison on\|off\] \[--print\]/],
+    ['{"a": 1}', ['look', 'hud', '--align', 'middle'], /--align takes left or center \(got "middle"\)\nusage: hungerbar look \[classic\|hud\] \[--fable [^\]]*\] \[--align left\|center\] \[--pr on\|off\] \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\] \[--ultra on\|off\] \[--poison on\|off\] \[--totem on\|off\] \[--print\]/],
     ['{"a": 1}', ['look', 'hud', '--align'], /--align takes left or center\n/],
     ['{"a": 1}', ['look', 'classic', '--align', 'center'], /--align goes with the HUD: hungerbar look hud --align center/],
     ['{"a": 1}', ['look', '--align', 'left'], /--align goes with the HUD: hungerbar look hud --align left/],
@@ -850,7 +852,7 @@ test("doctor's Look section: the look, the verdict here and its inputs, the usag
     writeFileSync(join(acct, 'usage.json'), JSON.stringify({ v: 1, at: NOW - 3700, extra: null, lockUntil: 0, error: 'http-429',
       scoped: [{ name: 'Fable', pct: 62, resets_at: NOW + 190800 }, { name: 'Opus', pct: 100, resets_at: NOW - 60 }] }));
     mkdirSync(join(w.cache, 'hud'));
-    for (const f of ['a.1.json', 'b.2.json', 'c.3.json.123.tmp']) writeFileSync(join(w.cache, 'hud', f), '{}');
+    for (const f of ['a.1.json', 'b.2.json', 'c.3.json.123.tmp', 'a.shown.json']) writeFileSync(join(w.cache, 'hud', f), '{}');
     const before = w.snapshot();
     const r = w.run(['doctor'], { HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3', COLUMNS: '70' });
     assert.equal(r.status, 0, r.stderr);
@@ -863,7 +865,8 @@ test("doctor's Look section: the look, the verdict here and its inputs, the usag
     assert.match(look, /warn {2}hud\.fable boss needs network\.usageApi and network\.scopedWeekly/);
     assert.match(look, /usage\.json: Fable 38% left, full again in 2d 5h \(fetched 1h 1m ago, last error http-429\)/);
     assert.match(look, /usage\.json: Opus 0% left, reset passed/);
-    assert.match(look, /2 HUD history file\(s\) in /);
+    assert.match(look, /2 HUD history file\(s\) in /, 'the shown-file is not a history file');
+    assert.match(look, / {2}· {5}1 shown-file\(s\) there, the totem's memory of its pop \(one per session\)\n/);
     assert.deepEqual(w.snapshot(), before, 'doctor writes nothing');
 
     const ok = w.run(['doctor'], { HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3', HUNGERBAR_LOOK: 'classic' });
@@ -970,7 +973,7 @@ test('look hud --user, --op, --bed and --phantoms: a backup, --print, what they 
     r = w.run(['look'], noGh);
     assert.match(r.stdout, /\nhud\.pr off: no pull request status\nhud\.user user@host: line 3 reads "⌂ steve@DESKTOP: <folder>" here\nhud\.op tag: a bold red \[OP\] before your name while Claude Code runs as (Administrator|root); this terminal does not, so nothing shows here\nhud\.bed off: no bed; hud\.phantoms off: no phantoms\n/);
     // the player's flags, then (1.1.0) the hearts'
-    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\n$/);
+    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\nthe offhand: hungerbar look hud \[--totem on\|off\]\n$/);
     // no user name found here: said so
     assert.match(w.run(['look'], { ...noGh, HUNGERBAR_USER: '\x1b[31m' }).stdout, /\nhud\.user user@host, but no user name is found here, so none shows\n/);
     r = w.run(['look', 'hud', '--op', 'off', '--user', 'off'], noGh);
@@ -1282,8 +1285,8 @@ test('help names the 0.7.0 flags of look, setup and preview', () => {
 // 1.1.0: --ultra and --poison in look, setup, preview and doctor; the vitals' glyph census
 // ---------------------------------------------------------------------------------------------------------------------
 
-test('V11_FLAG_KEYS: --ultra and --poison take on or off, strictly, after the 0.7.0 keys; the writer writes off, and on only over a value', () => {
-  assert.deepEqual(V11_FLAG_KEYS, ['ultra', 'poison']);
+test('V11_FLAG_KEYS: --ultra, --poison and --totem take on or off, strictly, after the 0.7.0 keys; the writer writes off, and on only over a value', () => {
+  assert.deepEqual(V11_FLAG_KEYS, ['ultra', 'poison', 'totem']);
   assert.deepEqual(HUD_FLAG_KEYS, ['pr', 'user', 'op', 'bed', 'phantoms'], 'the 0.7.0 keys as they were');
   for (const k of V11_FLAG_KEYS) {
     assert.deepEqual([...HUD_FLAGS[k]].sort(), [...HUD_SWITCHES].sort(), k);
@@ -1329,8 +1332,8 @@ test('look hud --ultra and --poison: a backup, --print, what they show, the way 
     assert.doesNotMatch(r.stdout, /hud\.bed /, 'only what changed is noted');
     // look with no argument: the summary after the player's, and the flags after the player's line
     r = w.run(['look'], noGh);
-    assert.match(r.stdout, /\nhud\.bed on: [^\n]*\nhud\.ultra off: [^\n]*hud\.poison on: [^\n]*\nswitch with: /);
-    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\n$/);
+    assert.match(r.stdout, /\nhud\.bed on: [^\n]*\nhud\.ultra off: [^\n]*hud\.poison on: [^\n]*\nhud\.totem on: [^\n]*\nswitch with: /);
+    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\nthe offhand: hungerbar look hud \[--totem on\|off\]\n$/);
     const d = w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' });
     assert.equal(d.status, 0, d.stderr);
     assert.match(d.stdout.slice(d.stdout.indexOf('\nLook\n')), / {2}· {5}hud\.ultra off: a grey \? [^\n]*; hud\.poison on: [^\n]*\n/);
@@ -1401,5 +1404,118 @@ test('the 1.1.0 glyph census: over the demos and every mark, the vitals add only
 test('help names the 1.1.0 flags of look, setup and preview', () => {
   const r = runDist('', { PATH: process.env.PATH ?? '' }, ['--help']);
   assert.equal(r.status, 0);
-  assert.equal(r.stdout.split('\n').filter((l) => l.trim() === '[--ultra on|off] [--poison on|off]').length, 3);
+  assert.equal(r.stdout.split('\n').filter((l) => l.trim() === '[--ultra on|off] [--poison on|off] [--totem on|off]').length, 3);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// 1.1.0: --totem in look, setup, preview and doctor; the offhand's glyph census
+// ---------------------------------------------------------------------------------------------------------------------
+
+test('--totem: the writer, the checks, what it shows; histFiles and shownFiles split cacheDir/hud', () => {
+  assert.deepEqual([...HUD_FLAGS.totem].sort(), ['off', 'on']);
+  assert.deepEqual(hudFlag(parseArgs(['--totem', 'gold'], ['totem']), 'totem'), { ok: false, error: '--totem takes on or off (got "gold")' });
+  assert.deepEqual(hudOptions(parseArgs(['--totem', 'off', '--poison', 'off'], ['fable', 'align', ...HUD_FLAG_KEYS, ...V11_FLAG_KEYS]), false, 'x'), { ok: true, value: { poison: 'off', totem: 'off' } });
+  assert.deepEqual(hudOptions(parseArgs(['--totem', 'off'], ['totem']), true, '--look hud'), { ok: false, error: '--totem goes with the HUD: --look hud --totem off' });
+  assert.ok(HUD_OPTION_NAMES.includes('totem'), 'setup and preview take it');
+  assert.deepEqual(mergeLook({ hud: { fable: 'boss' } }, { look: 'hud', totem: 'on' }), { hud: { fable: 'boss' } }, 'the default on a file with none: nothing');
+  assert.deepEqual(mergeLook({}, { look: 'hud', totem: 'off', ultra: 'off', bed: 'off' }).hud, { bed: 'off', ultra: 'off', totem: 'off' }, 'the writer\'s order: last');
+  assert.deepEqual(choiceOptions({ look: 'hud', totem: 'off' }), ['totem off']);
+  const cfg = (totem: 'on' | 'off'): Config => ({ ...defaults(), hud: { ...defaults().hud, totem } });
+  assert.equal(offhandSummary(cfg('on')), 'hud.totem on: the Totem of Undying while extra credits are left: in hotbar slot 5, in the offhand while a limit is at 10% or less, popping for 30 s when one hits 0; the emerald counts dollars past $99 (◆250, ◆ 1k), an old count is grey, and the frame stays grey when the credits are out');
+  assert.equal(offhandSummary(cfg('off')), 'hud.totem off: no totem; the emerald counts dollars past $99 (◆250, ◆ 1k), an old count is grey, and the frame stays grey when the credits are out');
+  assert.deepEqual(playerNotes({ look: 'hud', totem: 'off' }, cfg('off'), {}), [offhandSummary(cfg('off'))]);
+  assert.deepEqual(playerNotes({ look: 'hud', poison: 'off' }, cfg('on'), {}).length, 1, 'only what was set');
+  const w = world(null);
+  try {
+    assert.deepEqual([histFiles(w.env), shownFiles(w.env)], [0, 0], 'no hud folder');
+    mkdirSync(join(w.cache, 'hud'), { recursive: true });
+    for (const f of ['s1.0a1b2c3d.json', 's1.shown.json', 's2.shown.json', 's3.shown.json.9.x1y2z3.tmp', 'notes.txt']) writeFileSync(join(w.cache, 'hud', f), '{}');
+    assert.deepEqual([histFiles(w.env), shownFiles(w.env)], [1, 2]);
+  } finally {
+    w.cleanup();
+  }
+});
+
+test('look hud --totem off: a backup, what it shows, the way back; look with no argument and doctor report it; refused before any write', () => {
+  const w = world('{\n  "look": "hud"\n}\n');
+  try {
+    const noGh = { PATH: join(w.dir, 'no-bin') };
+    let r = w.run(['look', 'hud', '--totem', 'off'], noGh);
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /Back with: hungerbar look hud --totem on\n/);
+    assert.match(r.stdout, /\nhud\.totem off: no totem; the emerald counts dollars past \$99/);
+    assert.doesNotMatch(r.stdout, /hud\.ultra /, 'only what changed is noted');
+    assert.equal(w.text(), '{\n  "look": "hud",\n  "hud": {\n    "totem": "off"\n  }\n}\n');
+    r = w.run(['look'], noGh);
+    assert.match(r.stdout, /\nhud\.totem off: no totem; [^\n]*\nswitch with: /);
+    const d = w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' });
+    assert.equal(d.status, 0, d.stderr);
+    const look = d.stdout.slice(d.stdout.indexOf('\nLook\n'));
+    assert.match(look, / {2}· {5}hud\.totem off: no totem; [^\n]*\n/);
+    assert.doesNotMatch(look, /shown-file/, 'the totem off and no shown-file: no count');
+    r = w.run(['look', 'hud', '--totem', 'on'], noGh);
+    assert.match(r.stdout, /\nhud\.totem on: the Totem of Undying while extra credits are left: /);
+    assert.match(w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' }).stdout, / {2}· {5}0 shown-file\(s\) there, /);
+  } finally {
+    w.cleanup();
+  }
+  for (const [args, msg] of [
+    [['look', 'hud', '--totem', 'maybe'], /--totem takes on or off \(got "maybe"\)\nusage: hungerbar look /],
+    [['look', 'classic', '--totem', 'off'], /--totem goes with the HUD: hungerbar look hud --totem off/],
+    [['look', 'hud', '--totm', 'off'], /unknown option --totm/],
+  ] as const) {
+    const e = world('{"a": 1}');
+    try {
+      const before = e.snapshot();
+      const r = e.run([...args]);
+      assert.equal(r.status, 1, args.join(' '));
+      assert.match(r.stderr, msg, args.join(' '));
+      assert.deepEqual(e.snapshot(), before, `${args.join(' ')} wrote nothing`);
+    } finally {
+      e.cleanup();
+    }
+  }
+});
+
+test('preview --totem: the normal day\'s totem in slot 5, the tight day\'s in the offhand, or with off neither; nothing is written', () => {
+  const w = world();
+  try {
+    const hot = (s: string, args: string[]): string => {
+      const out = w.run(['preview', '--situation', s, '--look', 'hud', '--align', 'left', ...args], { FORCE_COLOR: '3' }).stdout.split('\n');
+      return out[out.length - 3]!.replace(/\x1b\[[\d;]*m/g, '');
+    };
+    assert.equal([...hot('normal', [])][36], '☥', 'on (the default): slot 5, col 37 (📖 is one code point for two cells)');
+    assert.equal([...hot('normal', ['--totem', 'off'])][36], '\u00a0');
+    assert.match(hot('tight', []), /^v2\.1\.306\u00a0\u00a0☥\u00a050/u, 'the tight day: in the offhand');
+    assert.match(hot('tight', ['--totem', 'off']), /^v2\.1\.306\u00a0\u00a0◆\u00a050/u);
+    assert.match(hot('extra', []), /^v2\.1\.306\u00a0▐◆\u00a045▌/u, 'the extra day pays: no pop in a preview');
+    assert.equal(existsSync(join(w.cache, 'hud')), false, 'preview writes no shown-file');
+  } finally {
+    w.cleanup();
+  }
+});
+
+test('the 1.1.0 glyph census for the offhand: over the demos and every mark, the offhand adds only ☥ and ✦, each listed by glyphs --hud at 1 cell', () => {
+  const cps = (lines: readonly (readonly { t: string }[])[]): Set<string> => new Set(lines.flatMap((l) => l.flatMap((s) => [...s.t])).filter((c) => c.codePointAt(0)! > 0x7f));
+  const added = new Set<string>();
+  for (const s of ['normal', 'tight', 'fresh', 'extra', 'fable']) {
+    const d = DEMOS[s]!;
+    const r = renderPayload(JSON.stringify(d.payload), { env: { FORCE_COLOR: '3' }, config: { ...defaults(), look: 'hud', hud: { ...defaults().hud, totem: 'off' } }, sources: demoSources(d), now: DEMO_NOW });
+    const base = cps(frameHud(r.hud!.lines));
+    for (const totem of ['slot5', 'offhand', 'pop', null] as const) {
+      for (const [paying, out, stale] of [[false, false, false], [true, false, true], [true, true, false]] as const) {
+        for (const cash of [0, 1, 45, 250, 1234, 123456]) {
+          const m: OffhandMarks = { ...r.hud!.offhand, cash, paying, out, totem, stale };
+          for (const c of cps(frameHud(offhandHud(r.hud!.lines, m)))) if (!base.has(c)) added.add(c);
+        }
+      }
+    }
+  }
+  const listed = new Map(HUD_GLYPHS.map(([g, what]) => [g, what]));
+  for (const g of added) {
+    assert.ok(listed.has(g), `U+${g.codePointAt(0)!.toString(16).toUpperCase()} is listed by glyphs --hud`);
+    assert.equal(cellWidth(g), 1, `${g} is 1 cell`);
+  }
+  assert.deepEqual([...added].sort(), ['☥', '✦'].sort(), 'the totem and its spark; ◆, ▐ and ▌ are the engine\'s');
+  assert.match(listed.get('☥')!, /Totem of Undying/);
 });

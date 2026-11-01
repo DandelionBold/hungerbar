@@ -15,7 +15,8 @@ import { readUsage } from '../usage/file.ts';
 import { parseArgs, say } from './args.ts';
 import { iconSummary } from './icons.ts';
 import {
-  alignNote, fableWarning, gateHere, gateInputs, gitStateNote, histFiles, idleSummary, lookSummary, opSummary, prBlocked, prFiles, prSummary, userSummary, vitalsSummary,
+  alignNote, fableWarning, gateHere, gateInputs, gitStateNote, histFiles, idleSummary, lookSummary, offhandSummary, opSummary, prBlocked, prFiles, prSummary, shownFiles,
+  userSummary, vitalsSummary,
   verdict,
 } from './look.ts';
 import { readSettings, settingsPath, type StatusLine } from './setup.ts';
@@ -148,7 +149,7 @@ export const median = (xs: number[]): number => {
  * usage API the Fable options need, usage.json's scoped weekly limits, how many history files the HUD keeps, and (0.7.0)
  * where the git state comes from, the PR status here (a warning while it is on but cannot show) with how many answers
  * the PR cache keeps, the name line 3 shows here, whether this terminal runs elevated, the bed and the phantoms, and
- * (1.1.0) the hearts line's looks.
+ * (1.1.0) the hearts line's looks, the offhand and how many shown-files (the totem's memory) it keeps.
  */
 function lookSection(cfg: Config, error: string | null, env: Env): void {
   say('\nLook');
@@ -171,6 +172,7 @@ function lookSection(cfg: Config, error: string | null, env: Env): void {
     }
   } else if (api) info('usage.json: no data yet');
   info(`${histFiles(env)} HUD history file(s) in ${join(cacheDir(env), 'hud')}`);
+  if (cfg.hud.totem === 'on' || shownFiles(env)) info(`${shownFiles(env)} shown-file(s) there, the totem's memory of its pop (one per session)`);
   info(gitStateNote(cfg));
   (prBlocked(cfg, env) ? warn : info)(prSummary(cfg, env));
   if (cfg.hud.pr === 'on') info(`${prFiles(env)} pull request answer(s) in ${join(cacheDir(env), 'pr')}`);
@@ -178,6 +180,7 @@ function lookSection(cfg: Config, error: string | null, env: Env): void {
   info(opSummary(cfg, env));
   info(idleSummary(cfg));
   info(vitalsSummary(cfg));
+  info(offhandSummary(cfg));
 }
 
 export function doctor(argv: string[], env: Env, self: string): number {

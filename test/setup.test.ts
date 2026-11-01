@@ -1198,6 +1198,9 @@ test('setup --look hud with --pr, --user, --op, --bed and --phantoms: written by
     assert.equal(v.status, 0, v.stderr);
     assert.deepEqual(JSON.parse(readFileSync(cfg, 'utf8')), { $schema: SCHEMA_URL, hud: { user: 'user@host', bed: 'off', ultra: 'off', poison: 'off' } });
     assert.match(run('--look', 'hud', '--ultra', 'off', '--poison', 'off').stdout, /look: hud, ultra off, poison off, unchanged/);
+    // and --totem, last
+    assert.equal(run('--look', 'hud', '--totem', 'off').status, 0);
+    assert.deepEqual(JSON.parse(readFileSync(cfg, 'utf8')), { $schema: SCHEMA_URL, hud: { user: 'user@host', bed: 'off', ultra: 'off', poison: 'off', totem: 'off' } });
   } finally {
     w.cleanup();
   }
@@ -1210,6 +1213,8 @@ test('setup --look hud with --pr, --user, --op, --bed and --phantoms: written by
     [['--look', 'hud', '--phantoms', 'many'], /--phantoms takes on or off \(got "many"\)/],
     [['--look', 'hud', '--ultra', 'gold'], /--ultra takes on or off \(got "gold"\)/],
     [['--poison', 'off'], /--poison goes with the HUD: --look hud --poison off/],
+    [['--totem', 'off'], /--totem goes with the HUD: --look hud --totem off/],
+    [['--look', 'hud', '--totem', 'maybe'], /--totem takes on or off \(got "maybe"\)/],
     [['--look', 'hud', '--pr', 'yes'], /--pr takes on or off \(got "yes"\)/],
     [['--look', 'hud', '--usr', 'user'], /unknown option --usr/],
   ] as const) {
