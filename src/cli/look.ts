@@ -297,12 +297,13 @@ export function applyConfig(p: ConfigPlan): string | null {
 /**
  * Said for every Fable option but off: what turning the usage API on means (plan §8). `asking`: setup's wording, before
  * its question (SPEC §0.10), `'scoped'` when hungerbar.json has the usage API on already and only scopedWeekly is
- * asked; else look's, which turns it on.
+ * asked; else look's, which turns it on. `platform` names the Keychain on macOS (a parameter, so the tests read both
+ * wordings anywhere).
  */
-export function consentLines(env: Env, asking: boolean | 'scoped' = false): string[] {
+export function consentLines(env: Env, asking: boolean | 'scoped' = false, platform: NodeJS.Platform = process.platform): string[] {
   // The refresher takes CLAUDE_CODE_OAUTH_TOKEN first when it is set (src/usage/creds.ts), so the text names it then.
   const creds = (env.CLAUDE_CODE_OAUTH_TOKEN?.trim() ? 'the CLAUDE_CODE_OAUTH_TOKEN variable, else ' : '')
-    + join(claudeDir(env), '.credentials.json') + (process.platform === 'darwin' ? ' (or the macOS Keychain)' : '');
+    + join(claudeDir(env), '.credentials.json') + (platform === 'darwin' ? ' (or the macOS Keychain)' : '');
   const lines = asking === 'scoped'
     ? [
       "Fable's weekly comes from the usage API, which hungerbar.json has on, and it needs network.scopedWeekly too.",

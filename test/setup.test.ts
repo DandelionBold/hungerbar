@@ -188,8 +188,10 @@ test('doctor times the live command without touching the real caches', { skip: p
 const SCHEMA_URL = pathToFileURL(join(ROOT, 'schema.json')).href;
 /** The usage API's consent as look prints it, which turns it on. */
 const CONSENT = /comes from the opt-in usage API, so this turns it on[\s\S]*never stored or sent anywhere else/;
+/** What the consent texts add after .credentials.json on macOS, where the token may be in the Keychain instead (look.ts consentLines). */
+const KEYCHAIN = process.platform === 'darwin' ? String.raw` \(or the macOS Keychain\)` : '';
 /** The usage API's consent as setup's question shows it (SPEC §0.10), up to the question with yes pre-selected. */
-const CONSENT_ASK = /Fable's weekly comes from the opt-in usage API \(network\.usageApi and network\.scopedWeekly\)\. With it on,\na background refresher reads your Claude login token from .*\.credentials\.json and calls\napi\.anthropic\.com\/api\/oauth\/usage about every 3 minutes while a terminal session renders\.\nThe token is never stored or sent anywhere else\.\n\nTurn on the usage API\? \[Y\/n\]: /;
+const CONSENT_ASK = new RegExp(String.raw`Fable's weekly comes from the opt-in usage API \(network\.usageApi and network\.scopedWeekly\)\. With it on,\na background refresher reads your Claude login token from .*\.credentials\.json${KEYCHAIN} and calls\napi\.anthropic\.com\/api\/oauth\/usage about every 3 minutes while a terminal session renders\.\nThe token is never stored or sent anywhere else\.\n\nTurn on the usage API\? \[Y\/n\]: `);
 /** Either wording. */
 const ANY_CONSENT = /comes from the opt-in usage API/;
 /** setup's hint without a terminal, for classic. */
@@ -1128,7 +1130,7 @@ test('the usage API on and scopedWeekly off: setup asks about scopedWeekly alone
     const r = ask(w, '\n\nn\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     const out = r.stdout;
-    assert.match(out, /Fable \[3\]: \n\nFable's weekly comes from the usage API, which hungerbar\.json has on, and it needs network\.scopedWeekly too\.\nWith that on, the background refresher calls api\.anthropic\.com\/api\/oauth\/usage about every 3 minutes\nwhile a terminal session renders, even when your account has no extra usage \(without it: once an hour\)\.\nIt reads your Claude login token from .*\.credentials\.json\. The token is never stored or sent anywhere else\.\n\n/);
+    assert.match(out, new RegExp(String.raw`Fable \[3\]: \n\nFable's weekly comes from the usage API, which hungerbar\.json has on, and it needs network\.scopedWeekly too\.\nWith that on, the background refresher calls api\.anthropic\.com\/api\/oauth\/usage about every 3 minutes\nwhile a terminal session renders, even when your account has no extra usage \(without it: once an hour\)\.\nIt reads your Claude login token from .*\.credentials\.json${KEYCHAIN}\. The token is never stored or sent anywhere else\.\n\n`));
     assert.doesNotMatch(out, /Turn on the usage API\?/);
     assert.match(out, /Turn on Fable's weekly \(network\.scopedWeekly\)\? \[Y\/n\]: n\nFable's weekly stays off \(network\.scopedWeekly false\), so the HUD shows no Fable weekly \(hud\.fable off\)\. The usage API stays on\. Later: hungerbar look hud --fable boss\n/);
     assert.doesNotMatch(out, /The usage API stays off/);
