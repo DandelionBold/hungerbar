@@ -75,7 +75,7 @@ This is one render. The Claude Code session is about four and a half hours old a
 | 4 | Phantoms | A long session (`hud.phantoms`). There is one phantom for each sign: 100 or more prompts, 4 hours or more, 2 or more compactions, context at 70% or more. With one sign, a small dim phantom flies far away. With two or more, that many big ones fly with green eyes. They hint that `/clear` would help. | Flying undead mobs with green eyes. They come at night for a player who has not slept for days. |
 | 5 | Air bubbles | The prompt cache. There are ten bubbles, all full right after Claude Code writes the cache, and they pop one by one as its time runs out. Then come the time left and the hit ratio. When the cache has expired, the bubbles are empty and `cold` shows. | The breath meter over the hunger bar. Its bubbles pop while you stay underwater. |
 | 6 | Day and night | The 5-hour window as one Minecraft day: ☼ yellow, then orange for dusk after 3 hours, ☾ in the last hour, and ☠ once it is used up. Then come the time to its reset and the % left. | The day: the sun, dusk and the moon, as a clock shows them. The skull stands for dying, and a new window is a respawn. |
-| 7 | Hearts | What is left of the 5-hour window, as ten hearts. A lost heart turns dark, from the right. | Health: ten hearts. |
+| 7 | Hearts | What is left of the 5-hour window, as ten hearts. A lost heart turns dark, from the right. With no 5-hour limit (Ultra) all ten are gold; while the extra credits pay, poison green shows the credits left. | Health: ten hearts. Gold ones are absorption hearts from a golden apple, green ones are poisoned. |
 | 8 | Level | How many times the context was compacted, as a green number in a black box. There is no box before the first compaction. | The experience level: the green number over the XP bar. |
 | 9 | Drumsticks | What is left of the week, as ten drumsticks. An eaten one vanishes from the left. Then come the % left and ↻ the time to its reset. The % turns red at 10% or less. | Hunger: ten drumsticks. Food refills your hearts, as the week refills each 5-hour window. |
 | 10 | Context tokens | The tokens in the context and the size of the window, such as `96k/1.0M`. The number is green under 50%, yellow under 80% and red after that. | No counterpart. Minecraft shows only the level. |
@@ -123,6 +123,22 @@ v2.1.306  ◆ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3                 ▅▆▆ ▆▅
 ```
 
 The numbers come from the usage API, which uses the network. So every option but `off` shows nothing until you turn the usage API on. `hungerbar setup` asks you, or run `hungerbar look hud --fable boss`. Both say first what the usage API reads and sends (see [Privacy and network](#privacy-and-network)).
+
+### Hearts that tell more
+
+Three looks for the hearts line, picked in round 9 of the design picker:
+
+- **Ultra** (`hud.ultra`). On a plan with no 5-hour limit, Claude Code sends only the week. Instead of a grey `?` and ten dark hearts, which read as "no health left", the line shows the golden apple: the day's ☼, a bold gold ∞ and ten gold hearts, Minecraft's absorption hearts. Gold shows nowhere else on the line, so it can only mean "no 5-hour limit".
+- **Not live** (no key). When Claude Code sends no limits, Hungerbar shows the last ones it saved. They get a grey `~` before the %, and the red hearts, the drumsticks and the % are drawn dimmer, as the classic lines mark them. The `~` goes as soon as Claude Code sends live limits again.
+- **Poison** (`hud.poison`). When the 5-hour window is used up and your extra credits pay, the hearts show how much of the credits is left, in poison green: $45.80 of $50 is nine hearts, and anything left is at least one. The day's sun or moon and the time to the reset take the skull's place. When the credits run out, the skull is back.
+
+```
+☼             ∞ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥                       🍗🍗 18% ↻ 3d23h
+☼ 4h49m    ~98% ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥                       🍗🍗~14% ↻ 23h28m
+☼ 1h05m      0% ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥                       🍗🍗 18% ↻ 3d23h
+```
+
+Ultra and poison are on by default. `hungerbar look hud --ultra off --poison off` brings back 1.0's `?`, skull and dark hearts.
 
 ### Git state
 
@@ -268,7 +284,7 @@ In a terminal, `setup` asks a few questions. Each answer is shown as a preview d
 
 If you already have a `hungerbar.json`, Enter keeps what it has. The two network questions pre-select yes unless the file sets the key they ask about; then Enter keeps the file's value. The pull request question's key is `hud.pr`. The usage API question's key is `network.usageApi`; when the usage API is on already, setup asks about `network.scopedWeekly` (Fable's weekly) instead. Each no is saved, so the next setup keeps it: a no to the pull request status as `"pr": "off"`, a no to the usage API as `"usageApi": false` (or `"scopedWeekly": false`).
 
-Flags answer for setup: `--look classic|hud`, then, for the HUD, `--fable off|tail|tooltip|boss|beacon`, `--align left|center`, `--user off|user|user@host`, `--op off|tag|gold`, `--pr on|off`, `--bed on|off` and `--phantoms on|off`. The HUD's flags go with `--look hud`, for example `hungerbar setup --look hud --fable boss --pr on`. Without a terminal, setup asks nothing. Whenever it asks nothing (no terminal, or flags), it prints what of the HUD still waits for your yes, such as `hungerbar look hud --fable boss --pr on`. The pull request status is named only when `gh` is found, and a no you already gave (such as `"pr": "off"`) is not named again.
+Flags answer for setup: `--look classic|hud`, then, for the HUD, `--fable off|tail|tooltip|boss|beacon`, `--align left|center`, `--user off|user|user@host`, `--op off|tag|gold`, `--pr on|off`, `--bed on|off`, `--phantoms on|off`, `--ultra on|off` and `--poison on|off` (setup asks no question for the last two). The HUD's flags go with `--look hud`, for example `hungerbar setup --look hud --fable boss --pr on`. Without a terminal, setup asks nothing. Whenever it asks nothing (no terminal, or flags), it prints what of the HUD still waits for your yes, such as `hungerbar look hud --fable boss --pr on`. The pull request status is named only when `gh` is found, and a no you already gave (such as `"pr": "off"`) is not named again.
 
 Then setup backs up `~/.claude/settings.json` to `settings.json.bak.<timestamp>`, remembers your old `statusLine`, and changes only that key:
 
@@ -311,6 +327,8 @@ The file is strict JSON. Unknown keys are ignored, and a value that is not allow
 | `hud.op` | `gold` | `off`, `tag`, `gold` | the mark while Claude Code runs as Administrator (root elsewhere) |
 | `hud.bed` | `on` | `on`, `off` | the [bed](#the-bed-and-the-phantoms) after 5 minutes without a message |
 | `hud.phantoms` | `on` | `on`, `off` | the phantoms of a long session |
+| `hud.ultra` | `on` | `on`, `off` | the [golden hearts](#hearts-that-tell-more) when the account has no 5-hour limit (the Ultra plan) |
+| `hud.poison` | `on` | `on`, `off` | the poisoned hearts while the extra credits pay for a used-up 5-hour window |
 
 **Both looks**
 
@@ -370,7 +388,7 @@ hungerbar                      render from stdin (in a terminal it shows a demo)
 hungerbar setup                switch Claude Code's status line to Hungerbar (a terminal asks for the look)
 hungerbar setup --restore      put the previous status line back
 hungerbar look [classic|hud]   show or switch the look; --fable, --align, --pr, --user, --op, --bed,
-                               --phantoms; --print shows the change and writes nothing
+                               --phantoms, --ultra, --poison; --print shows the change and writes nothing
 hungerbar preview              draw sample situations (normal, tight, fresh, extra, fable); writes nothing
 hungerbar doctor [--bench]     check the install and time a render
 hungerbar refresh usage        ask the usage API now and print what came back (when network.usageApi is on)

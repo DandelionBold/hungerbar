@@ -137,6 +137,14 @@ const hudCfg = (hud: Partial<Config['hud']> = {}): Config =>
 const NORMAL_P = DEMOS.normal!.payload;
 const payloadOf = (s: R9Situation): Payload => (s.state.model === 'Fable 5.1' ? { ...NORMAL_P, model: { id: 'claude-fable-5-1', display_name: 'Fable 5.1' } } : NORMAL_P);
 
+test('the README\'s hearts sample is the hearts line of each pick\'s first row (Ultra, a limit not live, poison)', () => {
+  const readme = readFileSync(join(REF, '..', '..', 'README.md'), 'utf8').replace(/\r\n/g, '\n');
+  const block = /\n### Hearts that tell more\n[\s\S]*?```\n([\s\S]*?)\n```/.exec(readme);
+  assert.ok(block, 'README has the hearts sample');
+  const first = (d: R9): string => { const l = d.rows[0]!.lines; return text(l[l.length - 4] as Span[]); };
+  assert.deepEqual(block[1]!.split('\n'), [first(FEATURES.ultra), first(FEATURES.stale), first(FEATURES.paying)]);
+});
+
 test('round 9: through the real HUD path (renderPayload, the adapter, the engine, the layers, the frame) each row span for span', () => {
   for (const { f, s, lines } of ALL) {
     const r = renderPayload(JSON.stringify(payloadOf(s)), { env: { FORCE_COLOR: '3' }, config: hudCfg(), sources: sources(f, s), now: DEMO_NOW });
