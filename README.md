@@ -211,7 +211,7 @@ hungerbar icons          # which style is on
 hungerbar icons plain    # or: hungerbar icons colour
 ```
 
-The switch changes only the font face in Windows Terminal's profile defaults (`profiles.defaults` in its `settings.json`), which every profile without its own font face uses. A profile with its own face is listed, not changed. The switch makes a backup next to the file first and keeps every other byte, comments included. In other terminals, plain icons need the terminal to fall back to a plain symbol font before its emoji font.
+The switch changes only the font face in Windows Terminal's profile defaults (`profiles.defaults` in its `settings.json`), which every profile without its own font face uses. A profile with its own face is listed, not changed. The switch makes a backup next to the file first and keeps every other byte, comments included. `hungerbar icons` works with Windows Terminal only; in other terminals, plain icons need the terminal to fall back to a plain symbol font before its emoji font.
 
 ## Install
 
@@ -223,7 +223,7 @@ The switch changes only the font face in Windows Terminal's profile defaults (`p
 - **Git for Windows**, on Windows. Claude Code runs status lines through its Git Bash, and the command `setup` writes is made for it.
 - Optional: **git** for the git state and the terrain, and the **GitHub CLI** (`gh`), logged in, for the pull request status.
 
-Hungerbar is built and tested on Windows. `setup` also writes a command for macOS and Linux, but those are not tested.
+Hungerbar is built on Windows. Tests run on Windows, Linux and macOS in CI. The HUD's glyphs and widths were checked by eye in Windows Terminal only; elsewhere run `hungerbar glyphs --hud` first.
 
 ### Install from the release
 
@@ -285,7 +285,7 @@ The command names `node.exe` and the bundle by their full paths, never through a
 - `hungerbar setup --print` shows what would change and writes nothing.
 - `hungerbar setup --icons plain` (or `colour`) also switches the [icon style](#two-icon-styles), as `hungerbar icons` does.
 - `hungerbar setup --launcher` writes a `statusline.cmd` launcher instead. It is slower; keep it for setups where the direct command misbehaves.
-- On macOS and Linux the command is `'<node>' '<npm root>/hungerbar/dist/hungerbar.mjs'`.
+- On macOS and Linux the command is `'<node>' '<npm root>/hungerbar/dist/hungerbar.mjs'` (a `'` in a path is written `'\''`).
 
 ### Upgrade
 
