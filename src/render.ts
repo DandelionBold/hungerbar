@@ -52,8 +52,8 @@ export interface RenderResult {
   hud?: { input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; lines: Span[][]; framed: Span[][]; offset: number };
   /**
    * The State both looks draw from, when a payload was read (not for `no data`): for the tests, and for what the HUD's
-   * engine is not handed, such as h5None and extra.at (1.1.0), which layers after the engine read from it as
-   * playerMarks does.
+   * engine is not handed, such as h5None and extra.at (1.1.0). No layer reads those yet; the layers after the engine
+   * that will (vitals, offhand) are to read them from the State, as playerMarks reads it.
    */
   state?: State;
 }

@@ -122,11 +122,16 @@ test('the saved flag: no rate_limits keeps h5None; glitch zeros keep it; a live 
     assert.deepEqual(resolveLimits({}, w.acct, NOW + 10, true), { h5: null, week: { pct: 41, left: 302390, dim: true }, h5None: true });
     assert.deepEqual(resolveLimits({ rate_limits: { five_hour: { used_percentage: 0 }, seven_day: { used_percentage: 0 } } }, w.acct, NOW + 10, true).h5None, true, 'glitch zeros are no data');
     assert.equal(readFileSync(join(w.acct, 'limits.json'), 'utf8'), flagged, 'not rewritten');
+    // the saved flag alone carries h5None through a write: a five_hour with a reset but no use is not noFiveHour and not
+    // live, and the newer weekly rewrites the file, which keeps the flag
+    const carried = resolveLimits({ rate_limits: { five_hour: { used_percentage: null, resets_at: NOW + 60 }, seven_day: { ...WEEK, used_percentage: 45 } } }, w.acct, NOW + 15, true);
+    assert.deepEqual(carried, { h5: null, week: { pct: 45, left: 302385, dim: false }, h5None: true });
+    assert.deepEqual(w.saved(), { v: 1, five_hour: null, seven_day: { pct: 45, resets_at: NOW + 302400 }, at: NOW + 15, fiveHourNone: true }, 'rewritten, the flag kept');
     // a live five_hour clears it
     const live = resolveLimits({ rate_limits: { five_hour: { used_percentage: 3, resets_at: NOW + 17000 }, seven_day: WEEK } }, w.acct, NOW + 20, true);
     assert.deepEqual(live, { h5: { pct: 3, left: 16980, dim: false }, week: { pct: 41, left: 302380, dim: false }, h5None: false });
-    assert.deepEqual(w.saved(), { v: 1, five_hour: { pct: 3, resets_at: NOW + 17000 }, seven_day: { pct: 41, resets_at: NOW + 302400 }, at: NOW + 20 }, 'the flag is gone');
-    assert.deepEqual(resolveLimits({}, w.acct, NOW + 30, true), { h5: { pct: 3, left: 16970, dim: true }, week: { pct: 41, left: 302370, dim: true }, h5None: false });
+    assert.deepEqual(w.saved(), { v: 1, five_hour: { pct: 3, resets_at: NOW + 17000 }, seven_day: { pct: 45, resets_at: NOW + 302400 }, at: NOW + 20 }, 'the flag is gone; the weekly keeps its higher use');
+    assert.deepEqual(resolveLimits({}, w.acct, NOW + 30, true), { h5: { pct: 3, left: 16970, dim: true }, week: { pct: 45, left: 302370, dim: true }, h5None: false });
   } finally {
     w.cleanup();
   }

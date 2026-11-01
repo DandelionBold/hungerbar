@@ -51,8 +51,8 @@ export interface ExtraView {
   currency: string;
   pct: number | null;
   /**
-   * When the count was fetched (1.1.0): usage.json's `at` (its last successful fetch, epoch seconds), so a layer can
-   * grey a stale count; null for stdin's spend_limit, which is this render's own.
+   * When the count was fetched (1.1.0): usage.json's `at` (its last successful fetch, epoch seconds); null for stdin's
+   * spend_limit, which is this render's own. Nothing reads it yet: the HUD's offhand layer is to grey a stale count.
    */
   at: number | null;
 }
@@ -81,7 +81,8 @@ export interface State {
   week: LimitView | null;
   /**
    * The account has no 5-hour window (an Ultra plan, 1.1.0; limits.ts noFiveHour or limits.json's saved flag): h5 is
-   * then null. Classic draws no Session item, as for any null h5; the HUD's vitals layer reads this.
+   * then null. Classic draws no Session item, as for any null h5. Nothing under src/hud reads it yet: the HUD still
+   * draws its unknown 5-hour, and its vitals layer is to read this.
    */
   h5None: boolean;
   cache: CacheView | null;
