@@ -8,11 +8,11 @@ What changed for users in each version. Versions before 1.0.0 were private build
 - **A folder name over 255 bytes no longer breaks the status line on macOS and Linux.** Such a name made a file check fail there, and the whole line showed "hungerbar error". Now that folder is simply not a repo of its own, and the line draws as usual.
 - **A git or gh that runs past its time limit is killed with its own child processes on macOS and Linux,** as on Windows. Before, only the process itself was killed there.
 - **A read-only settings file is left alone.** On macOS and Linux, `setup`, `look` and `icons` replaced a read-only `settings.json` or `hungerbar.json` anyway. Now they say it is read-only and change nothing, before making a backup, on every OS; `setup --restore` does the same. A file they do write keeps its permissions, so a `settings.json` at 0600 stays 0600.
-- **`hungerbar doctor` checks for leftover background processes on macOS and Linux too,** from `/proc` on Linux and `ps` on macOS.
+- **`hungerbar doctor` checks for leftover background processes on macOS and Linux too,** from `/proc` on Linux and `ps` on macOS. When there are none, it now says "no leftover Hungerbar worker, git or gh" on every OS.
 - `setup` writes a command that works on macOS and Linux when a path has a `'` in it.
 - Looking for git and `gh` on `PATH` skips a Windows entry without a drive letter (`\Users\x`, which means the current drive), and on macOS and Linux a file that is not executable.
 - **`hungerbar doctor` lists processes without loading a PowerShell module.** It looked for leftover refreshers through `Get-CimInstance`, which loads the CimCmdlets module first. Where `PSModulePath` is not set and many modules are installed, as on GitHub's Windows runners, that took 22 to 37 seconds. The same WMI query now goes through `[wmisearcher]` and takes about a quarter of a second anywhere.
-- **doctor no longer says "no leftover" when it could not look.** If the process list cannot be read (no `powershell.exe`, an error, or over 15 seconds), doctor warns that leftovers were not checked.
+- **doctor no longer says "no leftover" when it could not look.** If the process list cannot be read (no `powershell.exe`, `ps` or `/proc`, an error, or over 15 seconds), doctor warns that leftovers were not checked.
 - **The README has an "Install with your AI" section:** what to tell your assistant, and the steps it follows, asking you before it turns on anything that uses the network.
 
 ## 1.0.0 (2026-10-28)
