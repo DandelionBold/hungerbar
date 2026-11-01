@@ -3,7 +3,7 @@
 // book's counts, the git-terrain history and the scoped Fable week (test/reference/hud4-states.json and hud-spec.json),
 // and (0.7.0) the git state's status and, with hud.pr on, the tight day's pull request. Who runs the session (hud.user,
 // hud.op) is not made up: a caller hands demoSources this machine's (whoAmI), or none.
-import { liveLimits, view } from './limits.ts';
+import { liveLimits, noFiveHour, view } from './limits.ts';
 import { QUARTER, type Bucket, type Hist } from './hud/input.ts';
 import type { Config } from './config.ts';
 import type { Payload } from './payload.ts';
@@ -137,7 +137,7 @@ export function demoSources(d: Demo, who?: WhoSource): (p: Payload, cfg: Config,
     git: () => structuredClone(d.git),
     limits: () => {
       const l = liveLimits(p);
-      return { h5: view(l.h5, true, now), week: view(l.week, true, now) };
+      return { h5: view(l.h5, true, now), week: view(l.week, true, now), h5None: noFiveHour(p) };
     },
     usage: () => d.usage,
     transcript: () => null,

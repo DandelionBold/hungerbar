@@ -4,11 +4,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { defaults } from '../../src/config.ts';
-import { liveLimits, resolveLimits, view } from '../../src/limits.ts';
+import { liveLimits, noFiveHour, resolveLimits, view } from '../../src/limits.ts';
 import type { Payload } from '../../src/payload.ts';
 import { collect, type Sources } from '../../src/state.ts';
 import type { TxSummary } from '../../src/transcript.ts';
-import { diskSources } from '../../src/render.ts';
+import { diskSources, renderPayload } from '../../src/render.ts';
 import { CAP } from '../../src/sanitize.ts';
 import { parseBody } from '../../src/usage/refresh.ts';
 
@@ -60,6 +60,118 @@ test('limits.json is written only when a value changes', () => {
     assert.equal(fallback.week?.pct, 86);
   } finally {
     rmSync(acct, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// 1.1.0: an account with no 5-hour window (noFiveHour, limits.json's fiveHourNone)
+// ---------------------------------------------------------------------------------------------------------------------
+
+const WEEK = { used_percentage: 41, resets_at: NOW + 302400 };
+const OLD_FILE = { v: 1, five_hour: { pct: 55, resets_at: NOW + 9000 }, seven_day: { pct: 40, resets_at: NOW + 302400 }, at: NOW - 600 };
+
+/** A temp account folder, with this limits.json when given. */
+function acctWith(file?: unknown): { acct: string; saved(): unknown; cleanup(): void } {
+  const acct = mkdtempSync(join(tmpdir(), 'hb-lim-'));
+  if (file !== undefined) writeFileSync(join(acct, 'limits.json'), JSON.stringify(file));
+  return {
+    acct,
+    saved: () => JSON.parse(readFileSync(join(acct, 'limits.json'), 'utf8')),
+    cleanup: () => rmSync(acct, { recursive: true, force: true }),
+  };
+}
+
+test('noFiveHour: rate_limits with a real weekly and five_hour missing, null or empty; never without a real weekly or rate_limits', () => {
+  for (const five_hour of [undefined, null, {}, { used_percentage: null, resets_at: null }, { used_percentage: 'n/a' }]) {
+    const rate_limits = five_hour === undefined ? { seven_day: WEEK } : { five_hour, seven_day: WEEK };
+    assert.equal(noFiveHour({ rate_limits } as Payload), true, JSON.stringify(rate_limits));
+  }
+  for (const [why, p] of [
+    ['no rate_limits', {}],
+    ['rate_limits null', { rate_limits: null }],
+    ['a live five_hour', { rate_limits: { five_hour: { used_percentage: 2, resets_at: NOW + 60 }, seven_day: WEEK } }],
+    ['a five_hour with only its reset', { rate_limits: { five_hour: { resets_at: NOW + 60 }, seven_day: WEEK } }],
+    ['no weekly either', { rate_limits: { five_hour: null } }],
+    ['an empty rate_limits', { rate_limits: {} }],
+    ['glitch zeros: the weekly at 0 with no reset is not real', { rate_limits: { five_hour: {}, seven_day: { used_percentage: 0, resets_at: null } } }],
+    ['glitch zeros in both windows', { rate_limits: { five_hour: { used_percentage: 0 }, seven_day: { used_percentage: 0 } } }],
+  ] as const) assert.equal(noFiveHour(p as Payload), false, why);
+});
+
+test('no five_hour (missing, null, {}): h5 null and never last known, h5None, and limits.json saves five_hour null with fiveHourNone', () => {
+  for (const five_hour of [undefined, null, {}]) {
+    const w = acctWith(OLD_FILE);
+    try {
+      const rate_limits = five_hour === undefined ? { seven_day: WEEK } : { five_hour, seven_day: WEEK };
+      const r = resolveLimits({ rate_limits } as Payload, w.acct, NOW, true);
+      assert.deepEqual(r, { h5: null, week: { pct: 41, left: 302400, dim: false }, h5None: true }, JSON.stringify(rate_limits));
+      assert.deepEqual(w.saved(), { v: 1, five_hour: null, seven_day: { pct: 41, resets_at: NOW + 302400 }, at: NOW, fiveHourNone: true });
+    } finally {
+      w.cleanup();
+    }
+  }
+});
+
+test('the saved flag: no rate_limits keeps h5None; glitch zeros keep it; a live five_hour clears it, then the 5-hour falls back again', () => {
+  const w = acctWith(OLD_FILE);
+  try {
+    resolveLimits({ rate_limits: { seven_day: WEEK } }, w.acct, NOW, true);
+    const flagged = readFileSync(join(w.acct, 'limits.json'), 'utf8');
+    // no rate_limits at all (another tool, an old Claude Code): the flag decides, and nothing is written
+    assert.deepEqual(resolveLimits({}, w.acct, NOW + 10, true), { h5: null, week: { pct: 41, left: 302390, dim: true }, h5None: true });
+    assert.deepEqual(resolveLimits({ rate_limits: { five_hour: { used_percentage: 0 }, seven_day: { used_percentage: 0 } } }, w.acct, NOW + 10, true).h5None, true, 'glitch zeros are no data');
+    assert.equal(readFileSync(join(w.acct, 'limits.json'), 'utf8'), flagged, 'not rewritten');
+    // a live five_hour clears it
+    const live = resolveLimits({ rate_limits: { five_hour: { used_percentage: 3, resets_at: NOW + 17000 }, seven_day: WEEK } }, w.acct, NOW + 20, true);
+    assert.deepEqual(live, { h5: { pct: 3, left: 16980, dim: false }, week: { pct: 41, left: 302380, dim: false }, h5None: false });
+    assert.deepEqual(w.saved(), { v: 1, five_hour: { pct: 3, resets_at: NOW + 17000 }, seven_day: { pct: 41, resets_at: NOW + 302400 }, at: NOW + 20 }, 'the flag is gone');
+    assert.deepEqual(resolveLimits({}, w.acct, NOW + 30, true), { h5: { pct: 3, left: 16970, dim: true }, week: { pct: 41, left: 302370, dim: true }, h5None: false });
+  } finally {
+    w.cleanup();
+  }
+});
+
+test('only the 5-hour window has the rule: a five_hour with no seven_day still falls back to the weekly last known (week-expired)', () => {
+  const w = acctWith({ ...OLD_FILE, seven_day: { pct: 86.1, resets_at: NOW - 60 } });
+  try {
+    const r = resolveLimits({ rate_limits: { five_hour: { used_percentage: 2, resets_at: NOW + 17340 } } }, w.acct, NOW, true);
+    assert.deepEqual(r, { h5: { pct: 2, left: 17340, dim: false }, week: { pct: 0, left: null, dim: true }, h5None: false });
+    // and a pre-1.1.0 file (no fiveHourNone) is read as before
+    assert.equal(resolveLimits({}, w.acct, NOW, false).h5None, false);
+  } finally {
+    w.cleanup();
+  }
+});
+
+test('a payload with no rate_limits in a clean cache (another tool): no limits, no h5None, nothing written', () => {
+  const w = acctWith();
+  try {
+    const p: Payload = { model: { display_name: 'Codex' }, context_window: { context_window_size: 272000, used_percentage: 23 }, cwd: 'D:\\proj' };
+    assert.deepEqual(resolveLimits(p, w.acct, NOW, true), { h5: null, week: null, h5None: false });
+    assert.throws(() => statSync(join(w.acct, 'limits.json')), /ENOENT/);
+  } finally {
+    w.cleanup();
+  }
+});
+
+test('h5None reaches the State (false when a source leaves it out) and RenderResult.state; the HUD is handed no 5-hour', () => {
+  const s = sources(null);
+  assert.equal(collect({}, NOW, defaults(), {}, s, false).h5None, false);
+  assert.equal(collect({}, NOW, defaults(), {}, { ...s, limits: () => ({ h5: null, week: null, h5None: true }) }, false).h5None, true);
+  const dir = mkdtempSync(join(tmpdir(), 'hb-ultra-'));
+  try {
+    const env = { HUNGERBAR_CACHE_DIR: join(dir, 'cache'), CLAUDE_CONFIG_DIR: join(dir, 'claude'), HUNGERBAR_NOW: String(NOW), HUNGERBAR_LOOK: 'hud', FORCE_COLOR: '3' };
+    const r = renderPayload(JSON.stringify({ model: { display_name: 'Opus 5.5' }, rate_limits: { seven_day: WEEK } }), { env });
+    assert.equal(r.state?.h5None, true);
+    assert.equal(r.state?.h5, null);
+    assert.ok(r.hud, 'the HUD drew');
+    assert.deepEqual([r.hud.input.h5, r.hud.input.week], [null, { used: 41, left: 302400 }], 'the HUD draws its unknown 5-hour, as before');
+    const c = renderPayload(JSON.stringify({ model: { display_name: 'Opus 5.5' } }), { env: { ...env, HUNGERBAR_LOOK: 'classic', NO_COLOR: '1' } });
+    assert.equal(c.state?.h5None, true, 'the saved flag, for a payload with no rate_limits');
+    assert.doesNotMatch(c.text, /Session/, 'classic: no Session item');
+    assert.match(c.text, /Weekly/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
 });
 

@@ -14,6 +14,11 @@ export interface LimitsFile {
   five_hour: Known | null;
   seven_day: Known | null;
   at: number;
+  /**
+   * The account has no 5-hour window (noFiveHour, 1.1.0): set with five_hour null, so a payload without rate_limits
+   * keeps that; a live five_hour clears it. Readers before 1.1.0 ignore it and find five_hour null.
+   */
+  fiveHourNone?: true;
 }
 
 export interface LimitView {
@@ -22,6 +27,13 @@ export interface LimitView {
   left: number | null;
   /** True for a last-known value, shown dimmed with "~". */
   dim: boolean;
+}
+
+/** Both windows as drawn, and whether the account has no 5-hour window at all (1.1.0; h5 is then null). */
+export interface Limits {
+  h5: LimitView | null;
+  week: LimitView | null;
+  h5None: boolean;
 }
 
 function live(w: RateWindow | null | undefined): Known | null {
@@ -50,20 +62,45 @@ export function view(k: Known | null, isLive: boolean, now: number): LimitView |
   return { pct: limitPct(k.pct), left: k.resets_at !== null ? k.resets_at - now : null, dim: !isLive };
 }
 
+/**
+ * The account has no 5-hour window (an Ultra plan, 1.1.0): rate_limits is an object, its five_hour is missing, null or
+ * an object with neither used_percentage nor resets_at, and its weekly is real (it passes the glitch rule). Only the
+ * 5-hour window has this rule: a payload with a five_hour and no seven_day still falls back to the weekly last known.
+ */
+export function noFiveHour(p: Payload): boolean {
+  const rl = p.rate_limits;
+  if (!rl || typeof rl !== 'object') return false;
+  const f = rl.five_hour;
+  const none = f === undefined || f === null || (typeof f === 'object' && num(f.used_percentage) === null && num(f.resets_at) === null);
+  return none && liveLimits(p).week !== null;
+}
+
 const same = (a: Known | null, b: Known | null): boolean => a === b || (!!a && !!b && a.pct === b.pct && a.resets_at === b.resets_at);
 
-/** Resolves both windows and persists the last-known file only when a value changed. */
-export function resolveLimits(p: Payload, acct: string, now: number, persist: boolean): { h5: LimitView | null; week: LimitView | null } {
+/**
+ * Resolves both windows: each from stdin, else last known. The last-known file is written only when a value changes.
+ * With no 5-hour window (noFiveHour, or its saved flag while no live five_hour comes) h5 is null and never last known.
+ */
+export function resolveLimits(p: Payload, acct: string, now: number, persist: boolean): Limits {
   const { h5, week } = liveLimits(p);
   const path = join(acct, 'limits.json');
   const old = readJson<LimitsFile>(path);
   const prev = old && old.v === 1 ? old : null;
-  const next: LimitsFile = { v: 1, five_hour: h5 ?? prev?.five_hour ?? null, seven_day: week ?? prev?.seven_day ?? null, at: now };
-  if (persist && (h5 || week) && (!prev || !same(prev.five_hour, next.five_hour) || !same(prev.seven_day, next.seven_day))) {
+  const none = noFiveHour(p), h5None = none || (!h5 && prev?.fiveHourNone === true);
+  const next: LimitsFile = {
+    v: 1,
+    five_hour: none ? null : h5 ?? prev?.five_hour ?? null,
+    seven_day: week ?? prev?.seven_day ?? null,
+    at: now,
+    ...(h5None ? { fiveHourNone: true as const } : {}),
+  };
+  const changed = !prev || !same(prev.five_hour, next.five_hour) || !same(prev.seven_day, next.seven_day) || (prev.fiveHourNone === true) !== h5None;
+  if (persist && (h5 || week) && changed) {
     try { writeJson(path, next); } catch { /* a read-only cache dir only costs the fallback */ }
   }
   return {
-    h5: h5 ? view(h5, true, now) : view(prev?.five_hour ?? null, false, now),
+    h5: h5 ? view(h5, true, now) : h5None ? null : view(prev?.five_hour ?? null, false, now),
     week: week ? view(week, true, now) : view(prev?.seven_day ?? null, false, now),
+    h5None,
   };
 }

@@ -24,7 +24,7 @@ import { plainDefaults } from '../plain-config.ts';
 const ST = (o: Partial<State> = {}): State => ({
   now: 1000, model: 'Opus 5.5', effort: 'high', ctx: { pct: 8, tokens: 81000, size: 1_000_000, dim: false },
   git: { isRepo: true, branch: 'main', added: 1208, removed: 279 }, branchFull: 'main', cwd: 'D:/webapp', cwdFull: 'D:/webapp',
-  h5: { pct: 2, left: 17340, dim: false }, week: { pct: 82, left: 345540, dim: false },
+  h5: { pct: 2, left: 17340, dim: false }, week: { pct: 82, left: 345540, dim: false }, h5None: false,
   cache: { hit: 98, state: 'warm', left: 252, ttl: '5m', dim: false }, extra: { used: 0, limit: 50, currency: 'USD', pct: 0 },
   scoped: [], version: '2.1.306', cfgError: false, ...o,
 });

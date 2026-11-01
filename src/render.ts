@@ -24,7 +24,7 @@ import { num, str, type Payload } from './payload.ts';
 import { githubRemote, onBranch, PR_LOCK_STALE_MS, prFresh, prLockPath, prShown, readPrEntry } from './pr/cache.ts';
 import type { PrInfo } from './pr/gh.ts';
 import { childProcess } from './proc.ts';
-import { collect, type Counts, type GitView, type Sources } from './state.ts';
+import { collect, type Counts, type GitView, type Sources, type State } from './state.ts';
 import { acctDir, cacheDir, lockLive, writeJson } from './store.ts';
 import { readTranscript, TX_LOCK_STALE_MS, txId, txLockPath, type TxSummary } from './transcript.ts';
 import { readUsage, usageNeedsRefresh, type UsageFile } from './usage/file.ts';
@@ -50,6 +50,12 @@ export interface RenderResult {
    * moved right by it).
    */
   hud?: { input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; lines: Span[][]; framed: Span[][]; offset: number };
+  /**
+   * The State both looks draw from, when a payload was read (not for `no data`): for the tests, and for what the HUD's
+   * engine is not handed, such as h5None and extra.at (1.1.0), which layers after the engine read from it as
+   * playerMarks does.
+   */
+  state?: State;
 }
 
 export interface RenderOptions {
@@ -183,11 +189,11 @@ export function renderPayload(raw: string | null, opts: RenderOptions): RenderRe
   if (gate.ok) {
     try {
       const h = renderHudLook(st, p, src, cfg, gate.depth, budget(env, cfg));
-      return { text: h.text, spawns, model: st.model, after, hud: { input: h.input, git: h.git, pr: h.pr, player: h.player, lines: h.lines, framed: h.framed, offset: h.offset } };
+      return { text: h.text, spawns, model: st.model, after, hud: { input: h.input, git: h.git, pr: h.pr, player: h.player, lines: h.lines, framed: h.framed, offset: h.offset }, state: st };
     } catch (e) {
       after.length = 0;                                       // a HUD render that failed writes no history
       process.stderr.write(`hungerbar: the HUD failed, classic drawn: ${(e as Error | undefined)?.stack ?? String(e)}\n`);
     }
   }
-  return { text: renderLines(st, cfg, g, depth, budget(env, cfg)), spawns, model: st.model, after };
+  return { text: renderLines(st, cfg, g, depth, budget(env, cfg)), spawns, model: st.model, after, state: st };
 }

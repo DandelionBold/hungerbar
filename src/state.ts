@@ -74,6 +74,11 @@ export interface State {
   cwdFull: string;
   h5: LimitView | null;
   week: LimitView | null;
+  /**
+   * The account has no 5-hour window (an Ultra plan, 1.1.0; limits.ts noFiveHour or limits.json's saved flag): h5 is
+   * then null. Classic draws no Session item, as for any null h5; the HUD's vitals layer reads this.
+   */
+  h5None: boolean;
   cache: CacheView | null;
   extra: ExtraView | null;
   scoped: ScopedView[];
@@ -90,7 +95,8 @@ export interface Counts {
 /** Where the non-stdin data comes from: disk for a real render, fixed values for the demo. */
 export interface Sources {
   git(dir: string): GitView;
-  limits(): { h5: LimitView | null; week: LimitView | null };
+  /** h5None (1.1.0) is false when left out. */
+  limits(): { h5: LimitView | null; week: LimitView | null; h5None?: boolean };
   /** Null when the usage API is off. */
   usage(): UsageFile | null;
   transcript(): TxSummary | null;
@@ -160,7 +166,7 @@ export function collect(p: Payload, now: number, cfg: Config, env: Env, src: Sou
   const branchFull = git.isRepo && git.branch ? sanitizeTail(git.branch, CAP.branchFull, '…') : null;
   if (git.branch) git.branch = sanitize(git.branch, CAP.branch);
 
-  const { h5, week } = src.limits();
+  const { h5, week, h5None = false } = src.limits();
 
   let cache: CacheView | null;
   const pc = obj(p.prompt_cache);
@@ -213,6 +219,7 @@ export function collect(p: Payload, now: number, cfg: Config, env: Env, src: Sou
     cwdFull: sanitizeTail(slash(dirRaw), CAP.cwdFull, '…'),
     h5,
     week,
+    h5None,
     cache,
     extra,
     scoped,
