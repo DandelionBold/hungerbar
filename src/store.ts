@@ -1,5 +1,8 @@
 // Cache directories, atomic writes, wx locks and FNV-1a keys (SPEC §10).
-import { closeSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, statSync, unlinkSync, utimesSync, writeFileSync, type Stats } from 'node:fs';
+import {
+  accessSync, chmodSync, closeSync, constants, mkdirSync, openSync, readdirSync, readFileSync, renameSync, statSync, unlinkSync, utimesSync, writeFileSync,
+  type Stats,
+} from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { claudeDir, slash, type Env } from './env.ts';
@@ -39,6 +42,23 @@ export function statSafe(path: string): Stats | undefined {
   }
 }
 
+/**
+ * Why a file must not be written, or null when it may be (or is not there): the code access(W_OK) gives (EPERM for
+ * Windows' read-only attribute, EACCES elsewhere), else EACCES for a mode with no write bit, which root could still
+ * write. The writers of the user's files ask this before their backup: off Windows rename() replaces a read-only file,
+ * since its folder alone decides, so writeAtomic would never refuse one.
+ */
+export function readOnly(path: string): string | null {
+  try {
+    accessSync(path, constants.W_OK);
+  } catch (e) {
+    const code = (e as NodeJS.ErrnoException).code;
+    return code === 'ENOENT' || code === 'ENOTDIR' ? null : code ?? 'EACCES';
+  }
+  const st = statSafe(path);
+  return st && (st.mode & 0o222) === 0 ? 'EACCES' : null;
+}
+
 export function readJson<T>(path: string): T | null {
   try {
     const v: unknown = JSON.parse(readFileSync(path, 'utf8'));
@@ -52,11 +72,18 @@ function sleepMs(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
-/** Temp file then rename; the rename is retried because Windows briefly locks files that are being read. */
+/**
+ * Temp file then rename; the rename is retried because Windows briefly locks files that are being read. Off Windows the
+ * file keeps its mode (a settings.json at 0600 stays 0600), which the rename would otherwise take from the temp file.
+ */
 export function writeAtomic(path: string, data: string): void {
   mkdirSync(dirname(path), { recursive: true });
   const tmp = `${path}.${process.pid}.${Math.random().toString(36).slice(2, 8)}.tmp`;
+  const mode = process.platform === 'win32' ? undefined : statSafe(path)?.mode;
   writeFileSync(tmp, data);
+  if (mode !== undefined) {
+    try { chmodSync(tmp, mode & 0o777); } catch { /* a file system without modes */ }
+  }
   for (let i = 0; ; i++) {
     try {
       renameSync(tmp, path);

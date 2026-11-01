@@ -1,6 +1,6 @@
 // hungerbar setup / --print / --restore against temp Claude config dirs (SPEC §16.8), and setup's look (plan §8, §10.9).
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -809,6 +809,45 @@ test('setup with a settings.json that cannot be read: one clean line before any 
     } finally {
       w.cleanup();
     }
+  }
+});
+
+test('a read-only settings.json: setup and --restore refuse in one line before any write or question, --print still shows the change (off Windows the rename would replace it)', () => {
+  const w = world(ORIGINAL);
+  try {
+    assert.equal(w.run().status, 0, 'set up once, so there is something to restore');
+    const set = readFileSync(w.file, 'utf8');
+    chmodSync(w.file, 0o444);
+    const code = process.platform === 'win32' ? 'EPERM' : 'EACCES';
+    for (const args of [[], ['--look', 'hud', '--fable', 'boss'], ['--restore']]) {
+      const before = snapshot(w.dir);
+      const r = ask(w, '2\n3\n', ...args);
+      assert.equal(r.status, 1, args.join(' '));
+      assert.equal(r.stderr, `hungerbar: ${w.file} is read-only (${code}); nothing was written.\n`, args.join(' '));
+      assert.equal(r.stdout, '', `nothing asked: ${args.join(' ')}`);
+      assert.deepEqual(snapshot(w.dir), before, `${args.join(' ')} wrote nothing`);
+    }
+    const p = w.run('--print');
+    assert.equal(p.status, 0, p.stderr);
+    assert.match(p.stdout, /Nothing was written \(--print\)\.\n$/);
+    assert.equal(readFileSync(w.file, 'utf8'), set);
+  } finally {
+    chmodSync(w.file, 0o666);
+    w.cleanup();
+  }
+});
+
+test("setup keeps settings.json's mode: a file at 0600 stays 0600 (macOS, Linux)", { skip: process.platform === 'win32' }, () => {
+  const w = world(ORIGINAL);
+  try {
+    chmodSync(w.file, 0o600);
+    assert.equal(w.run().status, 0);
+    assert.match(JSON.parse(readFileSync(w.file, 'utf8')).statusLine.command, /hungerbar/);
+    assert.equal((statSync(w.file).mode & 0o777).toString(8), '600');
+    assert.equal(w.run('--restore').status, 0);
+    assert.equal((statSync(w.file).mode & 0o777).toString(8), '600');
+  } finally {
+    w.cleanup();
   }
 });
 

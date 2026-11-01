@@ -4,7 +4,7 @@
 // setup.test.ts.
 import assert from 'node:assert/strict';
 import { spawn, type ChildProcess } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -671,6 +671,23 @@ test('refused before any write: a bad --fable, --fable without hud, an unknown l
     } finally {
       w.cleanup();
     }
+  }
+});
+
+test('a read-only hungerbar.json: look says it could not write it, and changes nothing, no backup either (off Windows the rename would replace it)', () => {
+  const w = world('{\n  "look": "classic"\n}\n');
+  try {
+    chmodSync(w.cfg, 0o444);
+    const before = w.snapshot();
+    const r = w.run(['look', 'hud']);
+    assert.equal(r.status, 1, r.stdout);
+    assert.ok(r.stderr.endsWith(`hungerbar: could not write ${w.cfg} (${process.platform === 'win32' ? 'EPERM' : 'EACCES'}); nothing changed.\n`), r.stderr);
+    assert.doesNotMatch(r.stderr, /at .*\.mjs/, 'no stack trace');
+    assert.deepEqual(w.snapshot(), before, 'nothing written');
+    assert.deepEqual(w.backups(), []);
+  } finally {
+    chmodSync(w.cfg, 0o666);
+    w.cleanup();
   }
 });
 

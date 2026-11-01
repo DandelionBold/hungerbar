@@ -10,7 +10,7 @@ import { isatty } from 'node:tty';
 import { pathToFileURL } from 'node:url';
 import { applyEnv, loadConfig, merge } from '../config.ts';
 import { claudeDir, flag, slash, type Env } from '../env.ts';
-import { cacheDir, readJson, writeAtomic, writeJson } from '../store.ts';
+import { cacheDir, readJson, readOnly, writeAtomic, writeJson } from '../store.ts';
 import { optionError, parseArgs, say } from './args.ts';
 import { iconSummary, icons, parseStyle } from './icons.ts';
 import {
@@ -114,6 +114,15 @@ export function backup(f: SettingsFile): string | null {
   return to;
 }
 
+/**
+ * The one line for a settings.json that must not be written (store.ts readOnly), or null. Asked before anything else is
+ * written: off Windows the atomic write's rename would replace a read-only file.
+ */
+function refuseReadOnly(f: SettingsFile): string | null {
+  const ro = f.exists ? readOnly(f.path) : null;
+  return ro ? `hungerbar: ${f.path} is read-only (${ro}); nothing was written.\n` : null;
+}
+
 /** Claude Code's terminal, or piped answers under HUNGERBAR_SETUP_TTY=1 (the tests): setup may ask its questions. */
 const canAsk = (env: Env): boolean => (isatty(0) && isatty(1)) || flag(env, 'HUNGERBAR_SETUP_TTY');
 
@@ -172,6 +181,12 @@ export async function setup(argv: string[], env: Env, self: string): Promise<num
     f = readSettings(sPath);
   } catch (e) {
     process.stderr.write(`hungerbar: ${unreadable(sPath, (e as Error).message)}; nothing was written.\n`);
+    return 1;
+  }
+  // a read-only one too, before the questions (--print writes nothing, so it still shows the change)
+  const ro = print ? null : refuseReadOnly(f);
+  if (ro) {
+    process.stderr.write(ro);
     return 1;
   }
   // The look: from the flags, else asked on a terminal (never under --print). An unreadable hungerbar.json is refused
@@ -310,6 +325,11 @@ export function restore(env: Env, print: boolean): number {
   if (print) {
     say(`would restore statusLine: ${JSON.stringify(prev.statusLine)} in ${f.path}`);
     return 0;
+  }
+  const ro = refuseReadOnly(f);
+  if (ro) {
+    process.stderr.write(ro);
+    return 1;
   }
   const bak = backup(f);
   writeFileSync(f.path, bytes);

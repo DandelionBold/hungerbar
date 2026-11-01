@@ -26,7 +26,7 @@ import { FABLE_OPTIONS } from '../hud/fable.ts';
 import { encode, hudGate, type Gate } from '../hud/look.ts';
 import { budget } from '../layout.ts';
 import { renderPayload } from '../render.ts';
-import { cacheDir, writeAtomic } from '../store.ts';
+import { cacheDir, readOnly, writeAtomic } from '../store.ts';
 import { USAGE_URL } from '../usage/refresh.ts';
 import { elevated, hostName, userName, whoAmI, type WhoSource } from '../whoami.ts';
 import { optionError, parseArgs, say, type Args } from './args.ts';
@@ -282,8 +282,13 @@ export function diffLines(before: Obj, next: Obj): string[] {
   return out;
 }
 
-/** Writes the plan (a backup first when the file exists); the backup's path, or null. */
+/**
+ * Writes the plan (a backup first when the file exists); the backup's path, or null. A read-only file throws (its code)
+ * before the backup: off Windows the atomic write's rename would replace it.
+ */
 export function applyConfig(p: ConfigPlan): string | null {
+  const ro = p.file.exists ? readOnly(p.file.path) : null;
+  if (ro) throw Object.assign(new Error(`${p.file.path} is read-only`), { code: ro });
   const bak = backup(p.file);
   writeAtomic(p.file.path, p.text);
   return bak;

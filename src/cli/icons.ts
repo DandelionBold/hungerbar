@@ -6,7 +6,7 @@ import { chmodSync, copyFileSync, existsSync, readFileSync, realpathSync, statSy
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import type { Env } from '../env.ts';
-import { writeAtomic } from '../store.ts';
+import { readOnly, writeAtomic } from '../store.ts';
 import { optionError, parseArgs, say } from './args.ts';
 import { indentAt, JsoncError, scan, type Located } from './jsonc.ts';
 import { stamp } from './setup.ts';
@@ -165,6 +165,11 @@ function switchFile(path: string, want: IconStyle | null, print: boolean): FileR
     return fail(`cannot change it: ${(e as Error).message}. Set it by hand: Settings → Profiles → Defaults → Appearance → Font face = ${face}`);
   }
   if (print) return { ok: true, lines: [...lines, `would set the default font face to "${face}" (nothing written, --print).`] };
+  const unwritable = (code: string | undefined, e?: unknown): FileResult =>
+    fail(`could not write it (${code ?? (e as Error).message}): it is read-only or another program has it open. Nothing changed.`);
+  // asked before the backup: off Windows the atomic write's rename would replace a read-only file
+  const ro = readOnly(path);
+  if (ro) return unwritable(ro);
   const bak = backupPath(path);
   try {
     copyFileSync(path, bak);
@@ -173,8 +178,7 @@ function switchFile(path: string, want: IconStyle | null, print: boolean): FileR
     else writeAtomic(path, next);
   } catch (e) {
     try { chmodSync(bak, 0o666); unlinkSync(bak); } catch { /* no backup was made */ }
-    const code = (e as NodeJS.ErrnoException).code;
-    return fail(`could not write it (${code ?? (e as Error).message}): it is read-only or another program has it open. Nothing changed.`);
+    return unwritable((e as NodeJS.ErrnoException).code, e);
   }
   return { ok: true, lines: [...lines, `now ${want} (font face "${face}"). Windows Terminal reloads its settings by itself.`, `backup: ${bak}`] };
 }
