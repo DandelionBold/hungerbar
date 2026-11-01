@@ -30,6 +30,16 @@ test('last-known view: dimmed while it lasts, ~0% after the reset', () => {
   assert.equal(view(null, true, NOW), null);
 });
 
+test('live view past its reset (1.1.0): refilled like a last-known one, but not dimmed; no reset keeps the value', () => {
+  assert.deepEqual(view({ pct: 64, resets_at: NOW - 30 }, true, NOW), { pct: 0, left: null, dim: false });
+  assert.deepEqual(view({ pct: 100, resets_at: NOW }, true, NOW), { pct: 0, left: null, dim: false }, 'at the reset itself');
+  assert.deepEqual(view({ pct: 64, resets_at: NOW + 1 }, true, NOW), { pct: 64, left: 1, dim: false }, 'a second before it');
+  assert.deepEqual(view({ pct: 64, resets_at: null }, true, NOW), { pct: 64, left: null, dim: false }, 'no reset: nothing to pass');
+  const r = resolveLimits({ rate_limits: { five_hour: { used_percentage: 64, resets_at: NOW - 30 }, seven_day: { used_percentage: 82, resets_at: NOW + 600 } } }, tmpdir(), NOW, false);
+  assert.deepEqual(r.h5, { pct: 0, left: null, dim: false });
+  assert.deepEqual(r.week, { pct: 82, left: 600, dim: false });
+});
+
 test('limits.json is written only when a value changes', () => {
   const acct = mkdtempSync(join(tmpdir(), 'hb-lim-'));
   try {

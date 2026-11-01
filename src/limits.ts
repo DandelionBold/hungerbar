@@ -40,11 +40,14 @@ export function liveLimits(p: Payload): { h5: Known | null; week: Known | null }
   return { h5, week };
 }
 
+/**
+ * A window as drawn. Once its reset has passed it is refilled (0% used, no clock), live or last-known alike (1.1.0):
+ * Claude Code runs the status line again at `resets_at`, so a live value past it is the old window's.
+ */
 export function view(k: Known | null, isLive: boolean, now: number): LimitView | null {
   if (!k) return null;
-  if (isLive) return { pct: limitPct(k.pct), left: k.resets_at !== null ? k.resets_at - now : null, dim: false };
-  if (k.resets_at !== null && k.resets_at <= now) return { pct: 0, left: null, dim: true };
-  return { pct: limitPct(k.pct), left: k.resets_at !== null ? k.resets_at - now : null, dim: true };
+  if (k.resets_at !== null && k.resets_at <= now) return { pct: 0, left: null, dim: !isLive };
+  return { pct: limitPct(k.pct), left: k.resets_at !== null ? k.resets_at - now : null, dim: !isLive };
 }
 
 const same = (a: Known | null, b: Known | null): boolean => a === b || (!!a && !!b && a.pct === b.pct && a.resets_at === b.resets_at);
