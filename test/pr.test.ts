@@ -201,7 +201,9 @@ test('a gh that hangs is killed at the timeout and written as a timeout', async 
     assert.deepEqual([e!.why, e!.pr, e!.prAt], ['timeout', OPEN_PR, NOW]);
     const pid = w.runs().at(-1)!.pid;
     const alive = (): boolean => { try { process.kill(pid, 0); return true; } catch { return false; } };
-    for (const until = Date.now() + 5000; alive() && Date.now() < until;) { /* taskkill /T /F has returned; the exit is on its way */ }
+    // polled on a timer, never in a busy loop: the kill has been sent and the exit is on its way, but off Windows a dead
+    // child still answers kill(pid, 0) until it is reaped, and node reaps it only while its event loop runs
+    for (const until = Date.now() + 5000; alive() && Date.now() < until;) await new Promise((r) => setTimeout(r, 50));
     assert.equal(alive(), false, 'the stub was killed');
   } finally {
     w.cleanup();
