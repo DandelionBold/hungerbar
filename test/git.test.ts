@@ -1,11 +1,11 @@
 // Real git repos in temp folders (SPEC §16.4, §16.5).
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import { test } from 'node:test';
-import { findGit } from '../src/git/bin.ts';
+import { findGit, findOnPath } from '../src/git/bin.ts';
 import { entryPath, lockPath, readEntry } from '../src/git/cache.ts';
 import { findRepo, isUnborn } from '../src/git/head.ts';
 import { renderPayload } from '../src/render.ts';
@@ -71,22 +71,49 @@ function alive(pid: number): boolean {
   }
 }
 
-test('git binary: only absolute PATH entries; a git.exe planted in the repo never resolves', { skip: !GIT }, () => {
+test('git binary: only absolute PATH entries; a git planted in the repo never resolves', { skip: !GIT }, () => {
   const w = world();
   try {
-    const planted = join(w.repo, process.platform === 'win32' ? 'git.exe' : 'git');
-    writeFileSync(planted, 'planted');
-    const path = ['.', '', 'relative/bin', w.repo.replace(/^[A-Za-z]:/, ''), process.env.PATH ?? ''].join(delimiter);
+    const win = process.platform === 'win32';
+    const planted = join(w.repo, win ? 'git.exe' : 'git');
+    writeFileSync(planted, '#!/bin/sh\nexit 0\n');
+    if (!win) chmodSync(planted, 0o755);
+    // From inside the repo, each of these names its folder without being absolute: ".", "../repo", and on Windows the
+    // path without its drive (the current drive's root, which path.win32.isAbsolute calls absolute).
+    const sneaky = ['.', '', 'relative/bin', '../repo', ...(win ? [w.repo.replace(/^[A-Za-z]:/, ''), w.repo.replace(/^[A-Za-z]:/, '').replace(/\\/g, '/')] : [])];
     const prev = process.cwd();
     process.chdir(w.repo);
     try {
-      const found = findGit(path);
-      assert.ok(found && found !== planted && !found.startsWith(w.repo), `resolved ${found}`);
+      for (const entry of sneaky) assert.equal(findGit(entry), null, `"${entry}" is skipped`);
+      const found = findGit([...sneaky, process.env.PATH ?? ''].join(delimiter));
+      assert.ok(found, 'the real git is still found after them');
+      assert.notEqual(realpathSync(found), realpathSync(planted), `resolved ${found}`);
     } finally {
       process.chdir(prev);
     }
+    // the same folder as an absolute entry does resolve: the entries above were skipped for their form, not their folder
+    assert.equal(findGit(w.repo), planted);
   } finally {
     w.cleanup();
+  }
+});
+
+test('git binary: a git that is not executable is skipped (macOS, Linux)', { skip: process.platform === 'win32' }, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'hb-gitbin-'));
+  try {
+    const [plain, runs] = [join(dir, 'plain'), join(dir, 'runs')];
+    for (const d of [plain, runs]) {
+      mkdirSync(d);
+      writeFileSync(join(d, 'git'), '#!/bin/sh\nexit 0\n');
+    }
+    chmodSync(join(plain, 'git'), 0o644);
+    chmodSync(join(runs, 'git'), 0o755);
+    assert.equal(findOnPath(plain, 'git'), null, 'no execute bit');
+    assert.equal(findOnPath([plain, runs].join(delimiter), 'git'), join(runs, 'git'), 'the first one that runs');
+    mkdirSync(join(dir, 'dir', 'git'), { recursive: true });
+    assert.equal(findOnPath([join(dir, 'dir'), runs].join(delimiter), 'git'), join(runs, 'git'), 'a folder named git is no git');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
 });
 

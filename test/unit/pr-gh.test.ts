@@ -2,7 +2,7 @@
 // facts (the checks summed as gh pr status sums them), what one gh run means, the cache entry read back and its TTLs, and
 // how the render tells a GitHub remote from the repo's git config. No process, no network.
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -30,6 +30,8 @@ test('the command gh runs, its env and its binary (HUNGERBAR_GH, else an absolut
     assert.equal(resolveGh({ PATH: bin }), null, 'none on PATH');
     const file = join(bin, process.platform === 'win32' ? 'gh.exe' : 'gh');
     writeFileSync(file, '');
+    // a gh that can run: off Windows, PATH lookup takes only a file with its execute bit
+    if (process.platform !== 'win32') chmodSync(file, 0o755);
     assert.equal(resolveGh({ PATH: ['.', 'relative', '', bin].join(process.platform === 'win32' ? ';' : ':') }), file, 'relative and empty entries skipped');
     assert.equal(resolveGh({ Path: bin }), file, 'Windows spells it Path');
   } finally {
