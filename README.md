@@ -33,6 +33,7 @@ Or let your AI do it: tell Claude Code `Install Hungerbar for me: https://github
 - [Commands](#commands)
 - [The classic look](#the-classic-look)
 - [Privacy and network](#privacy-and-network)
+- [Other agents](#other-agents)
 - [How it stays fast](#how-it-stays-fast)
 - [Troubleshooting](#troubleshooting)
 - [Uninstall and rollback](#uninstall-and-rollback)
@@ -448,6 +449,62 @@ Hungerbar runs on your machine and keeps what it learns there. Two features use 
 - Set `HUNGERBAR_OFFLINE=1`, or Claude Code's own `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`, to stop both, whatever the file says.
 
 Hungerbar has no telemetry and no update check. Nothing else uses the network.
+
+## Other agents
+
+Hungerbar reads one JSON object on stdin and draws from it. Nothing checks who sent it, so another tool that runs a status line command with JSON on stdin can run Hungerbar too. Even `{}` draws a useful HUD: the model as `Claude`, an empty XP bar, the folder Hungerbar runs in, and that folder's git state.
+
+**What it reads, and what each field unlocks**
+
+| Field | What it draws |
+|---|---|
+| `model.display_name`, else `model.id` | the item in your hand: the model's name and its rarity colour; `Claude` without either |
+| `effort.level` (`low` to `max`) | the enchantment (`Efficiency I` to `V`) and the pickaxe's numeral |
+| `context_window.context_window_size`, `used_percentage` and `current_usage` | the XP bar, its % and the context tokens |
+| `workspace.current_dir`, else `cwd` | the spawn point, and the repo whose branch, git state and terrain are drawn |
+| `cost.total_cost_usd` | the gold: the session's cost in whole dollars |
+| `cost.total_duration_ms` | the session's age, one of the phantoms' signs |
+| `rate_limits.five_hour` and `rate_limits.seven_day`, each `{used_percentage, resets_at}` (`resets_at` in epoch seconds) | the day, the hearts and the drumsticks, with the time to each reset |
+| `prompt_cache` (`warm`, `expires_at`, `ttl`, `hit_ratio`, `caching_observed`) | the air bubbles, the countdown and the hit % |
+| `version` | the version |
+| `session_id` | the key of the terrain's history and of the transcript's counts |
+| `transcript_path` | Claude Code's transcript (below) |
+
+**What stays Claude Code's own**
+
+- The transcript is Claude Code's JSONL. The book's prompt count and the level (compactions) come only from it, and the bed reads it too (or `prompt_cache`). For another tool they stay empty.
+- The usage API reads a Claude login token and asks Anthropic, so the extra credits in the offhand and Fable's weekly limit are always the Claude account's, whatever tool renders.
+- The hearts and the day are a 5-hour window and the drumsticks a 7-day one, as Claude's limits are. Pass another tool's limits only when they mean the same; otherwise leave `rate_limits` out.
+
+**The width.** The classic lines are fitted, and a centred HUD is centred, only when Hungerbar knows the width. When the tool does not set `COLUMNS` for the command, set it (or `HUNGERBAR_WIDTH`) yourself. Without a width the classic lines are not fitted and the HUD stays at the left edge.
+
+**Keep each tool apart.** Hungerbar remembers the last limits it saw for each Claude account, under its cache folder, and reads `hungerbar.json` from `CLAUDE_CONFIG_DIR`. Run each tool with its own `HUNGERBAR_CACHE_DIR` and `CLAUDE_CONFIG_DIR`. Otherwise your Claude account's last-known limits can show inside another tool's render, and the HUD draws them undimmed.
+
+A wrapper for a tool whose status JSON has other field names (the names on the right are made up) can remap them in `node` and pipe the result to Hungerbar:
+
+```sh
+#!/bin/sh
+# Another agent's status JSON in, Hungerbar's HUD out, in caches of its own.
+export HUNGERBAR_CACHE_DIR="$HOME/.cache/hungerbar-myagent"
+export CLAUDE_CONFIG_DIR="$HOME/.config/myagent/hungerbar"
+export COLUMNS="${COLUMNS:-120}"
+node -e '
+let s = "";
+process.stdin.on("data", (d) => (s += d)).on("end", () => {
+  const a = JSON.parse(s || "{}");
+  process.stdout.write(JSON.stringify({
+    model: { display_name: a.model_name },
+    cwd: a.working_directory,
+    context_window: { context_window_size: a.context_limit, used_percentage: a.context_used_pct },
+    cost: { total_cost_usd: a.session_cost },
+  }));
+});' | hungerbar
+```
+
+As of November 2026:
+
+- OpenAI's Codex CLI has no command status line hook, only its own fixed items, so Hungerbar cannot run there.
+- Google's Antigravity CLI has a `statusLine` command hook like Claude Code's, with JSON on stdin. A Hungerbar adapter for it is planned for v1.2. A payload saved with `HUNGERBAR_CAPTURE=<dir>` from it would help: read it before you share it, since it keeps some paths.
 
 ## How it stays fast
 
