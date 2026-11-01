@@ -23,7 +23,8 @@ jobs:
       matrix:
         include:
           - { os: windows-latest, label: Windows, node: 22 }
-          - { os: windows-latest, label: Windows, node: 24 }
+          - { os: windows-latest, label: Windows, node: 24, coverage: true }
+          - { os: ubuntu-latest, label: Linux, node: 22 }
           - { os: ubuntu-latest, label: Linux, node: 24 }
           - { os: macos-latest, label: macOS, node: 24 }
     steps:
@@ -35,3 +36,22 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      # the HUD's modules at 100 % lines, branches and functions; once is enough, the code is the same everywhere
+      - if: ${{ matrix.coverage }}
+        run: npm run test:hud-coverage
+
+  # the oldest Node package.json allows: the bundle builds, starts and renders (the tests themselves need Node 22's .ts support)
+  smoke:
+    name: Node 20 smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: node build.mjs
+      - run: node dist/hungerbar.mjs --version
+      - run: echo {} | node dist/hungerbar.mjs
