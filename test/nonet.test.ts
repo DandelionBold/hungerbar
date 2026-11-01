@@ -48,9 +48,21 @@ test('a hungry limit (10% left or less, 1.1.0) with the usage API off: no usage 
 test('the usage refresher itself is a no-op when offline, even with the network trapped', () => {
   const p = prepare({ payload: {} });
   try {
-    const r = spawnSync(process.execPath, ['--import', STUB, DIST, 'refresh', 'usage'], { env: { ...p.env, HUNGERBAR_OFFLINE: '1', CLAUDE_CODE_OAUTH_TOKEN: 'x' }, encoding: 'utf8', windowsHide: true });
+    const r = spawnSync(process.execPath, ['--import', STUB, DIST, 'refresh', 'usage'], { env: { ...p.env, HUNGERBAR_OFFLINE: '1', HUNGERBAR_USAGE_API: '1', CLAUDE_CODE_OAUTH_TOKEN: 'x' }, encoding: 'utf8', windowsHide: true });
     assert.equal(r.status, 0);
     assert.equal(r.stderr, '');
+    assert.match(r.stdout, /^non-essential traffic is off here \(HUNGERBAR_OFFLINE or CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC\); nothing fetched\n$/);
+  } finally {
+    p.cleanup();
+  }
+});
+
+test('hungerbar refresh usage with the usage API off (the default): one line, and no fetch, with the network trapped', () => {
+  const p = prepare({ payload: {} });
+  try {
+    const r = spawnSync(process.execPath, ['--import', STUB, DIST, 'refresh', 'usage'], { env: { ...p.env, CLAUDE_CODE_OAUTH_TOKEN: 'x' }, encoding: 'utf8', windowsHide: true });
+    assert.deepEqual([r.status, r.stdout, r.stderr], [0, 'the usage API is off (network.usageApi); nothing fetched\n', '']);
+    assert.equal(existsSync(p.env.HUNGERBAR_CACHE_DIR!), false, 'nothing written');
   } finally {
     p.cleanup();
   }

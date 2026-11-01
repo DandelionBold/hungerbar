@@ -1,5 +1,6 @@
 // The opt-in usage refresher against a local mock server (SPEC §16.7).
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -11,13 +12,13 @@ import { renderPayload } from '../src/render.ts';
 import { acctDir } from '../src/store.ts';
 import { getToken, keychainService, type KeychainReader } from '../src/usage/creds.ts';
 import { readUsage, usageLockPath, usagePath, usageTtl, type UsageFile } from '../src/usage/file.ts';
-import { refreshUsage, usageUrl } from '../src/usage/refresh.ts';
-import { listFiles, NOW, tempDir } from './harness.ts';
+import { refreshUsage, refreshUsageNow, USAGE_OFF, usageSummary, usageUrl } from '../src/usage/refresh.ts';
+import { DIST, listFiles, NOW, runDist, tempDir } from './harness.ts';
 
 const TOKEN = 'sk-ant-oat01-TEST-ONLY-never-shown-7f3a';
 /** No Keychain item: every refresh here gets this stub, so the real /usr/bin/security never runs, on any OS. */
 const NO_KEYCHAIN: KeychainReader = () => null;
-const refresh = (env: Record<string, string>): Promise<void> => refreshUsage(env, NO_KEYCHAIN);
+const refresh = (env: Record<string, string>): Promise<unknown> => refreshUsage(env, NO_KEYCHAIN);
 let handler: (req: IncomingMessage, res: ServerResponse) => void = (_q, s) => s.end();
 const seen: IncomingMessage[] = [];
 const server = createServer((req, res) => {
@@ -296,6 +297,101 @@ test('the token never lands in a file, an argv or the output', async () => {
     assert.ok(!r.text.includes(TOKEN));
     assert.ok(!JSON.stringify(r.spawns).includes(TOKEN));
     for (const f of listFiles(w.dir)) assert.ok(!readFileSync(f, 'utf8').includes(TOKEN), `token found in ${f}`);
+  } finally {
+    w.cleanup();
+  }
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// 1.1.0: `hungerbar refresh usage` for people
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** dist with these args, without blocking this process (the mock server answers from it). */
+function runAsync(args: string[], env: Record<string, string>): Promise<{ status: number | null; stdout: string; stderr: string }> {
+  return new Promise((resolve) => {
+    const c = spawn(process.execPath, [DIST, ...args], { env, windowsHide: true });
+    let stdout = '', stderr = '';
+    c.stdout.on('data', (d: Buffer) => { stdout += d.toString('utf8'); });
+    c.stderr.on('data', (d: Buffer) => { stderr += d.toString('utf8'); });
+    c.on('close', (status) => resolve({ status, stdout, stderr }));
+  });
+}
+
+test('refresh usage: one line, the extra credits left and, with scopedWeekly on, each per-model weekly; fetched whatever the TTL', async () => {
+  const w = world();
+  try {
+    reply(200, JSON.stringify(BODY));
+    seen.length = 0;
+    const on = { ...w.env, HUNGERBAR_USAGE_API: '1' };
+    assert.equal(await refreshUsageNow(on, NO_KEYCHAIN), 'extra credits $45.80 left of $50 (fetched now)');
+    assert.equal(await refreshUsageNow(on, NO_KEYCHAIN), 'extra credits $45.80 left of $50 (fetched now)', 'usage.json is fresh: fetched again');
+    assert.equal(seen.length, 2);
+    mkdirSync(w.env.CLAUDE_CONFIG_DIR!, { recursive: true });
+    writeFileSync(join(w.env.CLAUDE_CONFIG_DIR!, 'hungerbar.json'), JSON.stringify({ network: { usageApi: true, scopedWeekly: true } }));
+    assert.equal(await refreshUsageNow(w.env, NO_KEYCHAIN), "extra credits $45.80 left of $50; Fable's weekly 0% left (fetched now)");
+    // dist: the command prints the line, and help names it
+    const d = await runAsync(['refresh', 'usage'], { ...w.env, PATH: process.env.PATH ?? '', SystemRoot: process.env.SystemRoot ?? 'C:\\Windows' });
+    assert.deepEqual([d.status, d.stdout, d.stderr], [0, "extra credits $45.80 left of $50; Fable's weekly 0% left (fetched now)\n", '']);
+    assert.equal(seen.length, 4);
+    assert.ok(runDist('', { PATH: process.env.PATH ?? '' }, ['--help']).stdout.includes('  hungerbar refresh usage        asks the usage API now'), 'help names it');
+  } finally {
+    w.cleanup();
+  }
+});
+
+test('refresh usage: the summary line for each answer, every string from the answer sanitized', () => {
+  const u = (o: Partial<UsageFile>): UsageFile => ({ v: 1, at: NOW, extra: null, scoped: [], lockUntil: 0, ...o });
+  const x = (enabled: boolean, usedCents: number, limitCents: number | null, currency = 'USD') => ({ enabled, usedCents, limitCents, currency });
+  for (const [file, scoped, line] of [
+    [u({ extra: x(true, 420, 5000) }), false, 'extra credits $45.80 left of $50 (fetched now)'],
+    [u({ extra: x(true, 6000, 5000) }), false, 'extra credits $0.00 left of $50 (fetched now)'],
+    [u({ extra: x(true, 1250, 5050, 'EUR') }), false, 'extra credits €38.00 left of €50.50 (fetched now)'],
+    [u({ extra: x(true, 420, null) }), false, 'extra credits $4.20 used, no monthly limit (fetched now)'],
+    [u({ extra: x(false, 0, null) }), false, 'extra usage is off for this account (fetched now)'],
+    [u({}), false, 'no extra usage in the answer (fetched now)'],
+    [u({ extra: x(false, 0, null) }), true, 'extra usage is off for this account; no per-model weekly limit (fetched now)'],
+    [u({ extra: x(false, 0, null), scoped: [{ name: 'Fable', pct: 62.5, resets_at: NOW + 60 }, { name: 'Sonnet', pct: 100, resets_at: NOW - 1 }] }), true,
+      "extra usage is off for this account; Fable's weekly 38% left, Sonnet's weekly 100% left (fetched now)"],
+    [u({ extra: x(true, 0, 5000, '\x1b[31mXX'), scoped: [{ name: 'Fa\x07ble\u202e', pct: 0, resets_at: null }] }), true, "extra credits XX 50.00 left of XX 50; Fable's weekly 100% left (fetched now)"],
+    [u({ error: 'http-503', lockUntil: NOW + 30 }), false, 'usage API: HTTP 503; the next try is in <1m'],
+    [u({ error: 'auth', lockUntil: NOW + 600 }), false, 'usage API: the login token was refused; the next try is in 10m'],
+    [u({ error: 'no-credentials', lockUntil: NOW + 600 }), false, 'usage API: no Claude login token was found; the next try is in 10m'],
+    [u({ error: 'network', lockUntil: NOW + 30 }), false, 'usage API: no answer (network or timeout); the next try is in <1m'],
+    [u({ error: 'parse', lockUntil: NOW }), false, 'usage API: the answer was not JSON; the next try is in under a minute'],
+    [u({ error: 'rate-limited', lockUntil: NOW + 7200 }), false, 'usage API: rate-limited; the next try is in 2h 0m'],
+    [u({ error: '\x1b]8;;x\x07odd', lockUntil: NOW + 30 }), false, 'usage API: odd; the next try is in <1m'],
+    [null, true, 'a usage refresh is already running; nothing fetched'],
+  ] as const) assert.equal(usageSummary(file, NOW, scoped), line);
+});
+
+test('refresh usage respects a 429 lock, fetches past any other lock, and fetches nothing while the usage API or the network is off', async () => {
+  const w = world();
+  try {
+    const on = { ...w.env, HUNGERBAR_USAGE_API: '1' }, at = (dt: number) => ({ ...on, HUNGERBAR_NOW: String(NOW + dt) });
+    seen.length = 0;
+    reply(429, '{}', { 'retry-after': '600' });
+    assert.equal(await refreshUsageNow(on, NO_KEYCHAIN), 'usage API: rate-limited; the next try is in 10m');
+    reply(200, JSON.stringify(BODY));
+    assert.equal(await refreshUsageNow(at(300), NO_KEYCHAIN), 'usage API: rate-limited; the next try is in 5m (nothing fetched now)');
+    assert.equal(seen.length, 1, 'no request while the 429 lasts');
+    assert.equal(await refreshUsageNow(at(600), NO_KEYCHAIN), 'extra credits $45.80 left of $50 (fetched now)', 'the lock is over');
+    reply(401, '{}');
+    assert.equal(await refreshUsageNow(at(700), NO_KEYCHAIN), 'usage API: the login token was refused; the next try is in 10m');
+    reply(200, JSON.stringify(BODY));
+    assert.equal(await refreshUsageNow(at(701), NO_KEYCHAIN), 'extra credits $45.80 left of $50 (fetched now)', 'a person asks past the auth lock');
+    assert.equal(seen.length, 4);
+    // another refresh holds the lock
+    writeFileSync(usageLockPath(w.acct), '');
+    assert.equal(await refreshUsageNow(at(800), NO_KEYCHAIN), 'a usage refresh is already running; nothing fetched');
+    rmSync(usageLockPath(w.acct));
+    // off: no request, no token read (a Keychain reader that would see it)
+    const asked: string[] = [];
+    const spy: KeychainReader = (s) => { asked.push(s); return null; };
+    assert.equal(await refreshUsageNow({ ...w.env, CLAUDE_CODE_OAUTH_TOKEN: '' }, spy, 'darwin'), USAGE_OFF);
+    for (const off of [{ HUNGERBAR_OFFLINE: '1' }, { CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1' }]) {
+      assert.match(await refreshUsageNow({ ...on, ...off, CLAUDE_CODE_OAUTH_TOKEN: '' }, spy, 'darwin'), /^non-essential traffic is off here .*; nothing fetched$/);
+    }
+    assert.deepEqual([seen.length, asked], [4, []]);
   } finally {
     w.cleanup();
   }

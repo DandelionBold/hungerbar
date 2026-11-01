@@ -13,7 +13,7 @@ import { NO_DATA, renderPayload } from './render.ts';
 import { readStdin } from './stdin.ts';
 import { cacheDir, pruneOld } from './store.ts';
 import { refreshTranscript } from './transcript.ts';
-import { refreshUsage } from './usage/refresh.ts';
+import { refreshUsageNow } from './usage/refresh.ts';
 import { whoAmI } from './whoami.ts';
 
 const T0 = performance.now();
@@ -101,7 +101,7 @@ async function refreshMain(args: string[], env: Env): Promise<void> {
   } else if (what === 'pr' && a && b) {
     await refreshPr(a, b, env, cd, () => nowSec(env));
     prune(cd, env);
-  } else if (what === 'usage') await refreshUsage(env);
+  } else if (what === 'usage') writeOut(await refreshUsageNow(env) + '\n');   // the detached worker's stdout goes nowhere
 }
 
 async function main(): Promise<void> {

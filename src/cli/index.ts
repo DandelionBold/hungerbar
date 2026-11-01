@@ -22,6 +22,7 @@ usage:
                                  shows or switches the look: Classic Plus or the Minecraft HUD (hungerbar.json only)
   hungerbar glyphs [--hud]       width ruler for the icons (--hud: the Minecraft HUD's)
   hungerbar doctor [--bench]     checks the install and times a render
+  hungerbar refresh usage        asks the usage API now and prints what came back (network.usageApi)
   hungerbar setup [--print] [--launcher] [--node <path>] [--icons plain|colour]
                   [--look classic|hud] [--fable off|tail|tooltip|boss|beacon] [--align left|center]
                   [--pr on|off] [--user off|user|user@host] [--op off|tag|gold] [--bed on|off] [--phantoms on|off]
