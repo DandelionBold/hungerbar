@@ -1,0 +1,3 @@
+Model: Codex │ Context: [████░░░░░░░░░░░░] 63k/272k (23%) │ ⎇ no git │ (no git)
+💾 Cache Hit: n/a
+cwd: D:/proj

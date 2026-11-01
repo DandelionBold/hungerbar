@@ -1,0 +1,57 @@
+{
+  "note": "Another tool's payload, not Claude-shaped: a model name, the context and a folder, no rate_limits, no session, no transcript and no version, in a clean cache. The HUD draws the model, the context, the folder and the cost, and no limits.",
+  "payload": {
+    "model": {
+      "display_name": "Codex"
+    },
+    "context_window": {
+      "context_window_size": 272000,
+      "used_percentage": 23
+    },
+    "cwd": "D:\\proj",
+    "cost": {
+      "total_cost_usd": 0.42
+    }
+  },
+  "fs": {
+    "D:/proj": {
+      "README.md": "another agent's project\n"
+    }
+  },
+  "config": {
+    "look": "hud",
+    "hud": {
+      "fable": "off",
+      "align": "left",
+      "user": "off",
+      "op": "tag"
+    }
+  },
+  "modes": ["ansi", "nocolor"],
+  "hudState": {
+    "model": "Codex",
+    "effort": "",
+    "ctxPct": 23,
+    "ctxTok": 62560,
+    "ctxMax": 272000,
+    "branch": null,
+    "add": 0,
+    "del": 0,
+    "cwd": "D:/proj",
+    "ver": "",
+    "h5": null,
+    "week": null,
+    "cache": {
+      "hit": null,
+      "warm": null,
+      "left": 0,
+      "ttl": 300
+    },
+    "extra": null,
+    "cost": 0.42,
+    "turns": 0,
+    "compactions": 0,
+    "scoped": [],
+    "hist": null
+  }
+}
