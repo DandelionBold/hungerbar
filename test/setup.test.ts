@@ -1,11 +1,13 @@
 // hungerbar setup / --print / --restore against temp Claude config dirs (SPEC §16.8), and setup's look (plan §8, §10.9).
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { test } from 'node:test';
 import { demoLines, promptName, promptSentence } from '../src/cli/look.ts';
+import { commandFor } from '../src/cli/setup.ts';
 import { defaults, merge } from '../src/config.ts';
 import { FABLE_OPTIONS } from '../src/hud/fable.ts';
 import { whoAmI } from '../src/whoami.ts';
@@ -120,6 +122,31 @@ test('a missing settings.json is created', () => {
     assert.deepEqual(w.backups(), []);
   } finally {
     w.cleanup();
+  }
+});
+
+test("commandFor: macOS and Linux get single quotes, with a ' inside as '\\''; Windows gets double quotes and forward slashes, or the launcher", () => {
+  const env = { HUNGERBAR_CACHE_DIR: 'C:\\cache' };
+  for (const platform of ['linux', 'darwin'] as const) {
+    assert.equal(commandFor('/usr/bin/node', '/opt/hb/dist/hungerbar.mjs', true, env, platform), "'/usr/bin/node' '/opt/hb/dist/hungerbar.mjs'");
+    assert.equal(commandFor('/usr/bin/node', '/opt/hb/dist/hungerbar.mjs', false, env, platform), "'/usr/bin/node' '/opt/hb/dist/hungerbar.mjs'", 'no launcher off Windows');
+    assert.equal(commandFor("/Users/o'brien/.nvm/node", "/Users/o'brien/lib/it's/hungerbar.mjs", true, env, platform),
+      "'/Users/o'\\''brien/.nvm/node' '/Users/o'\\''brien/lib/it'\\''s/hungerbar.mjs'");
+  }
+  assert.equal(commandFor('C:\\Program Files\\nodejs\\node.exe', 'C:\\Users\\o\'brien\\hungerbar.mjs', true, env, 'win32'), '"C:/Program Files/nodejs/node.exe" "C:/Users/o\'brien/hungerbar.mjs"');
+  assert.equal(commandFor('C:\\Program Files\\nodejs\\node.exe', 'C:\\x\\hungerbar.mjs', false, env, 'win32'), 'exec "C:/cache/statusline.cmd"');
+});
+
+test("the POSIX command runs through sh as written, from folders with a ' and a space in their names (macOS, Linux)", { skip: process.platform === 'win32' }, () => {
+  const dir = tempDir("hb-it's ");
+  try {
+    const script = join(dir, "say 'hi'.mjs");
+    writeFileSync(script, "process.stdout.write(JSON.stringify(process.argv.slice(1)));\n");
+    const r = spawnSync('/bin/sh', ['-c', commandFor(process.execPath, script, true, {})], { encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(JSON.parse(r.stdout), [script]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
 });
 

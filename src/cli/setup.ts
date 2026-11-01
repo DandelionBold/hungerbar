@@ -93,8 +93,15 @@ export function launcherPath(env: Env): string {
   return join(cacheDir(env), 'statusline.cmd');
 }
 
-export function commandFor(node: string, self: string, direct: boolean, env: Env): string {
-  if (process.platform !== 'win32') return `'${node}' '${self}'`;
+/** One word for a POSIX shell: single quotes, and a ' inside as '\'' (close the quotes, an escaped ', open again). */
+const shWord = (s: string): string => `'${s.replace(/'/g, "'\\''")}'`;
+
+/**
+ * The statusLine command: on Windows for Git Bash (forward slashes, double quotes) or the .cmd launcher; elsewhere the
+ * two paths as sh words. `platform` is a parameter so the tests check every form anywhere.
+ */
+export function commandFor(node: string, self: string, direct: boolean, env: Env, platform: NodeJS.Platform = process.platform): string {
+  if (platform !== 'win32') return `${shWord(node)} ${shWord(self)}`;
   return direct ? `"${slash(node)}" "${slash(self)}"` : `exec "${slash(launcherPath(env))}"`;
 }
 
