@@ -424,7 +424,7 @@ Hungerbar runs on your machine and keeps what it learns there. Two features use 
 - Environment variables: the ones under [Configuration](#configuration), `CLAUDE_CONFIG_DIR`, `CLAUDE_CODE_EFFORT_LEVEL` (when Claude Code passes no effort), `PATH` (to find git and `gh`), `GIT_CEILING_DIRECTORIES` and `GH_HOST`; the terminal's `COLUMNS`, `TERM`, `COLORTERM`, `WT_SESSION` and `TERM_PROGRAM`; the system's folders and names, such as `LOCALAPPDATA` and `USERNAME`; in `doctor`, `CLAUDE_CODE_GIT_BASH_PATH` and `SHELL`; and the `HUNGERBAR_*` variables the tests use.
 - `~/.claude/hungerbar.json`, and its own cache folder (below).
 - `~/.claude/settings.json`, in `setup`, `doctor` and `look` (`look` only to say whether Claude Code runs Hungerbar yet). Windows Terminal's `settings.json`, in `setup`, `icons` and `doctor`.
-- In `doctor` on Windows: the command lines of the running `node.exe`, `git.exe` and `gh.exe` processes, to find leftover Hungerbar refreshers. It shows only those.
+- In `doctor`: the command lines of running processes, to find leftover Hungerbar refreshers: on Windows those of `node.exe`, `git.exe` and `gh.exe`, on Linux every process's (from `/proc`), on macOS every process's (from `ps`). It shows only the leftovers.
 - With the usage API on: your Claude login token, which its background refresher reads from `CLAUDE_CODE_OAUTH_TOKEN`, else `~/.claude/.credentials.json`, else the macOS Keychain; and `HTTPS_PROXY` (or `https_proxy`), to send the refresher's request through your proxy and, in `doctor`, to say so. See the usage API below.
 
 **What it writes**

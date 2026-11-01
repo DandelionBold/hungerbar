@@ -1,5 +1,5 @@
 // `hungerbar doctor`: what Claude Code will run, where the data lives, and how long a render takes (SPEC §13).
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { loadConfig, usageEnabled, type Config } from '../config.ts';
@@ -59,19 +59,53 @@ export function isLeftover(line: string, pid: number): boolean {
   return line.includes(GH_TAIL);
 }
 
-/** The leftovers, or why the process list could not be read: then nothing was checked, so doctor must not say ok. */
-function leftovers(): { lines: string[]; problem: string | null } {
-  if (process.platform !== 'win32') return { lines: [], problem: null };
-  const r = childProcess().spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', LEFTOVER_PS], { encoding: 'utf8', windowsHide: true, timeout: 15000 });
+/** Where doctor reads the process list, as its warning names it: powershell.exe on Windows, /proc on Linux, else ps. */
+export function processSource(platform: NodeJS.Platform = process.platform): string {
+  return platform === 'win32' ? 'powershell.exe' : platform === 'linux' ? '/proc' : 'ps';
+}
+
+/**
+ * The running processes, one `<pid> <command line>` a line, or why they could not be listed (then nothing was checked).
+ * Windows: the WMI query, node.exe, git.exe and gh.exe only. Linux: every /proc/<pid>/cmdline, with no process. macOS
+ * and other Unixes: `ps -A -ww -o pid=,args=` (-ww: whole command lines). A list from a process gets 15 s.
+ */
+export function listProcesses(platform: NodeJS.Platform = process.platform): { lines: string[]; problem: string | null } {
+  if (platform === 'linux') {
+    let pids: string[];
+    try {
+      pids = readdirSync('/proc').filter((f) => /^\d+$/.test(f));
+    } catch (e) {
+      return { lines: [], problem: `could not be read: ${(e as NodeJS.ErrnoException).code ?? (e as Error).message}` };
+    }
+    const lines: string[] = [];
+    for (const pid of pids) {
+      let cmd: string;
+      try {
+        cmd = readFileSync(`/proc/${pid}/cmdline`, 'utf8');
+      } catch {
+        continue;                                             // gone since, or not ours to read
+      }
+      // the arguments end in NUL each; a kernel thread has none
+      cmd = cmd.replace(/\0+$/, '').replace(/\0/g, ' ');
+      if (cmd) lines.push(`${pid} ${cmd}`);
+    }
+    return { lines, problem: null };
+  }
+  const [bin, args]: [string, string[]] = platform === 'win32'
+    ? ['powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', LEFTOVER_PS]]
+    : ['/bin/ps', ['-A', '-ww', '-o', 'pid=,args=']];
+  const r = childProcess().spawnSync(bin, args, { encoding: 'utf8', windowsHide: true, timeout: 15000, maxBuffer: 64 << 20 });
   const code = (r.error as NodeJS.ErrnoException | undefined)?.code;
   if (r.error) return { lines: [], problem: code === 'ETIMEDOUT' ? 'took over 15 s' : code === 'ENOENT' ? 'was not found' : r.error.message };
   if (r.status !== 0) return { lines: [], problem: `exited with ${r.status}${r.stderr ? ': ' + String(r.stderr).trim().split(/\r?\n/)[0] : ''}` };
-  return {
-    lines: String(r.stdout ?? '')
-      .split(/\r?\n/)
-      .filter((l) => isLeftover(l, process.pid)),
-    problem: null,
-  };
+  // ps right-aligns the pid
+  return { lines: String(r.stdout ?? '').split(/\r?\n/).map((l) => l.trimStart()).filter(Boolean), problem: null };
+}
+
+/** The leftovers, or why the process list could not be read: then nothing was checked, so doctor must not say ok. */
+function leftovers(): { lines: string[]; problem: string | null } {
+  const p = listProcesses();
+  return { lines: p.lines.filter((l) => isLeftover(l, process.pid)), problem: p.problem };
 }
 
 /** Said while HUNGERBAR_NO_SPAWN is set: no render queues a background worker. */
@@ -196,13 +230,11 @@ export function doctor(argv: string[], env: Env, self: string): number {
 
   lookSection(cfg.cfg, cfg.error, env);
 
-  if (process.platform === 'win32') {
-    say('\nProcesses');
-    const left = leftovers();
-    if (left.problem) warn(`could not list the running processes (powershell.exe ${left.problem}), so leftovers were not checked`);
-    else if (left.lines.length) left.lines.forEach((l) => warn(`still running: ${l.slice(0, 160)}`));
-    else ok('no leftover hungerbar node.exe, git.exe or gh.exe');
-  }
+  say('\nProcesses');
+  const left = leftovers();
+  if (left.problem) warn(`could not list the running processes (${processSource()} ${left.problem}), so leftovers were not checked`);
+  else if (left.lines.length) left.lines.forEach((l) => warn(`still running: ${l.slice(0, 160)}`));
+  else ok('no leftover Hungerbar worker, git or gh');
 
   if (shell && sl?.command) {
     say('\nTimed render (CC-style: shell -c command, demo payload piped)');

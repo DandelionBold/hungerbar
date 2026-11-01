@@ -15,7 +15,7 @@ import {
   alignFlag, alignNote, demoLines, diffLines, elevatedAs, handSteps, HUD_FLAG_KEYS, HUD_FLAGS, hudFlag, hudOptions, mergeLook, opSummary, ownSentence,
   parseAlign, parseFable, parseHudOption, parseLook, promptName, promptSentence, sentences, gateHere,
 } from '../src/cli/look.ts';
-import { isLeftover, LEFTOVER_PS, NO_SPAWN_WARNING, paddingWarning } from '../src/cli/doctor.ts';
+import { isLeftover, LEFTOVER_PS, listProcesses, NO_SPAWN_WARNING, paddingWarning, processSource } from '../src/cli/doctor.ts';
 import { gitArgs } from '../src/git/refresh.ts';
 import { statusArgs } from '../src/git/status.ts';
 import { PR_ARGS } from '../src/pr/gh.ts';
@@ -1162,14 +1162,18 @@ test("doctor's leftover check sees every child 0.7.0 starts: the git status, gh 
   } finally {
     w.cleanup();
   }
+  // where each platform's list comes from, and what doctor says when it is not there (the other platforms' sources)
+  assert.deepEqual((['win32', 'linux', 'darwin', 'freebsd'] as const).map((p) => processSource(p)), ['powershell.exe', '/proc', 'ps', 'ps']);
+  if (process.platform !== 'linux') assert.deepEqual(listProcesses('linux'), { lines: [], problem: 'could not be read: ENOENT' });
+  if (process.platform === 'win32') assert.deepEqual(listProcesses('darwin'), { lines: [], problem: 'was not found' });
 });
 
-test("doctor lists a stranded git status and gh pr view as still running, and not a gh of the user's (Windows, live)", { skip: process.platform !== 'win32' }, () => {
+test("doctor lists a stranded git status and gh pr view as still running, and not a gh of the user's (live)", () => {
   const w = world(JSON.stringify({ look: 'hud' }), null);
   const kids: ChildProcess[] = [];
   try {
-    // node.exe sleepers with the refreshers' command lines (a gh run by the tests' stub runs as node.exe too); each
-    // ends by itself within a minute should the test die before its finally
+    // node sleepers with the refreshers' command lines (a gh run by the tests' stub runs as node too); each ends by
+    // itself within a minute should the test die before its finally
     const sleeper = join(w.dir, 'sleeper.mjs');
     writeFileSync(sleeper, 'setTimeout(() => {}, 60_000);\n');
     const start = (args: readonly string[]): ChildProcess => {
@@ -1178,13 +1182,21 @@ test("doctor lists a stranded git status and gh pr view as still running, and no
       return c;
     };
     const status = start(statusArgs('D:/r')), pr = start(PR_ARGS), mine = start(['pr', 'view', '--web']);
-    // the real PATH: doctor finds powershell.exe through it (hud.pr is off, so no gh is looked for)
+    // the real PATH: on Windows doctor finds powershell.exe through it (hud.pr is off, so no gh is looked for); Linux
+    // reads /proc, macOS runs /bin/ps
     const r = w.run(['doctor'], { HUNGERBAR_NOW: String(NOW) });
     assert.equal(r.status, 0, r.stderr);
     const procs = r.stdout.slice(r.stdout.indexOf('\nProcesses\n'));
     assert.ok(procs.includes(`  warn  still running: ${status.pid} `), procs);
     assert.ok(procs.includes(`  warn  still running: ${pr.pid} `), procs);
     assert.ok(!procs.includes(`still running: ${mine.pid} `), procs);
+    // Linux has ps too: its list, which macOS uses, finds the same ones
+    if (process.platform === 'linux') {
+      const ps = listProcesses('darwin');
+      assert.equal(ps.problem, null);
+      const ours = ps.lines.filter((l) => isLeftover(l, process.pid)).map((l) => Number(l.split(' ', 1)[0]));
+      assert.ok(ours.includes(status.pid!) && ours.includes(pr.pid!) && !ours.includes(mine.pid!), ps.lines.filter((l) => l.includes('sleeper')).join('\n'));
+    }
   } finally {
     for (const c of kids) c.kill();
     w.cleanup();
