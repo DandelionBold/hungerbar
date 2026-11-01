@@ -25,15 +25,27 @@ export function spawnDetached(self: string, args: string[], cwd: string, env: En
   child.unref();
 }
 
-/** Kills a process and its children: taskkill /T on Windows, SIGKILL elsewhere. */
+/**
+ * Kills a process and its children: taskkill /T on Windows; elsewhere SIGKILL to its process group, which run() makes
+ * it the leader of (detached), so its children go too. A pid that leads no group (one run() did not start) gets the
+ * SIGKILL alone.
+ */
 export function treeKill(pid: number, env: Env): void {
   try {
     if (process.platform === 'win32') {
       const taskkill = join(env.SystemRoot || env.SYSTEMROOT || 'C:\\Windows', 'System32', 'taskkill.exe');
       childProcess().spawnSync(taskkill, ['/PID', String(pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore', timeout: 5000 });
-    } else process.kill(pid, 'SIGKILL');
+      return;
+    }
+    try {
+      process.kill(-pid, 'SIGKILL');
+      return;
+    } catch {
+      /* no such group: the pid alone */
+    }
+    process.kill(pid, 'SIGKILL');
   } catch {
-    /* already gone */
+    /* already gone (ESRCH) */
   }
 }
 
@@ -53,7 +65,10 @@ export function run(bin: string, args: string[], env: Env, cwd: string, timeoutM
   return new Promise((resolve) => {
     let child: CP.ChildProcess;
     try {
-      child = childProcess().spawn(bin, args, { cwd, env: env as NodeJS.ProcessEnv, windowsHide: true, stdio: ['ignore', 'pipe', keepStderr ? 'pipe' : 'ignore'] });
+      // detached off Windows: the child leads a process group of its own, so treeKill reaches its children as well
+      child = childProcess().spawn(bin, args, {
+        cwd, env: env as NodeJS.ProcessEnv, windowsHide: true, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', keepStderr ? 'pipe' : 'ignore'],
+      });
     } catch {
       resolve({ code: null, stdout: '', timedOut: false, stderr: '' });
       return;
