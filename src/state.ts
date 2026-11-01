@@ -50,6 +50,11 @@ export interface ExtraView {
   limit: number | null;
   currency: string;
   pct: number | null;
+  /**
+   * When the count was fetched (1.1.0): usage.json's `at` (its last successful fetch, epoch seconds), so a layer can
+   * grey a stale count; null for stdin's spend_limit, which is this render's own.
+   */
+  at: number | null;
 }
 
 export interface ScopedView {
@@ -192,11 +197,11 @@ export function collect(p: Payload, now: number, cfg: Config, env: Env, src: Sou
   const usage = slUsed !== null || slLimit !== null ? null : src.usage();
   if (sl && (slUsed !== null || slLimit !== null)) {
     const used = slUsed ?? 0;
-    extra = { used, limit: slLimit, currency: 'USD', pct: num(sl.used_percentage) ?? (slLimit ? (used / slLimit) * 100 : null) };
+    extra = { used, limit: slLimit, currency: 'USD', pct: num(sl.used_percentage) ?? (slLimit ? (used / slLimit) * 100 : null), at: null };
   } else if (usage?.extra?.enabled) {
     const x = usage.extra;
     const used = x.usedCents / 100, limit = x.limitCents === null ? null : x.limitCents / 100;
-    extra = { used, limit, currency: sanitize(x.currency || 'USD', CAP.currency) || 'USD', pct: limit ? (used / limit) * 100 : null };
+    extra = { used, limit, currency: sanitize(x.currency || 'USD', CAP.currency) || 'USD', pct: limit ? (used / limit) * 100 : null, at: usage.at };
   }
 
   const scoped: ScopedView[] = cfg.network.scopedWeekly

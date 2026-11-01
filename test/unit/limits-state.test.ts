@@ -10,6 +10,7 @@ import { collect, type Sources } from '../../src/state.ts';
 import type { TxSummary } from '../../src/transcript.ts';
 import { diskSources, renderPayload } from '../../src/render.ts';
 import { CAP } from '../../src/sanitize.ts';
+import { adapt } from '../../src/hud/adapter.ts';
 import { parseBody } from '../../src/usage/refresh.ts';
 
 const NOW = 1792859460;
@@ -249,6 +250,16 @@ test('model fallbacks: id, then the transcript, then "Claude"', () => {
   assert.equal(collect({}, NOW, cfg, {}, sources(tx('low', 'claude-sonnet-5-5')), false).model, 'sonnet-5-5');
   assert.equal(collect({}, NOW, cfg, {}, sources(null), false).model, 'Claude');
   assert.equal(collect({ model: 'Opus 5.5 (1M context)' }, NOW, cfg, {}, sources(null), false).model, 'Opus 5.5');
+});
+
+test('ExtraView.at (1.1.0): usage.json\'s at for its extra credits, null for stdin\'s spend_limit; the engine is handed neither', () => {
+  const cfg = defaults();
+  const usage = { v: 1 as const, at: NOW - 900, extra: { enabled: true, usedCents: 420, limitCents: 5000, currency: 'USD' }, scoped: [], lockUntil: 0 };
+  const fromFile = collect({}, NOW, cfg, {}, { ...sources(null), usage: () => usage }, false);
+  assert.deepEqual(fromFile.extra, { used: 4.2, limit: 50, currency: 'USD', pct: 8.4, at: NOW - 900 });
+  const fromStdin = collect({ rate_limits: { spend_limit: { used_usd: 3, limit_usd: 20 } } }, NOW, cfg, {}, { ...sources(null), usage: () => usage }, false);
+  assert.deepEqual(fromStdin.extra, { used: 3, limit: 20, currency: 'USD', pct: 15, at: null });
+  assert.deepEqual(adapt(fromFile, {}, { turns: 0, compactions: 0 }).extra, { used: 4.2, limit: 50 });
 });
 
 test('usage API: weekly_scoped entries and the placeholder rule', () => {

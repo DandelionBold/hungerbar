@@ -25,7 +25,7 @@ const ST = (o: Partial<State> = {}): State => ({
   now: 1000, model: 'Opus 5.5', effort: 'high', ctx: { pct: 8, tokens: 81000, size: 1_000_000, dim: false },
   git: { isRepo: true, branch: 'main', added: 1208, removed: 279 }, branchFull: 'main', cwd: 'D:/webapp', cwdFull: 'D:/webapp',
   h5: { pct: 2, left: 17340, dim: false }, week: { pct: 82, left: 345540, dim: false }, h5None: false,
-  cache: { hit: 98, state: 'warm', left: 252, ttl: '5m', dim: false }, extra: { used: 0, limit: 50, currency: 'USD', pct: 0 },
+  cache: { hit: 98, state: 'warm', left: 252, ttl: '5m', dim: false }, extra: { used: 0, limit: 50, currency: 'USD', pct: 0, at: null },
   scoped: [], version: '2.1.306', cfgError: false, ...o,
 });
 const P: Payload = { cost: { total_cost_usd: 3.12 } };
@@ -76,7 +76,7 @@ test('adapt: the prompt cache: null when caching is off; warm/cold/unknown; whol
 
 test('adapt: extra credits, cost, counts and the diff', () => {
   assert.equal(adapt(ST({ extra: null }), P, C42).extra, null);
-  assert.deepEqual(adapt(ST({ extra: { used: 4.2, limit: null, currency: 'EUR', pct: null } }), P, C42).extra, { used: 4.2, limit: null });
+  assert.deepEqual(adapt(ST({ extra: { used: 4.2, limit: null, currency: 'EUR', pct: null, at: 990 } }), P, C42).extra, { used: 4.2, limit: null });
   const cost = (p: unknown): number => adapt(ST(), p as Payload, C42).cost;
   assert.equal(cost({ cost: { total_cost_usd: 41.9 } }), 41.9);
   assert.equal(cost({ cost: { total_cost_usd: ' 18.4 ' } }), 18.4, 'a numeric string, as payload.num reads it');
