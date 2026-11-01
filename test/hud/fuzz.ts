@@ -485,3 +485,41 @@ export function shrinkState(s0: unknown, bad: (s: unknown) => boolean): unknown 
   }
   return s;
 }
+
+// ---------------- the vitals (1.1.0): the hearts line's Ultra, stale and poison looks ----------------
+/**
+ * 5-hour windows the vitals draw on: used up (poison's, with each part of the day left and with no reset given), just
+ * short of it, a fresh one, and none at all, as for an account with no 5-hour window (null) or a state without the key.
+ */
+export const VITAL_H5: readonly unknown[] = [{ used: 100, left: 3900, window: 18000 }, { used: 100, left: 600, window: 18000 }, { used: 100, left: 12000, window: 18000 },
+  { used: 100 }, { used: 105, left: 17999 }, { used: 99.5, left: 60 }, { used: 91, left: 9000 }, { used: 0, window: 18000 }, { used: 2, left: 17340, window: 18000 },
+  { used: '100', left: '3900' }, null, DEL];
+/** Weeks the stale mark draws on: drumsticks or none, a red % (10% left or less), used up, and none. */
+export const VITAL_WEEK: readonly unknown[] = [{ used: 82, left: 345540 }, { used: 86, left: 84539 }, { used: 95, left: 345540 }, { used: 90, left: 1000 },
+  { used: 100, left: 187200 }, { used: 0, left: 604800 }, { used: 9.9 }, null, DEL];
+/**
+ * Credits for poison: shares on both sides of each heart (ties included: $2.50 and $47.50 of $50 are 0.5 and 9.5
+ * hearts), cents left, exactly $0, past the limit, no limit, none.
+ */
+export const VITAL_EXTRA: readonly unknown[] = [{ used: 4.2, limit: 50 }, { used: 46, limit: 50 }, { used: 49.99, limit: 50 }, { used: 47.5, limit: 50 },
+  { used: 2.5, limit: 50 }, { used: 0, limit: 50 }, { used: 25, limit: 50 }, { used: 0.4, limit: 1 }, { used: 999.5, limit: 1000 }, { used: 50, limit: 50 },
+  { used: 75, limit: 50 }, { used: 0, limit: 0 }, { used: 4.2, limit: null }, null, DEL];
+/** What the vitals are handed besides the state: an account with no 5-hour window, hud.ultra and hud.poison, which limits are last-known. */
+export interface VitalFlags { h5None: boolean; ultra: boolean; poison: boolean; stale5: boolean; staleWk: boolean }
+/**
+ * A state for the vitals: a seeded state (state()) that, two times in three, has its 5-hour window, week and credits
+ * from the vitals' domains, so poison, Ultra's unknown 5-hour and the stale marks come up often.
+ */
+export function vitalState(r: Rng, bases: readonly object[]): unknown {
+  const s = state(r, bases);
+  if (s === null || typeof s !== 'object' || Array.isArray(s) || !chance(r, 0.67)) return s;
+  put(s as State, 'h5', pick(r, VITAL_H5));
+  if (chance(r, 0.7)) put(s as State, 'week', pick(r, VITAL_WEEK));
+  if (chance(r, 0.8)) put(s as State, 'extra', pick(r, VITAL_EXTRA));
+  return s;
+}
+/** Seeded flags for the vitals; one in ten asks for nothing. */
+export function vitalFlags(r: Rng): VitalFlags {
+  if (chance(r, 0.1)) return { h5None: false, ultra: false, poison: false, stale5: false, staleWk: false };
+  return { h5None: chance(r, 0.4), ultra: chance(r, 0.85), poison: chance(r, 0.8), stale5: chance(r, 0.4), staleWk: chance(r, 0.4) };
+}

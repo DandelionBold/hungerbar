@@ -160,7 +160,7 @@ test('a payload with no rate_limits in a clean cache (another tool): no limits, 
   }
 });
 
-test('h5None reaches the State (false when a source leaves it out) and RenderResult.state; the HUD is handed no 5-hour', () => {
+test('h5None reaches the State (false when a source leaves it out) and RenderResult.state; the engine is handed no 5-hour, the vitals draw Ultra', () => {
   const s = sources(null);
   assert.equal(collect({}, NOW, defaults(), {}, s, false).h5None, false);
   assert.equal(collect({}, NOW, defaults(), {}, { ...s, limits: () => ({ h5: null, week: null, h5None: true }) }, false).h5None, true);
@@ -171,7 +171,8 @@ test('h5None reaches the State (false when a source leaves it out) and RenderRes
     assert.equal(r.state?.h5None, true);
     assert.equal(r.state?.h5, null);
     assert.ok(r.hud, 'the HUD drew');
-    assert.deepEqual([r.hud.input.h5, r.hud.input.week], [null, { used: 41, left: 302400 }], 'the HUD draws its unknown 5-hour, as before');
+    assert.deepEqual([r.hud.input.h5, r.hud.input.week], [null, { used: 41, left: 302400 }], 'the engine draws its unknown 5-hour, as before');
+    assert.equal(r.hud.vitals.ultra, true, 'and the vitals draw the golden apple over it (hud.ultra on by default, 1.1.0)');
     const c = renderPayload(JSON.stringify({ model: { display_name: 'Opus 5.5' } }), { env: { ...env, HUNGERBAR_LOOK: 'classic', NO_COLOR: '1' } });
     assert.equal(c.state?.h5None, true, 'the saved flag, for a payload with no rate_limits');
     assert.doesNotMatch(c.text, /Session/, 'classic: no Session item');

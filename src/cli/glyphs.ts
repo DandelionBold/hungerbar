@@ -90,6 +90,7 @@ export const HUD_GLYPHS: Array<[string, string]> = [
   ['\u{1FB22}', 'a phantom swooping: left wing'],
   ['\u{1FB2D}', 'a phantom swooping: body'],
   ['\u{1FB16}', 'a phantom swooping: right wing'],
+  ['∞', "Ultra: no 5-hour limit, with the golden apple's hearts (hud.ultra, 1.1.0)"],
   ['·', 'separator'],
   ['…', 'shortened text'],
 ];

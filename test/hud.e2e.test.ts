@@ -3,16 +3,18 @@
 //       hud4-states.json's state plus the demo's history plus the scoped Fable week, field by field; `fable` is round 7's
 //       fable-in-use. The shifted histories draw what the frozen spec renders draw (their hashes).
 //   (b) dist/hungerbar.mjs's bytes (`preview`, a config file with look hud) equal the independent encoder applied to the
-//       vendored engine's render with the tests' git state (each demo's status, 0.7.0), player's layers and own hotbar
-//       frame (test/hud/frame-oracle.ts), for every situation x the 5 fable ids, at FORCE_COLOR=3 and 2; with hud.pr on
-//       the tight day also draws its pull request's badge.
+//       vendored engine's render with the tests' git state (each demo's status, 0.7.0), player's layers, vitals (1.1.0:
+//       the extra day's poisoned hearts) and own hotbar frame (test/hud/frame-oracle.ts), for every situation x the 5
+//       fable ids, at FORCE_COLOR=3 and 2; with hud.pr on the tight day also draws its pull request's badge.
 //   (c) every golden case test/fixtures/cases/hud-*.json, on disk: the in-process render (adapter plus history step)
 //       hands the engine the case's pinned hudState, the git state its pinned hudGit (none known when absent) and the
 //       badge its pinned hudPr (no PR when absent), and dist's bytes equal the independent encoder applied to the vendored
 //       engine's render of it with the tests' git state and PR badge (test/hud/gitstate-oracle.ts and prci-oracle.ts,
-//       0.7.0), the player's layers as its pinned hudPlayer asks (test/hud/player-oracle.ts, 0.7.0; nothing when absent)
-//       and frame; each fallback mode is classic byte for byte, and w100c keeps the HUD. With hud.user, hud.op, hud.bed
-//       and hud.phantoms all off, every case draws the engine's lines with only the git state, the badge and the frame.
+//       0.7.0), the player's layers as its pinned hudPlayer asks (test/hud/player-oracle.ts, 0.7.0; nothing when absent),
+//       the vitals as its pinned hudVitals asks (test/hud/vitals-oracle.ts, 1.1.0; nothing when absent) and frame; each
+//       fallback mode is classic byte for byte, and w100c keeps the HUD. With hud.user, hud.op, hud.bed, hud.phantoms,
+//       hud.ultra and hud.poison all off, every case draws the engine's lines with only the git state, the badge, the
+//       stale marks (they have no key) and the frame.
 //   (d) the README's HUD samples are the engine's normal day and Fable in use with the boss bar (its name left out,
 //       SPEC §0.11), framed, ANSI-stripped, and the normal day centred in a 120-column window.
 //   (e) SPEC §0.9 says what ships: its *Output* list is whole, the frame, centring, git state and PR status sections hold
@@ -42,6 +44,7 @@ import { budgetOf, centredText, centreOracle, widestOf } from './hud/align-oracl
 import { frameOracle } from './hud/frame-oracle.ts';
 import { gitOracle, UNKNOWN, type OracleGit } from './hud/gitstate-oracle.ts';
 import { playerOracle, QUIET, type OraclePlayer } from './hud/player-oracle.ts';
+import { QUIET_VITALS, vitalsOracle, type OracleVitals } from './hud/vitals-oracle.ts';
 import { badgeOracle, type OraclePr } from './hud/prci-oracle.ts';
 import { sgrOracle } from './hud/sgr-oracle.ts';
 import {
@@ -101,12 +104,33 @@ const DEMO_GIT: Record<Situation, OracleGit> = {
 };
 const DEMO_PR: Partial<Record<Situation, OraclePr>> = { tight: { n: 128, state: 'open', ci: 'passed', review: 'approved', conflict: false } };
 
-/** A demo situation as the tests draw it: the engine's render with the git state, the badge, the player and the frame. */
+/**
+ * What the vitals are handed on every demo (1.1.0): hud.poison on (the default), which draws only on the extra day, its
+ * 5-hour used up with $45.80 of credits left; no demo is an account without a 5-hour window, and all their limits are live.
+ */
+const DEMO_VITALS: OracleVitals = { ...QUIET_VITALS, poison: true };
+
+/** A demo situation as the tests draw it: the engine's render with the git state, the badge, the player, the vitals and the frame. */
 const demoOracle = (s: Situation, id: FableId, pr = false): RefLines =>
-  frameOracle(playerOracle(gitOracle(MIX.render(expected(s), picked(id)), expected(s), DEMO_GIT[s], badgeOracle(pr ? DEMO_PR[s] ?? null : null)), expected(s), DEMO_PLAYER[s]), expected(s));
+  frameOracle(vitalsOracle(playerOracle(gitOracle(MIX.render(expected(s), picked(id)), expected(s), DEMO_GIT[s], badgeOracle(pr ? DEMO_PR[s] ?? null : null)),
+    expected(s), DEMO_PLAYER[s]), expected(s), DEMO_VITALS), expected(s));
 
 /** A case's pinned hudPlayer over QUIET. */
 const playerOf = (c: Case): OraclePlayer => ({ ...QUIET, ...(c.hudPlayer as Partial<OraclePlayer> | undefined) });
+
+/** The vitals' input as src/hud/vitals.ts VitalMarks has it (restated here): a case's pin is over none. */
+interface PinnedVitals { ultra: boolean; poison: { lit: number; day: { t: string; fg?: string } } | null; stale5: boolean; staleWk: boolean }
+const NO_PIN: PinnedVitals = { ultra: false, poison: null, stale5: false, staleWk: false };
+/** A case's pinned hudVitals over none. */
+const pinnedVitals = (c: Case): PinnedVitals => ({ ...NO_PIN, ...(c.hudVitals as Partial<PinnedVitals> | undefined) });
+/**
+ * The tests' vitals for a case: Ultra and the stale flags as pinned, and poison from the case's hud.poison, re-derived
+ * here (on unless the config says off, SPEC §0.12), which the tests' layer applies from the state.
+ */
+const vitalsOf = (c: Case): OracleVitals => {
+  const v = pinnedVitals(c);
+  return { ultra: v.ultra, poison: (c.config as { hud?: { poison?: unknown } } | undefined)?.hud?.poison !== 'off', stale5: v.stale5, staleWk: v.staleWk };
+};
 
 // ---------------------------------------------------------------------------------------------------------------------
 // (a) adapt(DEMOS[s])
@@ -229,9 +253,9 @@ for (const name of HUD_CASES) {
     const force = env.FORCE_COLOR ?? c.env?.FORCE_COLOR;
     const id = fableOf(c);
     const lines = want && MIX.render(want, picked(id));
-    const git = (c.hudGit ?? UNKNOWN) as OracleGit, pr = (c.hudPr ?? null) as OraclePr | null, player = playerOf(c);
-    // the engine's lines with the tests' git state and PR badge (0.7.0), player's layers (0.7.0) and frame
-    const framed = want && frameOracle(playerOracle(gitOracle(lines!, want, git, badgeOracle(pr)), want, player), want);
+    const git = (c.hudGit ?? UNKNOWN) as OracleGit, pr = (c.hudPr ?? null) as OraclePr | null, player = playerOf(c), vitals = vitalsOf(c);
+    // the engine's lines with the tests' git state and PR badge (0.7.0), player's layers (0.7.0), vitals (1.1.0) and frame
+    const framed = want && frameOracle(vitalsOracle(playerOracle(gitOracle(lines!, want, git, badgeOracle(pr)), want, player), want, vitals), want);
 
     // in process: the adapter plus the history step hand the engine exactly the pinned state
     const p = prepare(c);
@@ -246,14 +270,18 @@ for (const name of HUD_CASES) {
         assert.deepEqual(plain(r.hud.git), git, 'the git state is handed what the case pins');
         assert.deepEqual(plain(r.hud.pr), pr, 'the PR badge is handed what the case pins');
         assert.deepEqual(plain(r.hud.player), player, 'the player\'s layers are handed what the case pins');
-        assert.deepEqual(tuples(r.hud.framed as RefLines), plain(tuples(framed!)), 'the git state, the PR badge, the player\'s layers and the frame = the tests\'');
-        // every new option off (0.7.0): the git state, the badge and the frame alone, whatever the case says
-        const offCfg = { ...(c.config as object | undefined), hud: { ...(c.config as { hud?: object } | undefined)?.hud, user: 'off', op: 'off', bed: 'off', phantoms: 'off' } };
+        assert.deepEqual(plain(r.hud.vitals), pinnedVitals(c), 'the vitals are handed what the case pins');
+        assert.deepEqual(tuples(r.hud.framed as RefLines), plain(tuples(framed!)), 'the git state, the PR badge, the player\'s layers, the vitals and the frame = the tests\'');
+        // every option of the layers off (0.7.0, 1.1.0): the git state, the badge, the stale marks (no key) and the frame
+        // alone, whatever the case says
+        const offCfg = { ...(c.config as object | undefined), hud: { ...(c.config as { hud?: object } | undefined)?.hud, user: 'off', op: 'off', bed: 'off', phantoms: 'off', ultra: 'off', poison: 'off' } };
         const q = prepare({ ...c, config: offCfg });
         try {
           const off = renderPayload(q.stdin, { env: { ...q.env, ...env } });
           assert.deepEqual(plain(off.hud!.player), QUIET, 'all off: nothing for the player\'s layers');
-          assert.deepEqual(tuples(off.hud!.framed as RefLines), plain(tuples(frameOracle(gitOracle(lines!, want, git, badgeOracle(pr)), want))), 'all off: no player\'s layer');
+          assert.deepEqual(plain(off.hud!.vitals), { ...pinnedVitals(c), ultra: false, poison: null }, 'all off: only the stale marks for the vitals');
+          const stale: OracleVitals = { ...QUIET_VITALS, stale5: vitals.stale5, staleWk: vitals.staleWk };
+          assert.deepEqual(tuples(off.hud!.framed as RefLines), plain(tuples(frameOracle(vitalsOracle(gitOracle(lines!, want, git, badgeOracle(pr)), want, stale), want))), 'all off: no player\'s layer, no Ultra, no poison');
         } finally {
           q.cleanup();
         }
@@ -339,7 +367,8 @@ test("(f) every hud-* case in colour at a known width: left draws its bytes of a
     if (!modes.length || c.hudState === null || c.hudState === undefined) continue;
     const want = fill(c.hudState, '') as RefState;
     const git = (c.hudGit ?? UNKNOWN) as OracleGit, pr = (c.hudPr ?? null) as OraclePr | null;
-    const framed = frameOracle(playerOracle(gitOracle(MIX.render(want, picked(fableOf(c))), want, git, badgeOracle(pr)), want, playerOf(c)), want), ansi = sgrOracle(framed, { depth: 'truecolor' });
+    const framed = frameOracle(vitalsOracle(playerOracle(gitOracle(MIX.render(want, picked(fableOf(c))), want, git, badgeOracle(pr)), want, playerOf(c)), want, vitalsOf(c)), want);
+    const ansi = sgrOracle(framed, { depth: 'truecolor' });
     const reserve = (c.config as { widthReserve?: number } | undefined)?.widthReserve ?? 0;
     for (const m of modes) {
       const b = budgetOf(MODES[m]!, reserve)!;

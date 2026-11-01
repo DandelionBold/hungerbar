@@ -70,6 +70,13 @@ export interface Case {
    */
   hudPlayer?: unknown;
   /**
+   * hud-* cases: what the vitals must be handed (src/hud/vitals.ts VitalMarks, 1.1.0), over none (no Ultra, no poison,
+   * no stale mark); absent when they draw nothing. The tests' layer is handed its own reading of it: Ultra and the
+   * stale flags as pinned, and poison from the case's hud.poison (on unless the config says off), which it applies
+   * from the state.
+   */
+  hudVitals?: unknown;
+  /**
    * hud-* cases: the reference state this case reproduces apart from hist, turns and compactions ("states:normal" from
    * hud4-states.json, "round7:fable-in-use" from hud-spec.json); its scoped is [] when it has none.
    */

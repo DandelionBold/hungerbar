@@ -15,6 +15,7 @@ import { ASCII, forDepth, UNICODE } from './glyphs.ts';
 import type { HudState } from './hud/adapter.ts';
 import type { GitMarks } from './hud/gitstate.ts';
 import type { PlayerMarks } from './hud/player.ts';
+import type { VitalMarks } from './hud/vitals.ts';
 import { diskHistory, histSid } from './hud/history.ts';
 import { hudGate, renderHudLook } from './hud/look.ts';
 import type { Span } from './hud/spans.ts';
@@ -45,15 +46,15 @@ export interface RenderResult {
   after: Array<() => void>;
   /**
    * When the HUD drew this render, for the tests: the engine's input (with its hist), the git state's (marks), the pull
-   * request (null: no badge), the player's layers' input, the engine's lines, the lines with the git state, the badge,
-   * the player's layers and the hotbar's frame, and the centring's offset (hud.align center; `text` is the framed lines
-   * moved right by it).
+   * request (null: no badge), the player's layers' input, the vitals' input (1.1.0), the engine's lines, the lines with
+   * the git state, the badge, the player's layers, the vitals and the hotbar's frame, and the centring's offset
+   * (hud.align center; `text` is the framed lines moved right by it).
    */
-  hud?: { input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; lines: Span[][]; framed: Span[][]; offset: number };
+  hud?: { input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; vitals: VitalMarks; lines: Span[][]; framed: Span[][]; offset: number };
   /**
    * The State both looks draw from, when a payload was read (not for `no data`): for the tests, and for what the HUD's
-   * engine is not handed, such as h5None and extra.at (1.1.0). No layer reads those yet; the layers after the engine
-   * that will (vitals, offhand) are to read them from the State, as playerMarks reads it.
+   * engine is not handed, such as h5None and extra.at (1.1.0). The layers after the engine read those from the State,
+   * as playerMarks reads it: the vitals read h5None and the limits' dim flags (vitalMarks); nothing reads extra.at yet.
    */
   state?: State;
 }
@@ -192,7 +193,7 @@ export function renderPayload(raw: string | null, opts: RenderOptions): RenderRe
   if (gate.ok) {
     try {
       const h = renderHudLook(st, p, src, cfg, gate.depth, budget(env, cfg));
-      return { text: h.text, spawns, model: st.model, after, hud: { input: h.input, git: h.git, pr: h.pr, player: h.player, lines: h.lines, framed: h.framed, offset: h.offset }, state: st };
+      return { text: h.text, spawns, model: st.model, after, hud: { input: h.input, git: h.git, pr: h.pr, player: h.player, vitals: h.vitals, lines: h.lines, framed: h.framed, offset: h.offset }, state: st };
     } catch (e) {
       after.length = 0;                                       // a HUD render that failed writes no history
       process.stderr.write(`hungerbar: the HUD failed, classic drawn: ${(e as Error | undefined)?.stack ?? String(e)}\n`);

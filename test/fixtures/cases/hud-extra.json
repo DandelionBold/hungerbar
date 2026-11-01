@@ -1,5 +1,5 @@
 {
-  "note": "The HUD on picker situation 4, \"Using extra credits\": the saved history already has this quarter's gold; 2 prompts, 1 compaction.",
+  "note": "The HUD on picker situation 4, \"Using extra credits\": the saved history already has this quarter's gold; 2 prompts, 1 compaction. Since 1.1.0 the 5-hour window is used up while $45.80 of the $50 of credits are left, so the hearts are poisoned (hud.poison, on by default; the pick from design round 9): the day's ☼ (65 minutes to the reset, orange) and the clock instead of the skull, and 9 of the 10 hearts in poison green.",
   "payload": {
     "session_id": "00000000-0000-4000-8000-000000000001",
     "transcript_path": "{{TRANSCRIPT}}",
@@ -106,6 +106,15 @@
     }
   },
   "modes": ["ansi", "nocolor", "ascii", "w60", "w60c", "w100c"],
+  "hudVitals": {
+    "poison": {
+      "lit": 9,
+      "day": {
+        "t": "☼ ",
+        "fg": "#FFAA00"
+      }
+    }
+  },
   "hudRef": "states:extra",
   "hudState": {
     "model": "Opus 5.5",
