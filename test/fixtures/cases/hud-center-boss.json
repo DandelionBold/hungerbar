@@ -114,6 +114,13 @@
   },
   "modes": ["ansi", "w120c", "w200c"],
   "hudRef": "round7:fable-in-use",
+  "hudOffhand": {
+    "cash": 50,
+    "paying": false,
+    "out": false,
+    "totem": "slot5",
+    "stale": false
+  },
   "hudState": {
     "model": "Fable 5.1",
     "effort": "high",

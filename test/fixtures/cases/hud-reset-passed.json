@@ -150,6 +150,13 @@
     "ansi",
     "nocolor"
   ],
+  "hudOffhand": {
+    "cash": 50,
+    "paying": false,
+    "out": false,
+    "totem": "slot5",
+    "stale": false
+  },
   "hudState": {
     "model": "Opus 5.5",
     "effort": "high",

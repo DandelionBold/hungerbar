@@ -935,7 +935,7 @@ test("setup over a 0.6.0 hungerbar.json: Enter for the HUD, boss, centre, the na
     assert.equal(baks.length, 1);
     assert.equal(readFileSync(join(w.claude, baks[0]!), 'utf8'), json(CFG_060), 'backed up');
     const c = merge(JSON.parse(readFileSync(cfg, 'utf8')));
-    assert.deepEqual(c.hud, { fable: 'boss', minWidth: 80, align: 'center', pr: 'on', user: 'user', op: 'gold', bed: 'on', phantoms: 'on', ultra: 'on', poison: 'on' }, 'the picks; bed, phantoms, ultra and poison on, the defaults');
+    assert.deepEqual(c.hud, { fable: 'boss', minWidth: 80, align: 'center', pr: 'on', user: 'user', op: 'gold', bed: 'on', phantoms: 'on', ultra: 'on', poison: 'on', totem: 'on' }, 'the picks; bed, phantoms, ultra and poison on, the defaults');
     assert.deepEqual(c, merge(CFG_070), 'what the 0.7.0 file draws');
     assert.match(JSON.parse(readFileSync(w.file, 'utf8')).statusLine.command, /hungerbar|statusline\.cmd/, 'setup still sets the statusLine');
 

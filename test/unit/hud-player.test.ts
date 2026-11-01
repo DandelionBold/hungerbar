@@ -119,8 +119,11 @@ function sources(w: WhoSource | undefined, counts = { turns: 42, compactions: 0 
   const { status: _status, op: _op, ...git } = DEMOS.normal!.git;
   return (p, cfg, now) => ({ ...demoSources(DEMOS.normal!)(p, cfg, now), git: () => ({ ...git }), counts: () => ({ ...counts }), history: () => hist, transcript: () => tx, ...(w ? { who: w } : {}) });
 }
-/** The HUD with no Fable option, at the left edge, no name and the [OP] tag (the defaults before SPEC §0.10), and these keys. */
-const hudCfg = (hud: Partial<Config['hud']> = {}): Config => ({ ...plainDefaults(), look: 'hud', hud: { ...plainDefaults().hud, ...hud } });
+/**
+ * The HUD with no Fable option, at the left edge, no name and the [OP] tag (the defaults before SPEC §0.10), no totem
+ * (1.1.0: the rows predate it, test/unit/hud-offhand.test.ts), and these keys.
+ */
+const hudCfg = (hud: Partial<Config['hud']> = {}): Config => ({ ...plainDefaults(), look: 'hud', hud: { ...plainDefaults().hud, totem: 'off', ...hud } });
 const NORMAL_P = DEMOS.normal!.payload;
 /** The demo's normal-day payload with a cache that went cold 6 minutes after its last write, as the idle row draws it. */
 const IDLE_P: Payload = { ...NORMAL_P, prompt_cache: { warm: false, caching_observed: true, ttl: '5m', expires_at: T(-60), hit_ratio: 0.981 } };

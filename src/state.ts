@@ -7,6 +7,7 @@ import type { GitOp, GitStatus } from './git/status.ts';
 import type { Hist } from './hud/input.ts';
 import type { LimitView } from './limits.ts';
 import type { PrInfo } from './pr/gh.ts';
+import type { ShownNow } from './shown.ts';
 import { baseModelId, cleanModelName, num, obj, str, type Payload, type Usage } from './payload.ts';
 import { CAP, sanitize, sanitizeTail } from './sanitize.ts';
 import type { TxSummary } from './transcript.ts';
@@ -52,7 +53,8 @@ export interface ExtraView {
   pct: number | null;
   /**
    * When the count was fetched (1.1.0): usage.json's `at` (its last successful fetch, epoch seconds); null for stdin's
-   * spend_limit, which is this render's own. Nothing reads it yet: the HUD's offhand layer is to grey a stale count.
+   * spend_limit, which is this render's own. The HUD's offhand (src/hud/offhand.ts) draws the count in grey when it is
+   * more than 900 s old, and the shown-file keeps only fresh dollars.
    */
   at: number | null;
 }
@@ -127,6 +129,13 @@ export interface Sources {
    * each asked only when the HUD draws it. No process. Only the HUD asks; a source without it (the demo) shows none.
    */
   who?: WhoSource;
+  /**
+   * The totem's memory (SPEC §0.12, 1.1.0): this render's step of the per-session shown-file (src/shown.ts) with what the
+   * HUD draws now, answered with the second the totem's pop ends (0: no pop). Only the HUD asks, and only with
+   * hud.totem on. A changed file is written by a hook on the render's `after` list, after stdout; with no session key,
+   * or persist false (preview), nothing is read or written. A source without it (the demo) never pops.
+   */
+  shown?(now: ShownNow): number;
 }
 
 const sumUsage = (u: Usage): number =>

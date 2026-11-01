@@ -1,5 +1,5 @@
 {
-  "note": "The 5-hour window used up while the extra credits pay, $45.80 of $50 left (1.1.0): the hearts are poisoned (hud.poison, on by default; the pick from design round 9): 9 of 10 in poison green, and the gutter shows the day's ☼ (65 minutes to the reset: orange) and the clock instead of the skull. The week is not used up.",
+  "note": "The 5-hour window used up while the extra credits pay, $45.80 of $50 left (1.1.0): the hearts are poisoned (hud.poison, on by default; the pick from design round 9): 9 of 10 in poison green, and the gutter shows the day's ☼ (65 minutes to the reset: orange) and the clock instead of the skull. The week is not used up. No saved shown-file saw the window fall (the case has no session key), so there is no pop and no totem: the offhand stays the engine's paying emerald between green sides (1.1.0).",
   "payload": {
     "cwd": "D:\\webapp",
     "version": "2.1.306",
@@ -103,6 +103,13 @@
         "fg": "#FFAA00"
       }
     }
+  },
+  "hudOffhand": {
+    "cash": 45,
+    "paying": true,
+    "out": false,
+    "totem": null,
+    "stale": false
   },
   "hudState": {
     "model": "Opus 5.5",

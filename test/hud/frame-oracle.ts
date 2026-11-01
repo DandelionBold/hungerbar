@@ -90,9 +90,13 @@ export function namelessBoss(line: readonly RefSpan[]): RefSpan[] {
   return runs(cells);
 }
 
-/** The engine's render of `state` with the hotbar's frame (and, on 5 lines, the boss line without its name). */
-export function frameOracle(lines: RefLines, state: unknown): RefLines {
-  const side = sideOf(state), xp = lines[lines.length - 2]!;
+/**
+ * The engine's render of `state` with the hotbar's frame (and, on 5 lines, the boss line without its name). `side` is
+ * the offhand's side colour: the engine's (sideOf), unless a layer before the frame drew the offhand's sides (1.1.0: the
+ * totem's pop and the credits-out fix, test/hud/offhand-oracle.ts offhandSideOracle).
+ */
+export function frameOracle(lines: RefLines, state: unknown, side: string | null = sideOf(state)): RefLines {
+  const xp = lines[lines.length - 2]!;
   const top = side ? topEdge(xp, side) : null;
   const head = lines.slice(0, -2).map((l, i) => (i === 0 && lines.length === 5 ? namelessBoss(l) : l));
   return [...head, top ?? xp, lines[lines.length - 1]!, bottomEdge(side)];

@@ -1,5 +1,5 @@
 {
- "note": "Design round 9, feature paying (While the extra credits pay), the option chosen: pay-poison. rows are copied from the design's paying.json, verbatim (each row is the full HUD of build.cjs: hud4.js MIX.render on the situation's state with the fable-boss option, colour style, left-aligned, with the 1.0.0 frame; the hearts line's cols 0-35 redrawn by the option while the credits pay for a used-up 5-hour window). situations are the design's inputs: state is the engine's state. Kamal's picks (picks-r9.json): pay-poison. The row of the situation p-out (credits out, 5-hour used up) is vendored as the design drew it, with 1.0's green offhand sides around the empty well (the frame lights them while the engine's paying() holds); the offhand's own looks are another feature of round 9 (totem, emerald) and change that situation, so its row here will be annotated then.",
+ "note": "Design round 9, feature paying (While the extra credits pay), the option chosen: pay-poison. rows are copied from the design's paying.json, verbatim (each row is the full HUD of build.cjs: hud4.js MIX.render on the situation's state with the fable-boss option, colour style, left-aligned, with the 1.0.0 frame; the hearts line's cols 0-35 redrawn by the option while the credits pay for a used-up 5-hour window). situations are the design's inputs: state is the engine's state. Kamal's picks (picks-r9.json): pay-poison. The row of the situation p-out (credits out, 5-hour used up) was drawn by the design with 1.0's green offhand sides around the empty well (the engine's paying() lights them while a window is used up, whatever is left), which said \"the credits pay\" when nothing was left to pay with; it is vendored with the 1.1.0 credits-out fix (src/hud/offhand.ts, design round 9's totem feature names the bug): its hotbar cols 9 and 14 are the plain grey side (a space on #5D5D5D) and its offhand edges, cols 9-14 of the XP-bar line and of the bottom edge row, the frame grey; nothing else in it changed. The fifth situation, p-share ($2.50 of $50 left: a share of 0.5, which the engine's rounding takes to 0, so the floor of 1 heart holds), is not in the design's file: its row was generated in 1.1.0 by the design's own build.cjs (round9/build.cjs, sha256 ba2380644843491ce6cfed66ef1a850fe03cdf5577f0a87616fdc6f214b3158b) with that one situation added after p-out in PAYING's list (the builder so changed has sha256 8431a8849795449551b8128428b16e6407fa76cb8661bfa09652cb2ebb2faceb); its other rows came out byte for byte as vendored. It anchors the poison floor in the design.",
  "source": {
   "file": "round9/paying.json",
   "sha256": "5dcdd567044e62b3f3e43247f82c2747cc2ab750ccb1806a4dcf039770da63bb",
@@ -165,6 +165,46 @@
     },
     "extra": {
      "used": 50,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {}
+  },
+  {
+   "id": "p-share",
+   "label": "5-hour used up, $2.50 of $50 left",
+   "note": "A share of 0.5: the engine's rounding gives 0 hearts (half to even), and the floor keeps 1 while anything is left.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 100,
+     "left": 3900,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 47.5,
      "limit": 50
     },
     "cost": 3.12,
@@ -1468,6 +1508,396 @@
      },
      {
       "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "5-hour used up, $2.50 of $50 left",
+   "situation": "p-share",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFAA00"
+     },
+     {
+      "t": "1h05m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "      "
+     },
+     {
+      "t": "0%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ",
+      "fg": "#8DB33A"
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#3F3F3F"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
       "fg": "#17DD62"
      },
      {
@@ -1582,8 +2012,15 @@
       "bg": "#5D5D5D"
      },
      {
-      "t": "    ",
+      "t": "◆ ",
+      "fg": "#17DD62",
       "bg": "#201E07"
+     },
+     {
+      "t": " 2",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
      },
      {
       "t": "▌",

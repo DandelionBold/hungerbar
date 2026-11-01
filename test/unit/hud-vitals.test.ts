@@ -1,5 +1,6 @@
 // The vitals (src/hud/vitals.ts, SPEC §0.12, 1.1.0): the picks from design round 9, span for span against the design's
-// own rows (test/reference/round9/ultra.json: ultra-apple; stale.json: stale-tilde; paying.json: pay-poison), through
+// own rows (test/reference/round9/ultra.json: ultra-apple; stale.json: stale-tilde; paying.json: pay-poison, with its
+// credits-out row as the offhand's 1.1.0 fix draws it and the sub-half-share row p-share, the poison floor), through
 // the layer on the engine's render, through the tests' own layer (test/hud/vitals-oracle.ts, which finds every column
 // from the state, not from the drawn line) and through the real HUD path (renderPayload with sources that hand each
 // situation its limits, last-known flags, credits and Fable week); by hand on every look, the boss bar's line, poison
@@ -15,6 +16,7 @@ import { defaults, type Config } from '../../src/config.ts';
 import { DEMOS, DEMO_NOW, demoSources } from '../../src/demo.ts';
 import { shade, FABLE_IDS, renderHud } from '../../src/hud/fable.ts';
 import { frameHud } from '../../src/hud/frame.ts';
+import { offhandHud, offhandMarks } from '../../src/hud/offhand.ts';
 import { fromState, type Sit } from '../../src/hud/input.ts';
 import { encode } from '../../src/hud/look.ts';
 import { DARK, DGREY, FOOD, GREY, HEART } from '../../src/hud/mix.ts';
@@ -29,6 +31,7 @@ import { renderPayload } from '../../src/render.ts';
 import type { Sources } from '../../src/state.ts';
 import type { UsageFile } from '../../src/usage/file.ts';
 import { frameOracle } from '../hud/frame-oracle.ts';
+import { offhandOracle, offhandSideOracle, QUIET_OFFHAND } from '../hud/offhand-oracle.ts';
 import { mulberry32, vitalFlags, vitalState, type VitalFlags } from '../hud/fuzz.ts';
 import { sgrOracle } from '../hud/sgr-oracle.ts';
 import { MIX, picked, plain, REF, SESSION, SOURCES, SPEC, STATES, tuples, type RefLines, type RefState } from '../hud/ref.ts';
@@ -65,12 +68,17 @@ test('round 9: the vendored rows are the picks (ultra-apple, stale-tilde, pay-po
     assert.deepEqual(d.rows.map((r) => r.situation), d.situations.map((s) => s.id), `${f}: a row per situation, in order`);
     assert.deepEqual(d.rows.map((r) => r.label), d.situations.map((s) => s.label));
   }
-  assert.deepEqual(ALL.map(({ s }) => s.id), ['u-normal', 'u-week95', 'u-fable', 'u-paying', 's-file', 's-passed', 's-none', 's-zeros', 'p-h5', 'p-low', 'p-week', 'p-out']);
+  assert.deepEqual(ALL.map(({ s }) => s.id), ['u-normal', 'u-week95', 'u-fable', 'u-paying', 's-file', 's-passed', 's-none', 's-zeros', 'p-h5', 'p-low', 'p-week', 'p-out',
+    'p-share']);
   for (const { s, lines } of ALL) {
     assert.equal(lines.length, s.id === 'u-fable' ? 6 : 5, s.id);
     for (const l of lines) assert.ok(cellWidth(text(l as Span[])) <= 110 && !/^\s/u.test(text(l as Span[])), s.id);
   }
-  assert.match(readFileSync(join(REF, 'round9', 'paying.json'), 'utf8'), /"note": "[^"]*p-out[^"]*green offhand sides[^"]*annotated then/, 'the credits-out row is vendored as drawn, and says so');
+  const note = (JSON.parse(readFileSync(join(REF, 'round9', 'paying.json'), 'utf8')) as { note: string }).note;
+  assert.match(note, /p-out \(credits out, 5-hour used up\) was drawn by the design with 1\.0's green offhand sides[^;]*; it is vendored with the 1\.1\.0 credits-out fix/,
+    'the credits-out row is vendored with the fix, and says so');
+  assert.match(note, /p-share \(\$2\.50 of \$50 left[^)]*\), is not in the design's file: its row was generated in 1\.1\.0 by the design's own build\.cjs/,
+    'the p-share row: drawn by the design\'s builder, and says so');
   // what each design draws on the hearts line (the third engine line from the bottom, over the frame's row), as text
   const hearts = (id: string): string => { const l = ALL.find(({ s }) => s.id === id)!.lines; return text(l[l.length - 4] as Span[]); };
   assert.equal(hearts('u-normal').slice(0, 36), '☼             ∞ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ');
@@ -80,6 +88,9 @@ test('round 9: the vendored rows are the picks (ultra-apple, stale-tilde, pay-po
   assert.equal(hearts('s-none'), '?               ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥', 'nothing known: today\'s ? and dark hearts');
   assert.equal(hearts('p-h5').slice(0, 16), '☼ 1h05m      0% ', 'the day\'s icon, not the skull');
   assert.equal(hearts('p-out').slice(0, 16), '☠  1h05m     0% ', 'credits out: the skull, as today');
+  assert.equal(hearts('p-share').slice(0, 36), '☼ 1h05m      0% ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ', 'a share of 0.5: the day and the clock');
+  const share = ALL.find(({ s }) => s.id === 'p-share')!.lines;
+  assert.deepEqual((share[share.length - 4] as Span[]).slice(5, 7), [S('♥ ', POISON), S('♥ '.repeat(9), DARK)], 'one poison heart (the floor), nine dark');
 });
 
 /** The marks the HUD path would build for a situation: the account's missing 5-hour window for ultra, the stale flags, hud.ultra and hud.poison on. */
@@ -90,19 +101,27 @@ function marksOf(f: Feature, s: R9Situation, hud: Partial<Record<'ultra' | 'pois
 }
 /** The tests' layer's input for a situation. */
 const flagsOf = (f: Feature, s: R9Situation): OracleVitals => ({ ultra: f === 'ultra', poison: true, stale5: !!s.ctx.stale?.h5, staleWk: !!s.ctx.stale?.week });
+/**
+ * The offhand's marks for a situation: hud.totem off (the rows predate the totem, test/unit/hud-offhand.test.ts), fresh
+ * credits; only the credits-out row has anything to draw (its grey sides).
+ */
+const offhandOf = (s: R9Situation): ReturnType<typeof offhandMarks> => offhandMarks({ now: DEMO_NOW, extra: null }, { totem: 'off' }, fromState(s.state), 0);
 
 test('round 9: the layer on the engine\'s render (the boss option) draws each row span for span; the tests\' own layer does too', () => {
   for (const { f, s, lines } of ALL) {
-    assert.deepEqual(plain(frameHud(heartsHud(renderHud(s.state, 'boss'), marksOf(f, s)))), lines, s.id);
-    const oracle = frameOracle(vitalsOracle(MIX.render(s.state, picked('fable-boss')), s.state, flagsOf(f, s)), s.state);
+    assert.deepEqual(plain(frameHud(offhandHud(heartsHud(renderHud(s.state, 'boss'), marksOf(f, s)), offhandOf(s)))), lines, s.id);
+    const oracle = frameOracle(offhandOracle(vitalsOracle(MIX.render(s.state, picked('fable-boss')), s.state, flagsOf(f, s)), s.state, QUIET_OFFHAND), s.state,
+      offhandSideOracle(s.state, QUIET_OFFHAND));
     assert.deepEqual(plain(tuples(oracle)), tuples(lines), `${s.id}: the tests' layer`);
   }
   // the marks: Ultra for the ultra rows, poison for the 5-hour used up with credits left, stale from the flags
   assert.deepEqual(ALL.map(({ f, s }) => { const m = marksOf(f, s); return [m.ultra, m.poison?.lit ?? 0, m.stale5, m.staleWk]; }), [
     [true, 0, false, false], [true, 0, false, false], [true, 0, false, false], [true, 0, false, false],
     [false, 0, true, true], [false, 0, true, true], [false, 0, false, false], [false, 0, true, true],
-    [false, 9, false, false], [false, 1, false, false], [false, 0, false, false], [false, 0, false, false],
+    [false, 9, false, false], [false, 1, false, false], [false, 0, false, false], [false, 0, false, false], [false, 1, false, false],
   ]);
+  // the offhand draws only on the credits-out row: its grey sides
+  assert.deepEqual(ALL.filter(({ s }) => offhandOf(s).out).map(({ s }) => s.id), ['p-out']);
 });
 
 /** A UsageFile with these credits and Fable weeks, fetched 30 s before now. */
@@ -131,9 +150,12 @@ function sources(f: Feature, s: R9Situation): (p: Payload, cfg: Config, now: num
     history: () => null,
   });
 }
-/** The HUD with the boss bar, at the left edge, no name and the [OP] tag, the usage API on, and these keys. */
+/**
+ * The HUD with the boss bar, at the left edge, no name and the [OP] tag, the usage API on, no totem (the rows predate it,
+ * test/unit/hud-offhand.test.ts), and these keys.
+ */
 const hudCfg = (hud: Partial<Config['hud']> = {}): Config =>
-  ({ ...plainDefaults(), look: 'hud', hud: { ...plainDefaults().hud, fable: 'boss', ...hud }, network: { ...plainDefaults().network, usageApi: true, scopedWeekly: true } });
+  ({ ...plainDefaults(), look: 'hud', hud: { ...plainDefaults().hud, fable: 'boss', totem: 'off', ...hud }, network: { ...plainDefaults().network, usageApi: true, scopedWeekly: true } });
 const NORMAL_P = DEMOS.normal!.payload;
 const payloadOf = (s: R9Situation): Payload => (s.state.model === 'Fable 5.1' ? { ...NORMAL_P, model: { id: 'claude-fable-5-1', display_name: 'Fable 5.1' } } : NORMAL_P);
 

@@ -86,6 +86,13 @@
     }
   },
   "modes": ["ansi", "nocolor", "ascii", "w60", "w60c", "w100c"],
+  "hudOffhand": {
+    "cash": 50,
+    "paying": false,
+    "out": false,
+    "totem": "slot5",
+    "stale": false
+  },
   "hudState": {
     "model": "O{{U+0301*39}}",
     "effort": "high",

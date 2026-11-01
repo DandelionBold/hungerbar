@@ -101,6 +101,13 @@
   "hudVitals": {
     "ultra": true
   },
+  "hudOffhand": {
+    "cash": 50,
+    "paying": false,
+    "out": false,
+    "totem": "slot5",
+    "stale": false
+  },
   "hudState": {
     "model": "Fable 5.1",
     "effort": "high",

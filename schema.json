@@ -135,6 +135,11 @@
           "description": "on: while the 5-hour window is used up and the extra credits pay (more than $0 left), the hearts show the share of credits left in poison green, at least one heart while anything is left (round(10 × left ÷ limit)), and the gutter shows the day's icon and the time to the reset instead of the skull ☠. When the credits run out, the skull and the dark hearts are back. A used-up week changes nothing on the hearts. off: the skull and ten dark hearts while the credits pay, as 1.0 drew it. hungerbar look hud --poison on|off sets it.",
           "enum": ["on", "off"],
           "default": "on"
+        },
+        "totem": {
+          "description": "on: while extra credits are left (more than $0), the Totem of Undying is in the hotbar: a gold ☥ in slot 5. When the 5-hour window or the week drops to 10% left or less, it swaps into the offhand, ☥ with your dollars where the emerald was, as a warning. When a window hits 0 it pops there for 30 seconds (☥✦ between gold sides, the frame's edges gold too), then the green paying emerald is back and the totem is used until the window resets. No credits, no totem. The pop is remembered in a small per-session file next to the HUD's history (hud/<session>.shown.json). off: no totem anywhere, slot 5 and the offhand as 1.0 drew them. hungerbar look hud --totem on|off sets it.",
+          "enum": ["on", "off"],
+          "default": "on"
         }
       }
     }

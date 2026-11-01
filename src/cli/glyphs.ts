@@ -28,7 +28,9 @@ const GLYPHS: Array<[string, string]> = [
  * Every glyph the HUD draws outside your own text: the glyphs probed for it in design rounds 4-7, the hotbar's frame
  * (0.5.1), whose edges are two of them and whose blank cells are U+2800, as is the lead a centred HUD (0.6.0) starts with,
  * and the git state's arrows and the pull request's marks (0.7.0, probed in design round 8: Cascadia Mono, 1 cell, in the
- * HUD's colour; ✗ U+2717 was left out because Windows Terminal takes it from Segoe UI Emoji, so × marks a failure).
+ * HUD's colour; ✗ U+2717 was left out because Windows Terminal takes it from Segoe UI Emoji, so × marks a failure), and
+ * (1.1.0, probed in design round 9) Ultra's ∞ (Cascadia Mono) and the totem's ☥ and ✦ (Segoe UI Symbol, which takes the
+ * HUD's colour in both icon styles), 1 cell each.
  */
 export const HUD_GLYPHS: Array<[string, string]> = [
   ['⛏', 'the pickaxe: the model in your hand'],
@@ -91,6 +93,8 @@ export const HUD_GLYPHS: Array<[string, string]> = [
   ['\u{1FB2D}', 'a phantom swooping: body'],
   ['\u{1FB16}', 'a phantom swooping: right wing'],
   ['∞', "Ultra: no 5-hour limit, with the golden apple's hearts (hud.ultra, 1.1.0)"],
+  ['☥', 'the Totem of Undying: in hotbar slot 5 while credits are left, in the offhand while a limit is at 1-10% (hud.totem, 1.1.0)'],
+  ['✦', "the totem's pop, for 30 s when a limit hits 0 and the credits take over"],
   ['·', 'separator'],
   ['…', 'shortened text'],
 ];

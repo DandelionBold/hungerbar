@@ -1,5 +1,5 @@
 {
-  "note": "Fable boss, Fable in use and nearly gone: red at 10% or less (round 7 fable-low-in-use: 95% used on the tight day). Since 0.7.0 the tight day's two signs of a long session bring two phantoms under the boss bar, and its cold cache the bed.",
+  "note": "Fable boss, Fable in use and nearly gone: red at 10% or less (round 7 fable-low-in-use: 95% used on the tight day). Since 0.7.0 the tight day's two signs of a long session bring two phantoms under the boss bar, and its cold cache the bed. Since 1.1.0 the tight day's dying windows (the 5-hour at 7%, the week at 3%) swap the totem into the offhand: ☥ and the dollars where the emerald was.",
   "payload": {
     "session_id": "00000000-0000-4000-8000-000000000001",
     "transcript_path": "{{TRANSCRIPT}}",
@@ -119,6 +119,13 @@
     "phantoms": 2
   },
   "hudRef": "round7:fable-low-in-use",
+  "hudOffhand": {
+    "cash": 50,
+    "paying": false,
+    "out": false,
+    "totem": "offhand",
+    "stale": false
+  },
   "hudState": {
     "model": "Fable 5.1",
     "effort": "xhigh",

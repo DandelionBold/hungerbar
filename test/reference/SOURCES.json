@@ -150,8 +150,52 @@
         "round9/build.cjs": "ba2380644843491ce6cfed66ef1a850fe03cdf5577f0a87616fdc6f214b3158b"
       },
       "originDate": "2026-11-01T18:26:55Z",
-      "sha256": "4a3e4dd10706fbebc2af36ae084ac7b51009a1a5222e4733b994b20e3c0a3b62",
-      "note": "Design round 9, the pick for while the extra credits pay: the option pay-poison of paying.json, its rows verbatim, with the situations they were drawn from (the credits-out row as the design drew it: see its note). test/unit/hud-vitals.test.ts renders each through Hungerbar and compares span for span."
+      "sha256": "347c921a34681560ab47726566897497da96352d46ba645a645503bacd1b8e75",
+      "note": "Design round 9, the pick for while the extra credits pay: the option pay-poison of paying.json, its rows verbatim, with the situations they were drawn from, and two 1.1.0 changes its note gives: the credits-out row (p-out) with the offhand's grey sides of the credits-out fix, and a fifth situation, p-share ($2.50 of $50: the poison floor), whose row the design's build.cjs drew with that situation added. test/unit/hud-vitals.test.ts renders each through Hungerbar and compares span for span."
+    },
+    "round9/totem-mix.json": {
+      "kind": "extract",
+      "origin": [
+        "round9/totem-mix.json",
+        "round9/build-9b.cjs"
+      ],
+      "originSha256": {
+        "round9/totem-mix.json": "4635351ff4e65cb6d5735989e810d7c4c7c50a149941e5538bab74058bcb5a60",
+        "round9/build-9b.cjs": "502291b67dabfb0e29304bf40ae757d32c6c4f740daf97e66d69021550704a99"
+      },
+      "originDate": "2026-11-01T18:26:56Z",
+      "sha256": "81cee88ebce799604cf8b231c3b09c104e20659ac8f48ba335d3149929dca1b2",
+      "note": "Design round 9b, the pick for where the totem lives: the option totem-mix of totem-mix.json, its rows verbatim, with the situations they were drawn from, but for the credits-out row (t-out), vendored with the 1.1.0 fix, and the intro and the option's note reworded where they quoted the design chat as \"Your\" (see its note). test/unit/hud-offhand.test.ts renders each through Hungerbar and compares span for span."
+    },
+    "round9/emerald.json": {
+      "kind": "extract",
+      "origin": [
+        "round9/emerald.json",
+        "round9/build.cjs"
+      ],
+      "originSha256": {
+        "round9/emerald.json": "36d685904353f007994aaf95dea5b092a39b8bf70f6e417b80af2807bce45d57",
+        "round9/build.cjs": "ba2380644843491ce6cfed66ef1a850fe03cdf5577f0a87616fdc6f214b3158b"
+      },
+      "originDate": "2026-11-01T18:26:55Z",
+      "sha256": "b026a078f799ef4f26229e21f3df2fb027b249bbd752bc5179e97fa3de2bc8b9",
+      "note": "Design round 9, the pick for extra credits from $100 up: the option em-digits of emerald.json, its rows verbatim, with the situations they were drawn from. test/unit/hud-offhand.test.ts renders each through Hungerbar (hud.totem off: the rows predate the totem) and compares span for span."
+    },
+    "round9/build.cjs": {
+      "kind": "renamed",
+      "origin": "round9/build.cjs",
+      "originSha256": "ba2380644843491ce6cfed66ef1a850fe03cdf5577f0a87616fdc6f214b3158b",
+      "originDate": "2026-11-01T18:21:46Z",
+      "sha256": "1e797c15e5f9ce7d1d13b17c7c3b760accce7be39c1b6a5673db82a20bb351e4",
+      "note": "The builder of design round 9 (ultra.json, stale.json, totem.json, paying.json, emerald.json, pickup.json, agents.json and their picker): hud4.js MIX.render with the fable-boss option, each option's layer and the 1.0.0 frame, with the rules every row was checked against. Its origin with the private folder it read the engine from replaced by the neutral D:/webapp (const REF) and LF line ends, as the repository keeps text; no other byte changed. Run, it reads hud4.js from that folder and writes its files next to itself, so it is kept here to be read, not run."
+    },
+    "round9/build-9b.cjs": {
+      "kind": "renamed",
+      "origin": "round9/build-9b.cjs",
+      "originSha256": "502291b67dabfb0e29304bf40ae757d32c6c4f740daf97e66d69021550704a99",
+      "originDate": "2026-11-01T18:26:50Z",
+      "sha256": "a56dc73914b5ff79e80fb5c4b214e0e88274c3992b5856639090122701f60c5d",
+      "note": "The builder of design round 9b (totem-mix.json, agents-b.json and their picker) on build.cjs's machinery. Its origin with the design notes that named a person or quoted the design chat as \"Your\" reworded, as the 2026-10-28 renaming did (\"Kamal's mix\" is \"The mix\", \"Your idea.\" is \"The idea from the design chat.\", \"Your note on the totem\" and \"on the agents\" name the design chat, \"Your round-9 pick\" and \"your current pick\" read \"The\" and \"the\"); no other byte changed."
     }
   }
 }

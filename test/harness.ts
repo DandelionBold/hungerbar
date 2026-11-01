@@ -9,6 +9,7 @@ import { findRepo, indexMtime } from '../src/git/head.ts';
 import { histPath, histSid, parseLine } from '../src/hud/history.ts';
 import { str } from '../src/payload.ts';
 import { prPath } from '../src/pr/cache.ts';
+import { shownPath } from '../src/shown.ts';
 import { acctDir } from '../src/store.ts';
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -47,6 +48,11 @@ export interface Case {
      * without a PR).
      */
     pr?: { for: string; pr: unknown; why?: string; age?: number; prAge?: number };
+    /**
+     * The HUD's shown-file (src/shown.ts, 1.1.0) as an earlier render left it, written under the payload's session key:
+     * what it drew then, at its at (default NOW - 30), and until.pop (pop, default 0: no pop).
+     */
+    shown?: { h5: number | null; week: number | null; credits: number | null; pop?: number | string; at?: number | string };
   };
   config?: unknown;
   /** Written verbatim as hungerbar.json (for the invalid-config case). */
@@ -76,6 +82,12 @@ export interface Case {
    * from the state.
    */
   hudVitals?: unknown;
+  /**
+   * hud-* cases: what the offhand must be handed (src/hud/offhand.ts OffhandMarks, 1.1.0); absent when there is no
+   * offhand (no extra-usage limit). The tests' layer is handed its own reading of it: hud.totem from the case's config (on
+   * unless it says off), the pop and the stale count as pinned; it finds the rest from the state.
+   */
+  hudOffhand?: unknown;
   /**
    * hud-* cases: the reference state this case reproduces apart from hist, turns and compactions ("states:normal" from
    * hud4-states.json, "round7:fable-in-use" from hud-spec.json); its scoped is [] when it has none.
@@ -229,6 +241,15 @@ export function prepare(c: Case): Prepared {
     const p = prPath(cache, repo.root, repo.branch);
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, JSON.stringify(entry));
+  }
+  const shown = c.state?.shown;
+  if (shown) {
+    const pl = payload as { session_id?: unknown; transcript_path?: unknown } | undefined;
+    const sid = histSid(str(pl?.session_id), str(pl?.transcript_path));
+    if (!sid) throw new Error('state.shown: the payload has no session key');
+    const p = shownPath(cache, sid);
+    mkdirSync(dirname(p), { recursive: true });
+    writeFileSync(p, JSON.stringify({ v: 1, at: fill(shown.at ?? '{{NOW-30}}', transcript), h5: shown.h5, week: shown.week, credits: shown.credits, until: { pop: fill(shown.pop ?? 0, transcript) } }));
   }
   const stdin = c.raw ?? (payload === undefined ? '' : JSON.stringify(payload));
   return { dir, env, stdin, cleanup: () => rmSync(dir, { recursive: true, force: true }) };

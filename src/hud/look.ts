@@ -1,7 +1,8 @@
 // The HUD look's edge (plan §2, §9): the gate that picks it over classic, the HUD path of one render (renderHudLook:
 // adapt, the history step, the engine, the git state and the PR's badge (gitstate.ts, prci.ts, 0.7.0), the player's
 // layers (player.ts: the name and the operator's mark, the idle bed, the phantoms, 0.7.0), the vitals (vitals.ts: the
-// hearts line's Ultra, stale and poison looks, 1.1.0), the hotbar's frame
+// hearts line's Ultra, stale and poison looks, 1.1.0), the offhand (offhand.ts: the totem, the count from $100, the stale
+// count and the credits-out sides, 1.1.0), the hotbar's frame
 // (frame.ts, 0.5.1), the centring (align.ts, 0.6.0), the writer), and the writer that turns the HUD's spans into the
 // bytes Claude Code shows.
 // render.ts answers a throw from the HUD path with classic and the stack on stderr.
@@ -25,6 +26,7 @@ import { signs } from './phantoms.ts';
 import { away, playerHud, sessionSecs, type PlayerMarks } from './player.ts';
 import { prBadge } from './prci.ts';
 import type { Span } from './spans.ts';
+import { offhandHud, offhandMarks, shownNow, type OffhandMarks } from './offhand.ts';
 import { heartsHud, vitalMarks, type VitalMarks } from './vitals.ts';
 import type { PrInfo } from '../pr/gh.ts';
 
@@ -69,14 +71,15 @@ export function hudGate(cfg: Config, cfgError: string | null, depth: Depth, env:
 
 /**
  * What the HUD path drew (RenderResult.hud, for the tests): the bytes, the engine's input, the git state's input (marks),
- * the pull request (null: none drawn), the player's layers' input, the vitals' input (1.1.0), the engine's lines (the
- * oracle's, span for span), the lines with the git state, the PR's badge, the player's layers, the vitals and the
- * hotbar's frame (gitHud, playerHud, heartsHud, then frameHud: one more line, the bottom edge, and the boss line without
- * its name), and the centring's offset (0 unless hud.align is center and the budget leaves room): the bytes are
- * encode(shiftHud(framed, offset)).
+ * the pull request (null: none drawn), the player's layers' input, the vitals' and the offhand's inputs (1.1.0), the
+ * engine's lines (the oracle's, span for span), the lines with the git state, the PR's badge, the player's layers, the
+ * vitals, the offhand and the hotbar's frame (gitHud, playerHud, heartsHud, offhandHud, then frameHud: one more line, the
+ * bottom edge, and the boss line without its name), and the centring's offset (0 unless hud.align is center and the
+ * budget leaves room): the bytes are encode(shiftHud(framed, offset)).
  */
 export interface HudRender {
-  text: string; input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; vitals: VitalMarks; lines: Span[][]; framed: Span[][]; offset: number;
+  text: string; input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; vitals: VitalMarks; offhand: OffhandMarks; lines: Span[][]; framed: Span[][];
+  offset: number;
 }
 
 /**
@@ -102,7 +105,10 @@ export function playerMarks(st: State, p: Payload, sources: Sources, cfg: Config
  * changed, waits on the render's `after` list until the line is out. The git state and the PR's badge (0.7.0) are drawn
  * on the engine's finished hotbar line, from the readout's ⎇ on, then the player's layers (0.7.0) in their own cells,
  * the vitals (1.1.0) on the hearts line, from State's h5None and dim flags, hud.ultra, hud.poison and the port's own
- * reading, and the frame on the result; with hud.align center every framed line then moves right by one offset, from `budget`
+ * reading, the offhand (1.1.0) on the hotbar line, from the port's reading, hud.totem, State.extra.at and, with
+ * hud.totem on, this render's step of the shown-file (Sources.shown: the totem's pop; its write, when anything changed,
+ * waits on `after` too), and the frame on the result, which takes the offhand's side colour for its edges; with
+ * hud.align center every framed line then moves right by one offset, from `budget`
  * (the gate's, null when the width is unknown) and the widest line. With left nothing is measured and the
  * framed lines are encoded as they are.
  */
@@ -113,8 +119,10 @@ export function renderHudLook(st: State, p: Payload, sources: Sources, cfg: Conf
   const git = gitMarks(st.git, str(p.worktree?.branch) !== null);
   const pr = g && sources.pr ? sources.pr(st.git.repo) : null;
   const player = playerMarks(st, p, sources, cfg, full), vitals = vitalMarks(st, cfg.hud, sit);
+  const pop = cfg.hud.totem === 'on' && sources.shown ? sources.shown(shownNow(st, sit)) : 0;
+  const offhand = offhandMarks(st, cfg.hud, sit, pop);
   const lines = renderHud(full, cfg.hud.fable);
-  const framed = frameHud(heartsHud(playerHud(g ? gitHud(lines, git, g.branch, prBadge(pr)) : lines, player, sit.cwd), vitals));
+  const framed = frameHud(offhandHud(heartsHud(playerHud(g ? gitHud(lines, git, g.branch, prBadge(pr)) : lines, player, sit.cwd), vitals), offhand));
   const offset = hudOffset(cfg.hud.align, budget, framed);
-  return { text: encode(offset ? shiftHud(framed, offset) : framed, depth, cfg), input: full, git, pr, player, vitals, lines, framed, offset };
+  return { text: encode(offset ? shiftHud(framed, offset) : framed, depth, cfg), input: full, git, pr, player, vitals, offhand, lines, framed, offset };
 }

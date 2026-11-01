@@ -1,5 +1,5 @@
 {
-  "note": "The HUD on picker situation 4, \"Using extra credits\": the saved history already has this quarter's gold; 2 prompts, 1 compaction. Since 1.1.0 the 5-hour window is used up while $45.80 of the $50 of credits are left, so the hearts are poisoned (hud.poison, on by default; the pick from design round 9): the day's ☼ (65 minutes to the reset, orange) and the clock instead of the skull, and 9 of the 10 hearts in poison green.",
+  "note": "The HUD on picker situation 4, \"Using extra credits\": the saved history already has this quarter's gold; 2 prompts, 1 compaction. Since 1.1.0 the 5-hour window is used up while $45.80 of the $50 of credits are left, so the hearts are poisoned (hud.poison, on by default; the pick from design round 9): the day's ☼ (65 minutes to the reset, orange) and the clock instead of the skull, and 9 of the 10 hearts in poison green. Both windows are used up and no saved shown-file saw them fall, so there is no pop and no totem: the offhand stays the engine's paying emerald between green sides (1.1.0).",
   "payload": {
     "session_id": "00000000-0000-4000-8000-000000000001",
     "transcript_path": "{{TRANSCRIPT}}",
@@ -116,6 +116,13 @@
     }
   },
   "hudRef": "states:extra",
+  "hudOffhand": {
+    "cash": 45,
+    "paying": true,
+    "out": false,
+    "totem": null,
+    "stale": false
+  },
   "hudState": {
     "model": "Opus 5.5",
     "effort": "high",

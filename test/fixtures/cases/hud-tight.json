@@ -1,5 +1,5 @@
 {
-  "note": "The HUD on picker situation 2, \"Close to limits\": a new quarter appends its bucket to the saved history; 3 prompts, 2 compactions. Since 0.7.0 two signs of a long session (context 71%, 2 compactions) bring two phantoms, and the cache went cold 6 minutes after its last write, so the bed fills slot 4.",
+  "note": "The HUD on picker situation 2, \"Close to limits\": a new quarter appends its bucket to the saved history; 3 prompts, 2 compactions. Since 0.7.0 two signs of a long session (context 71%, 2 compactions) bring two phantoms, and the cache went cold 6 minutes after its last write, so the bed fills slot 4. Since 1.1.0 both windows are dying (the 5-hour at 7%, the week at 3%) while $50 of credits are left, so the totem is swapped into the offhand: ☥ and the dollars where the emerald was (hud.totem, on by default; the pick from design round 9b), and slot 5 stays empty.",
   "payload": {
     "session_id": "00000000-0000-4000-8000-000000000001",
     "transcript_path": "{{TRANSCRIPT}}",
@@ -110,6 +110,13 @@
     "phantoms": 2
   },
   "hudRef": "states:tight",
+  "hudOffhand": {
+    "cash": 50,
+    "paying": false,
+    "out": false,
+    "totem": "offhand",
+    "stale": false
+  },
   "hudState": {
     "model": "Opus 5.5",
     "effort": "xhigh",

@@ -100,7 +100,8 @@ function situationSources(s: Situation): (p: Payload, cfg: Config, now: number) 
 }
 
 test('round 8: through the real HUD path (renderPayload, the adapter, the engine, the layer, the frame) each row span for span', () => {
-  const cfg: Config = { ...defaults(), look: 'hud' };
+  // the rows predate the totem (1.1.0, test/unit/hud-offhand.test.ts): hud.totem off
+  const cfg: Config = { ...defaults(), look: 'hud', hud: { ...defaults().hud, totem: 'off' } };
   R8.situations.forEach((s, i) => {
     const r = renderPayload(JSON.stringify(DEMOS.normal!.payload), { env: { FORCE_COLOR: '3' }, config: cfg, sources: situationSources(s), now: DEMO_NOW });
     assert.ok(r.hud, s.label);

@@ -1,0 +1,3037 @@
+{
+ "note": "Design round 9b, feature totem (Where the totem lives), the option chosen: totem-mix. rows are copied from the design's totem-mix.json, verbatim but for one row (each row is the full HUD of build-9b.cjs: hud4.js MIX.render on the situation's state with the fable-boss option, colour style, left-aligned, with the 1.0.0 frame; hotbar slot 5 at cols 36-41 and the offhand at cols 9-14 redrawn by the option, the frame's edges over and under the offhand following its sides). The hearts line is 1.0's: the rows were drawn without the vitals of round 9 (hud.poison draws over t-pop and t-after's skull). situations are the design's inputs: state is the engine's state, ctx.pop the age of the totem's pop in seconds (0: it popped now; 30: it popped 30 s ago and is over; null: no pop), which Hungerbar keeps in its shown-file. Kamal's picks (picks-r9.json picks9b): totem-mix, the mix of the round-9 pick totem-offhand and totem-slot5. The intro and the option's note are reworded where they quoted the design chat as \"Your\" (as the 2026-10-28 renaming did: SOURCES.json renamed). The row of the situation t-out (credits out, the 5-hour used up) is vendored with the 1.1.0 credits-out fix: the design drew 1.0's green offhand sides around the empty well (the engine's paying() lights them while a window is used up, whatever is left), which said \"the credits pay\" when nothing was left to pay with; 1.1.0 draws the frame grey there (src/hud/offhand.ts), so that row's hotbar cols 9 and 14 are the plain grey side (a space on #5D5D5D) and its offhand edges, cols 9-14 of the XP-bar line and of the bottom edge row, the frame grey, and nothing else in it changed.",
+ "source": {
+  "file": "round9/totem-mix.json",
+  "sha256": "4635351ff4e65cb6d5735989e810d7c4c7c50a149941e5538bab74058bcb5a60",
+  "option": "totem-mix",
+  "builder": "round9/build-9b.cjs",
+  "base": "test/reference/hud4.js"
+ },
+ "id": "totem-mix",
+ "name": "In the hotbar, swapped to the offhand when needed",
+ "optionNote": "The idea from the design chat. While nothing is low the totem waits in hotbar slot 5 (gold ☥, no count), and the emerald keeps the offhand and its dollars. When a window drops to 10% left or less, the totem swaps into the offhand: slot 5 empties and the offhand shows ☥ with your dollars, exactly as \"Totem in the offhand\" draws it. At 0 it pops there for 30 seconds (☥✦ between gold sides), then the green paying emerald. With the credits out, or no extra usage, there is no totem anywhere. So the totem is always visible while you hold one, and its move to the offhand is the warning.",
+ "title": "Where the totem lives",
+ "intro": "The note on the totem from the design chat: \"mixing both Totem in the offhand and Totem in hotbar slot 5 so it in hotbar and when needed to use it switch and goes to the offhand\". That is how Minecraft players carry a Totem of Undying: one in the hotbar, swapped into the offhand when a fight turns bad. Slot 5 is free now (the allays took the agents' job), so the totem can wait there. The week is at 60% in every situation below, so only the 5-hour window moves the totem.",
+ "situations": [
+  {
+   "id": "t-safe",
+   "label": "Safe: $50 of credits, nothing low",
+   "note": "5-hour 98% left, week 60% left.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 40,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "pop": null
+   }
+  },
+  {
+   "id": "t-low",
+   "label": "5-hour at 20% left, $50",
+   "note": "Getting low, not dying yet. Only \"Swap with a ready step\" changes here.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 80,
+     "left": 3600,
+     "window": 18000
+    },
+    "week": {
+     "used": 40,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "pop": null
+   }
+  },
+  {
+   "id": "t-h5-7",
+   "label": "5-hour at 7% left, $50",
+   "note": "One heart left: the window is dying, so the totem goes to the offhand.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 93,
+     "left": 2280,
+     "window": 18000
+    },
+    "week": {
+     "used": 40,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "pop": null
+   }
+  },
+  {
+   "id": "t-pop",
+   "label": "THE POP: the 5-hour just hit 0, $45.80 left",
+   "note": "The shown file saw the 5-hour go 1% → 0%. The pop lasts 30 seconds.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 100,
+     "left": 3900,
+     "window": 18000
+    },
+    "week": {
+     "used": 40,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 4.2,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "pop": 0
+   }
+  },
+  {
+   "id": "t-after",
+   "label": "30 s after the pop",
+   "note": "The credits pay: the green-framed emerald with the dollars left. The totem is used up until the window resets.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 100,
+     "left": 3900,
+     "window": 18000
+    },
+    "week": {
+     "used": 40,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 4.2,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "pop": 30
+   }
+  },
+  {
+   "id": "t-out",
+   "label": "Credits out ($0), the 5-hour at 0",
+   "note": "Nothing left to pay with: no totem anywhere. (1.0 still lights the frame green around the empty well.)",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 100,
+     "left": 3900,
+     "window": 18000
+    },
+    "week": {
+     "used": 40,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 50,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "pop": null
+   }
+  },
+  {
+   "id": "t-none",
+   "label": "No extra usage, the 5-hour at 7%",
+   "note": "No credits at all: no offhand, no totem.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 93,
+     "left": 2280,
+     "window": 18000
+    },
+    "week": {
+     "used": 40,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": null,
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "pop": null
+   }
+  }
+ ],
+ "rows": [
+  {
+   "label": "Safe: $50 of credits, nothing low",
+   "situation": "t-safe",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "              "
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "☥ ",
+      "fg": "#FFC83D",
+      "bg": "#201E07"
+     },
+     {
+      "t": "  ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "5-hour at 20% left, $50",
+   "situation": "t-low",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☾ 1h00m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "20%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#3F3F3F"
+     },
+     {
+      "t": "              "
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "☥ ",
+      "fg": "#FFC83D",
+      "bg": "#201E07"
+     },
+     {
+      "t": "  ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "5-hour at 7% left, $50",
+   "situation": "t-h5-7",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☾ 38m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "        "
+     },
+     {
+      "t": "7%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#3F3F3F"
+     },
+     {
+      "t": "              "
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "☥ ",
+      "fg": "#FFC83D",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "THE POP: the 5-hour just hit 0, $45.80 left",
+   "situation": "t-pop",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☠  ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "1h05m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "0%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#3F3F3F"
+     },
+     {
+      "t": "              "
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#FFC83D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "☥",
+      "fg": "#FFC83D",
+      "bg": "#201E07"
+     },
+     {
+      "t": "✦",
+      "fg": "#FFFFFF",
+      "bg": "#201E07"
+     },
+     {
+      "t": "45",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#FFC83D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "30 s after the pop",
+   "situation": "t-after",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☠  ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "1h05m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "0%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#3F3F3F"
+     },
+     {
+      "t": "              "
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#17DD62"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#17DD62",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "45",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#17DD62",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#17DD62"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "Credits out ($0), the 5-hour at 0",
+   "situation": "t-out",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☠  ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "1h05m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "0%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#3F3F3F"
+     },
+     {
+      "t": "              "
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "No extra usage, the 5-hour at 7%",
+   "situation": "t-none",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☾ 38m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "        "
+     },
+     {
+      "t": "7%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#3F3F3F"
+     },
+     {
+      "t": "              "
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "        "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": "        "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  }
+ ]
+}
