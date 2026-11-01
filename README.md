@@ -462,9 +462,12 @@ Hungerbar reads one JSON object on stdin and draws from it. Nothing checks who s
 | `effort.level` (`low` to `max`) | the enchantment (`Efficiency I` to `V`) and the pickaxe's numeral |
 | `context_window.context_window_size`, `used_percentage` and `current_usage` | the XP bar, its % and the context tokens |
 | `workspace.current_dir`, else `cwd` | the spawn point, and the repo whose branch, git state and terrain are drawn |
+| `worktree.branch` | the branch drawn after ⎇, in place of the one `.git/HEAD` names, for a tool that knows better (inside a repo only) |
 | `cost.total_cost_usd` | the gold: the session's cost in whole dollars |
 | `cost.total_duration_ms` | the session's age, one of the phantoms' signs |
+| `cost.total_lines_added` and `total_lines_removed` | nothing of their own: a change only freshens the cached `+added -removed` diff |
 | `rate_limits.five_hour` and `rate_limits.seven_day`, each `{used_percentage, resets_at}` (`resets_at` in epoch seconds) | the day, the hearts and the drumsticks, with the time to each reset |
+| `rate_limits.spend_limit` (`used_usd`, `limit_usd`, `used_percentage`) | the extra credits in the offhand; when it is there it wins over the usage API's answer, which is then not read |
 | `prompt_cache` (`warm`, `expires_at`, `ttl`, `hit_ratio`, `caching_observed`) | the air bubbles, the countdown and the hit % |
 | `version` | the version |
 | `session_id` | the key of the terrain's history and of the transcript's counts |
@@ -473,7 +476,7 @@ Hungerbar reads one JSON object on stdin and draws from it. Nothing checks who s
 **What stays Claude Code's own**
 
 - The transcript is Claude Code's JSONL. The book's prompt count and the level (compactions) come only from it, and the bed reads it too (or `prompt_cache`). For another tool they stay empty.
-- The usage API reads a Claude login token and asks Anthropic, so the extra credits in the offhand and Fable's weekly limit are always the Claude account's, whatever tool renders.
+- The usage API reads a Claude login token and asks Anthropic, so Fable's weekly limit is always the Claude account's, whatever tool renders. The extra credits in the offhand are the Claude account's too, unless the tool sends its own `rate_limits.spend_limit`.
 - The hearts and the day are a 5-hour window and the drumsticks a 7-day one, as Claude's limits are. Pass another tool's limits only when they mean the same; otherwise leave `rate_limits` out.
 
 **The width.** The classic lines are fitted, and a centred HUD is centred, only when Hungerbar knows the width. When the tool does not set `COLUMNS` for the command, set it (or `HUNGERBAR_WIDTH`) yourself. Without a width the classic lines are not fitted and the HUD stays at the left edge.
