@@ -1,10 +1,12 @@
 // `hungerbar look [classic|hud] [--fable off|tail|tooltip|boss|beacon] [--align left|center] [--pr on|off]
-// [--user off|user|user@host] [--op off|tag|gold] [--bed on|off] [--phantoms on|off] [--print]` and what `setup` shares
+// [--user off|user|user@host] [--op off|tag|gold] [--bed on|off] [--phantoms on|off] [--ultra on|off] [--poison on|off]
+// [--print]` and what `setup` shares
 // with it (plan §8): the hungerbar.json writer, the consent texts a Fable option and the PR status print, the gate verdict
 // for this terminal, what the player's options show here, and the TTY prompt with in-memory previews of the demo situations.
 // The writer reads hungerbar.json as strict JSON (a BOM is accepted) and refuses anything else, with the by-hand steps,
 // before a byte is written. It merges only `look`, `hud.fable`, `hud.align`, the 0.7.0 keys (`hud.pr`, `hud.user`,
-// `hud.op`, `hud.bed`, `hud.phantoms`) and, for a Fable option, `network.usageApi` and `network.scopedWeekly`; every other
+// `hud.op`, `hud.bed`, `hud.phantoms`), the 1.1.0 keys (`hud.ultra`, `hud.poison`) and, for a Fable option,
+// `network.usageApi` and `network.scopedWeekly`; every other
 // key keeps its value and its place (setup.ts withKey). It backs the file up to hungerbar.json.bak.<stamp>, writes 2-space
 // indented UTF-8 without a BOM (CRLF kept), and creates a missing file with its $schema. settings.json is never touched:
 // Claude Code reads the look on its next render.
@@ -48,6 +50,9 @@ export interface LookChoice {
   op?: HudOp;
   bed?: HudSwitch;
   phantoms?: HudSwitch;
+  /** The hearts line's looks (1.1.0, SPEC §0.12). */
+  ultra?: HudSwitch;
+  poison?: HudSwitch;
   /**
    * The keys setup's consent questions answered (SPEC §0.10): each is written even at its default into a file that does
    * not have it, so a no to the PR status stays a no at the next setup's Enter.
@@ -61,9 +66,9 @@ export interface LookChoice {
 }
 
 /**
- * The HUD's 0.7.0 keys that look, setup and preview take as flags of the same name (--pr on, --user user@host …): the
- * values the command line accepts, in the order help names them. Each key's default is defaults().hud's: off for pr,
- * user for user, gold for op, on for bed and phantoms.
+ * The HUD's keys that look, setup and preview take as flags of the same name (--pr on, --user user@host …): the values
+ * the command line accepts, in the order help names them. Each key's default is defaults().hud's: off for pr, user for
+ * user, gold for op, on for bed and phantoms, and (1.1.0) on for ultra and poison.
  */
 export const HUD_FLAGS = {
   pr: ['on', 'off'],
@@ -71,11 +76,18 @@ export const HUD_FLAGS = {
   op: ['off', 'tag', 'gold'],
   bed: ['on', 'off'],
   phantoms: ['on', 'off'],
+  ultra: ['on', 'off'],
+  poison: ['on', 'off'],
 } as const satisfies { [K in HudKey]: readonly Config['hud'][K][] };
-type HudKey = 'pr' | 'user' | 'op' | 'bed' | 'phantoms';
-export const HUD_FLAG_KEYS = Object.keys(HUD_FLAGS) as HudKey[];
+type HudKey = 'pr' | 'user' | 'op' | 'bed' | 'phantoms' | 'ultra' | 'poison';
+/** The 0.7.0 keys, in the order help names them. */
+export const HUD_FLAG_KEYS: readonly HudKey[] = ['pr', 'user', 'op', 'bed', 'phantoms'];
+/** The 1.1.0 keys, the hearts line's looks (SPEC §0.12): after the 0.7.0 ones in help, the writer and the checks. */
+export const V11_FLAG_KEYS: readonly HudKey[] = ['ultra', 'poison'];
+/** Every key that is a flag of the same name. */
+const FLAG_KEYS: readonly HudKey[] = [...HUD_FLAG_KEYS, ...V11_FLAG_KEYS];
 /** Every hud key a LookChoice can carry, in the order the writer adds them to a file that has none. */
-const CHOICE_KEYS = ['fable', 'align', ...HUD_FLAG_KEYS] as const;
+const CHOICE_KEYS = ['fable', 'align', ...FLAG_KEYS] as const;
 
 /** "a or b", "a, b or c". */
 const either = (vs: readonly string[]): string => (vs.length > 1 ? `${vs.slice(0, -1).join(', ')} or ${vs[vs.length - 1]}` : vs.join(''));
@@ -101,15 +113,16 @@ export function parseAlign(v: string | undefined): HudAlign | null {
 
 export const ALIGN_HELP = HUD_ALIGNS.join('|');
 
-/** A 0.7.0 HUD key on the command line (--pr on, --user user@host …): one of HUD_FLAGS' values. Strict, like parseFable. */
+/** A 0.7.0 or 1.1.0 HUD key on the command line (--pr on, --user user@host …): one of HUD_FLAGS' values. Strict, like parseFable. */
 export function parseHudOption<K extends HudKey>(k: K, v: string | undefined): Config['hud'][K] | null {
   return (HUD_FLAGS[k] as readonly (string | undefined)[]).includes(v) ? (v as Config['hud'][K]) : null;
 }
 
-/** `[--pr on|off] [--user off|user|user@host] …`: the 0.7.0 keys as help and the usage lines show them. */
+/** `[--pr on|off] [--user off|user|user@host] …`: the 0.7.0 keys as help and the usage lines show them, then the 1.1.0 ones. */
 export const hudHelp = (k: HudKey): string => HUD_FLAGS[k].join('|');
 export const PR_HELP = hudHelp('pr');
 export const HUD_FLAGS_HELP = HUD_FLAG_KEYS.map((k) => `[--${k} ${hudHelp(k)}]`).join(' ');
+export const V11_FLAGS_HELP = V11_FLAG_KEYS.map((k) => `[--${k} ${hudHelp(k)}]`).join(' ');
 
 /** A checked flag: its value (null when it is not given), or what is wrong with it. */
 export type Flag<T> = { ok: true; value: T | null } | { ok: false; error: string };
@@ -135,18 +148,18 @@ export function alignFlag(a: Args): Flag<HudAlign> {
   return { ok: true, value: parseAlign(v) };
 }
 
-/** --pr, --user, --op, --bed or --phantoms (look, setup, preview): one of its values; a bare one or any other value is an error. */
+/** --pr, --user, --op, --bed, --phantoms, --ultra or --poison (look, setup, preview): one of its values; a bare one or any other value is an error. */
 export function hudFlag<K extends HudKey>(a: Args, k: K): Flag<Config['hud'][K]> {
   const v = a.values.get(k);
   if (a.flags.has(k) || (v !== undefined && !parseHudOption(k, v))) return { ok: false, error: `--${k} takes ${either(HUD_FLAGS[k])}${v ? ` (got "${v}")` : ''}` };
   return { ok: true, value: parseHudOption(k, v) };
 }
 
-/** The options look, setup and preview take besides the look itself: --fable, --align and the 0.7.0 keys. */
+/** The options look, setup and preview take besides the look itself: --fable, --align, the 0.7.0 keys and the 1.1.0 keys. */
 export const HUD_OPTION_NAMES: readonly string[] = CHOICE_KEYS;
 
 /**
- * The HUD's options from the flags (--fable, --align, --pr, --user, --op, --bed, --phantoms): the part of a LookChoice
+ * The HUD's options from the flags (--fable, --align, --pr, --user, --op, --bed, --phantoms, --ultra, --poison): the part of a LookChoice
  * they give, or the first error, flag by flag in that order: a value it does not take, then the flag given where the
  * look is not the HUD (`notHud`), whose fix names `how` (`hungerbar look hud` for look, `--look hud` for setup and
  * preview).
@@ -160,7 +173,7 @@ export function hudOptions(a: Args, notHud: boolean, how: string): { ok: true; v
     (out as Record<string, string>)[k] = f.value;
     return null;
   };
-  const err = take('fable', fableFlag(a)) ?? take('align', alignFlag(a)) ?? HUD_FLAG_KEYS.reduce<string | null>((e, k) => e ?? take(k, hudFlag(a, k)), null);
+  const err = take('fable', fableFlag(a)) ?? take('align', alignFlag(a)) ?? FLAG_KEYS.reduce<string | null>((e, k) => e ?? take(k, hudFlag(a, k)), null);
   return err === null ? { ok: true, value: out } : { ok: false, error: err };
 }
 
@@ -170,12 +183,12 @@ export const choiceOptions = (c: LookChoice): string[] => CHOICE_KEYS.flatMap((k
 /**
  * hungerbar.json with the choice merged in: key order and every other key kept. A default (defaults(), SPEC §0.10) is
  * written only over a different value: an absent look stays absent for hud, an absent hud.fable for boss, hud.align for
- * center, hud.pr for off, hud.user for user, hud.op for gold, hud.bed and hud.phantoms for on (setup's Enter on a config
+ * center, hud.pr for off, hud.user for user, hud.op for gold, hud.bed, hud.phantoms, hud.ultra and hud.poison for on (setup's Enter on a config
  * with none of them changes nothing); a value that is not the default, an unknown one included, is replaced. A Fable
  * option but off also turns on network.usageApi and network.scopedWeekly, which it needs: the default boss included,
  * because a choice that names it is the user's yes. A key setup's consent question answered (`answered`) is written into
  * a file that does not have it, the default included, and so is a no to the usage API (`network`, as false). New hud
- * keys go last, in the order fable, align, pr, user, op, bed, phantoms.
+ * keys go last, in the order fable, align, pr, user, op, bed, phantoms, ultra, poison.
  */
 export function mergeLook(obj: Obj, c: LookChoice): Obj {
   const d = defaults();
@@ -191,7 +204,7 @@ export function mergeLook(obj: Obj, c: LookChoice): Obj {
     if (c.network?.[k] === false) next = withKey(next, 'network', withKey(isObj(next.network) ? next.network : {}, k, false));
   }
   if (writes(c.align, d.hud.align, was('align'))) next = withKey(next, 'hud', withKey(hud(), 'align', c.align));
-  for (const k of HUD_FLAG_KEYS) {
+  for (const k of FLAG_KEYS) {
     const v = c[k];
     if (writes(v, d.hud[k], was(k)) || (v !== undefined && was(k) === undefined && c.answered?.includes(k) === true)) next = withKey(next, 'hud', withKey(hud(), k, v));
   }
@@ -395,6 +408,16 @@ export function idleSummary(cfg: Config): string {
   const bed = cfg.hud.bed === 'on' ? 'a bed in slot 4 after 5 minutes without a message, not while a tool runs' : 'no bed';
   const ph = cfg.hud.phantoms === 'on' ? "phantoms in line 1's sky when the session runs long" : 'no phantoms';
   return `hud.bed ${cfg.hud.bed}: ${bed}; hud.phantoms ${cfg.hud.phantoms}: ${ph}`;
+}
+
+/**
+ * hud.ultra and hud.poison as hungerbar.json sets them (1.1.0), and the stale mark, which has no key: a limit Claude
+ * Code did not send this render is drawn from limits.json with a grey ~ before its %, at 60%.
+ */
+export function vitalsSummary(cfg: Config): string {
+  const ultra = cfg.hud.ultra === 'on' ? 'gold hearts and ∞ when the account has no 5-hour limit (the Ultra plan)' : 'a grey ? and dark hearts when the account has no 5-hour limit';
+  const poison = cfg.hud.poison === 'on' ? 'poison-green hearts for the credits left while they pay for a used-up 5-hour window' : 'the skull and dark hearts while the credits pay';
+  return `hud.ultra ${cfg.hud.ultra}: ${ultra}; hud.poison ${cfg.hud.poison}: ${poison}; a limit that is not live is marked ~ and dimmed`;
 }
 
 /** Where the HUD's git state comes from (always on with the HUD, 0.7.0). */
@@ -751,7 +774,7 @@ export async function promptLook(p: Prompter, env: Env, base: Config, file: Obj 
 // the command
 // ---------------------------------------------------------------------------------------------------------------------
 
-const USAGE = `usage: hungerbar look [classic|hud] [--fable ${FABLE_HELP}] [--align ${ALIGN_HELP}] ${HUD_FLAGS_HELP} [--print]`;
+const USAGE = `usage: hungerbar look [classic|hud] [--fable ${FABLE_HELP}] [--align ${ALIGN_HELP}] ${HUD_FLAGS_HELP} ${V11_FLAGS_HELP} [--print]`;
 
 function fail(msg: string): number {
   process.stderr.write(`hungerbar: ${msg}\n${USAGE}\n`);
@@ -759,8 +782,8 @@ function fail(msg: string): number {
 }
 
 /**
- * The look, its options, this terminal's verdict, the usage API, the PR status and the player's options here, as
- * `hungerbar look` prints them with no argument.
+ * The look, its options, this terminal's verdict, the usage API, the PR status, the player's options here and (1.1.0)
+ * the hearts line's looks, as `hungerbar look` prints them with no argument.
  */
 function status(env: Env): number {
   const loaded = loadConfig(env), cfg = loaded.cfg;
@@ -776,8 +799,10 @@ function status(env: Env): number {
   say(userSummary(cfg, env));
   say(opSummary(cfg, env));
   say(idleSummary(cfg));
+  say(vitalsSummary(cfg));
   say(`switch with: hungerbar look classic   or   hungerbar look hud [--fable ${FABLE_HELP}] [--align ${ALIGN_HELP}] [--pr ${PR_HELP}]`);
   say(`the player: hungerbar look hud ${HUD_FLAG_KEYS.filter((k) => k !== 'pr').map((k) => `[--${k} ${hudHelp(k)}]`).join(' ')}`);
+  say(`the hearts: hungerbar look hud ${V11_FLAGS_HELP}`);
   return 0;
 }
 
@@ -806,17 +831,18 @@ export function reportPlan(p: ConfigPlan, env: Env, print: boolean, consent: boo
   return 0;
 }
 
-/** The notes after a choice is written: what the player's options it set show here (0.7.0). */
+/** The notes after a choice is written: what the player's options it set show here (0.7.0), and the hearts' (1.1.0). */
 export function playerNotes(c: LookChoice, cfg: Config, env: Env): string[] {
   return [
     ...(c.user !== undefined ? [userSummary(cfg, env)] : []),
     ...(c.op !== undefined || (c.user !== undefined && cfg.hud.op !== 'off') ? [opSummary(cfg, env)] : []),
     ...(c.bed !== undefined || c.phantoms !== undefined ? [idleSummary(cfg)] : []),
+    ...(c.ultra !== undefined || c.poison !== undefined ? [vitalsSummary(cfg)] : []),
   ];
 }
 
 export function look(argv: string[], env: Env, self: string): number {
-  const valued = ['fable', 'align', ...HUD_FLAG_KEYS];
+  const valued = ['fable', 'align', ...FLAG_KEYS];
   const a = parseArgs(argv, valued);
   const opt = optionError(a, valued, ['print']);
   if (opt) return fail(opt);
@@ -846,7 +872,7 @@ export function look(argv: string[], env: Env, self: string): number {
   // `look classic`; on a HUD that stays the HUD, the values its options had. No look command turns the network keys a
   // Fable option turned on off again (--fable off leaves them), so a note names the key that does.
   const was = merge(plan.before), now = merge(plan.next);
-  const undo = (['fable', 'align', ...HUD_FLAG_KEYS] as const).flatMap((k) => (choice[k] !== undefined && choice[k] !== was.hud[k] ? [`--${k} ${was.hud[k]}`] : []));
+  const undo = (['fable', 'align', ...FLAG_KEYS] as const).flatMap((k) => (choice[k] !== undefined && choice[k] !== was.hud[k] ? [`--${k} ${was.hud[k]}`] : []));
   const back = lk === 'classic' ? 'hud' : was.look === 'classic' ? 'classic' : undo.length ? `hud ${undo.join(' ')}` : null;
   if (plan.changed) say(`Claude Code draws the new look on its next render; settings.json is untouched.${back ? ` Back with: hungerbar look ${back}` : ''}`);
   if (!was.network.usageApi && now.network.usageApi) say('To turn the usage API off again, set network.usageApi to false in hungerbar.json; --fable off leaves it on.');

@@ -15,7 +15,7 @@ import { readUsage } from '../usage/file.ts';
 import { parseArgs, say } from './args.ts';
 import { iconSummary } from './icons.ts';
 import {
-  alignNote, fableWarning, gateHere, gateInputs, gitStateNote, histFiles, idleSummary, lookSummary, opSummary, prBlocked, prFiles, prSummary, userSummary,
+  alignNote, fableWarning, gateHere, gateInputs, gitStateNote, histFiles, idleSummary, lookSummary, opSummary, prBlocked, prFiles, prSummary, userSummary, vitalsSummary,
   verdict,
 } from './look.ts';
 import { readSettings, settingsPath, type StatusLine } from './setup.ts';
@@ -147,7 +147,8 @@ export const median = (xs: number[]): number => {
  * The look (plan §8): its options, whether this terminal would draw the HUD and why, where it sits here (hud.align), the
  * usage API the Fable options need, usage.json's scoped weekly limits, how many history files the HUD keeps, and (0.7.0)
  * where the git state comes from, the PR status here (a warning while it is on but cannot show) with how many answers
- * the PR cache keeps, the name line 3 shows here, whether this terminal runs elevated, the bed and the phantoms.
+ * the PR cache keeps, the name line 3 shows here, whether this terminal runs elevated, the bed and the phantoms, and
+ * (1.1.0) the hearts line's looks.
  */
 function lookSection(cfg: Config, error: string | null, env: Env): void {
   say('\nLook');
@@ -176,6 +177,7 @@ function lookSection(cfg: Config, error: string | null, env: Env): void {
   info(userSummary(cfg, env));
   info(opSummary(cfg, env));
   info(idleSummary(cfg));
+  info(vitalsSummary(cfg));
 }
 
 export function doctor(argv: string[], env: Env, self: string): number {

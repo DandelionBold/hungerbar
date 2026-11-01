@@ -12,8 +12,8 @@ import { test } from 'node:test';
 import { HUD_GLYPHS } from '../src/cli/glyphs.ts';
 import { parseArgs } from '../src/cli/args.ts';
 import {
-  alignFlag, alignNote, demoLines, diffLines, elevatedAs, handSteps, HUD_FLAG_KEYS, HUD_FLAGS, hudFlag, hudOptions, mergeLook, opSummary, ownSentence,
-  parseAlign, parseFable, parseHudOption, parseLook, promptName, promptSentence, sentences, gateHere,
+  alignFlag, alignNote, choiceOptions, demoLines, diffLines, elevatedAs, handSteps, HUD_FLAG_KEYS, HUD_FLAGS, hudFlag, hudOptions, mergeLook, opSummary, ownSentence,
+  parseAlign, parseFable, parseHudOption, parseLook, promptName, promptSentence, sentences, gateHere, V11_FLAG_KEYS, vitalsSummary,
 } from '../src/cli/look.ts';
 import { isLeftover, LEFTOVER_PS, listProcesses, NO_SPAWN_WARNING, paddingWarning, processSource } from '../src/cli/doctor.ts';
 import { gitArgs } from '../src/git/refresh.ts';
@@ -27,6 +27,9 @@ import { gitHud, NO_MARKS, type GitMarks } from '../src/hud/gitstate.ts';
 import { fromState } from '../src/hud/input.ts';
 import { playerHud, type PlayerMarks } from '../src/hud/player.ts';
 import { prBadge } from '../src/hud/prci.ts';
+import { renderHud } from '../src/hud/fable.ts';
+import { S } from '../src/hud/spans.ts';
+import { heartsHud, type VitalMarks } from '../src/hud/vitals.ts';
 import type { PrInfo } from '../src/pr/gh.ts';
 import { renderPayload } from '../src/render.ts';
 import { acctDir } from '../src/store.ts';
@@ -632,7 +635,7 @@ test('look hud --align left|center: a backup, hud.align next to the other hud ke
 
 test('refused before any write: a bad --fable, --fable without hud, an unknown look, invalid JSON, a non-object, non-UTF-8', () => {
   const cases: Array<[string | Buffer, string[], RegExp]> = [
-    ['{"a": 1}', ['look', 'hud', '--align', 'middle'], /--align takes left or center \(got "middle"\)\nusage: hungerbar look \[classic\|hud\] \[--fable [^\]]*\] \[--align left\|center\] \[--pr on\|off\] \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\] \[--print\]/],
+    ['{"a": 1}', ['look', 'hud', '--align', 'middle'], /--align takes left or center \(got "middle"\)\nusage: hungerbar look \[classic\|hud\] \[--fable [^\]]*\] \[--align left\|center\] \[--pr on\|off\] \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\] \[--ultra on\|off\] \[--poison on\|off\] \[--print\]/],
     ['{"a": 1}', ['look', 'hud', '--align'], /--align takes left or center\n/],
     ['{"a": 1}', ['look', 'classic', '--align', 'center'], /--align goes with the HUD: hungerbar look hud --align center/],
     ['{"a": 1}', ['look', '--align', 'left'], /--align goes with the HUD: hungerbar look hud --align left/],
@@ -966,7 +969,8 @@ test('look hud --user, --op, --bed and --phantoms: a backup, --print, what they 
     // look with no argument reports them
     r = w.run(['look'], noGh);
     assert.match(r.stdout, /\nhud\.pr off: no pull request status\nhud\.user user@host: line 3 reads "⌂ steve@DESKTOP: <folder>" here\nhud\.op tag: a bold red \[OP\] before your name while Claude Code runs as (Administrator|root); this terminal does not, so nothing shows here\nhud\.bed off: no bed; hud\.phantoms off: no phantoms\n/);
-    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\n$/);
+    // the player's flags, then (1.1.0) the hearts'
+    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\n$/);
     // no user name found here: said so
     assert.match(w.run(['look'], { ...noGh, HUNGERBAR_USER: '\x1b[31m' }).stdout, /\nhud\.user user@host, but no user name is found here, so none shows\n/);
     r = w.run(['look', 'hud', '--op', 'off', '--user', 'off'], noGh);
@@ -1011,6 +1015,7 @@ test('preview --pr, --user, --op, --bed and --phantoms equal preview with that h
     [{ user: 'user@host', op: 'gold' }, ['--user', 'user@host', '--op', 'gold'], { HUNGERBAR_ELEVATED: '1' }],
     [{ op: 'tag' }, ['--op', 'tag'], { HUNGERBAR_ELEVATED: '1' }],
     [{ bed: 'off', phantoms: 'off' }, ['--bed', 'off', '--phantoms', 'off'], {}],
+    [{ ultra: 'off', poison: 'off' }, ['--ultra', 'off', '--poison', 'off'], {}],
     [{ pr: 'on' }, ['--pr', 'on'], {}],
   ];
   try {
@@ -1271,4 +1276,130 @@ test('help names the 0.7.0 flags of look, setup and preview', () => {
   const r = runDist('', { PATH: process.env.PATH ?? '' }, ['--help']);
   assert.equal(r.status, 0);
   assert.equal(r.stdout.split('\n').filter((l) => l.includes('[--pr on|off] [--user off|user|user@host] [--op off|tag|gold] [--bed on|off] [--phantoms on|off]')).length, 3);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// 1.1.0: --ultra and --poison in look, setup, preview and doctor; the vitals' glyph census
+// ---------------------------------------------------------------------------------------------------------------------
+
+test('V11_FLAG_KEYS: --ultra and --poison take on or off, strictly, after the 0.7.0 keys; the writer writes off, and on only over a value', () => {
+  assert.deepEqual(V11_FLAG_KEYS, ['ultra', 'poison']);
+  assert.deepEqual(HUD_FLAG_KEYS, ['pr', 'user', 'op', 'bed', 'phantoms'], 'the 0.7.0 keys as they were');
+  for (const k of V11_FLAG_KEYS) {
+    assert.deepEqual([...HUD_FLAGS[k]].sort(), [...HUD_SWITCHES].sort(), k);
+    assert.equal(defaults().hud[k], 'on', `${k} is on by default`);
+    for (const v of HUD_SWITCHES) assert.equal(parseHudOption(k, v), v);
+    for (const bad of ['', 'ON', 'yes', 'true', 'constructor', undefined]) assert.equal(parseHudOption(k, bad), null, `${k} ${String(bad)}`);
+  }
+  assert.deepEqual(hudFlag(parseArgs(['--ultra', 'maybe'], ['ultra']), 'ultra'), { ok: false, error: '--ultra takes on or off (got "maybe")' });
+  assert.deepEqual(hudFlag(parseArgs(['--poison'], ['poison']), 'poison'), { ok: false, error: '--poison takes on or off' });
+  const all = parseArgs(['--poison', 'off', '--ultra', 'off', '--bed', 'off'], ['fable', 'align', ...HUD_FLAG_KEYS, ...V11_FLAG_KEYS]);
+  assert.deepEqual(hudOptions(all, false, 'x'), { ok: true, value: { bed: 'off', ultra: 'off', poison: 'off' } });
+  assert.deepEqual(hudOptions(all, true, '--look hud'), { ok: false, error: '--bed goes with the HUD: --look hud --bed off' }, 'flag by flag, the 0.7.0 ones first');
+  assert.deepEqual(hudOptions(parseArgs(['--poison', 'off'], ['poison']), true, '--look hud'), { ok: false, error: '--poison goes with the HUD: --look hud --poison off' });
+  // the writer: a default (on) is written only over another value; the new keys go after phantoms
+  assert.deepEqual(mergeLook({ hud: { fable: 'boss' } }, { look: 'hud', ultra: 'on', poison: 'on' }), { hud: { fable: 'boss' } }, 'the defaults on a file with none: nothing');
+  assert.deepEqual(mergeLook({}, { look: 'hud', poison: 'off', phantoms: 'off', ultra: 'off' }).hud, { phantoms: 'off', ultra: 'off', poison: 'off' }, 'the writer\'s order');
+  assert.deepEqual(mergeLook({ hud: { ultra: 'off', poison: 'nope' } }, { look: 'hud', ultra: 'on', poison: 'on' }), { hud: { ultra: 'on', poison: 'on' } }, 'on over off, or over an unknown value');
+  assert.deepEqual(handSteps({ look: 'hud', ultra: 'off', poison: 'off' }), ['"look": "hud"', '"hud": { "ultra": "off", "poison": "off" }   (next to any other keys in "hud")']);
+  assert.deepEqual(choiceOptions({ look: 'hud', bed: 'off', poison: 'off' }), ['bed off', 'poison off']);
+  // what they show
+  const cfg = (ultra: 'on' | 'off', poison: 'on' | 'off'): Config => ({ ...defaults(), hud: { ...defaults().hud, ultra, poison } });
+  assert.equal(vitalsSummary(cfg('on', 'on')), 'hud.ultra on: gold hearts and ∞ when the account has no 5-hour limit (the Ultra plan); hud.poison on: poison-green hearts for the credits left while they pay for a used-up 5-hour window; a limit that is not live is marked ~ and dimmed');
+  assert.equal(vitalsSummary(cfg('off', 'off')), 'hud.ultra off: a grey ? and dark hearts when the account has no 5-hour limit; hud.poison off: the skull and dark hearts while the credits pay; a limit that is not live is marked ~ and dimmed');
+});
+
+test('look hud --ultra and --poison: a backup, --print, what they show, the way back; look with no argument and doctor report them; refused before any write', () => {
+  const w = world('{\n  "look": "hud"\n}\n');
+  try {
+    const noGh = { PATH: join(w.dir, 'no-bin') };
+    let r = w.run(['look', 'hud', '--ultra', 'off', '--print'], noGh);
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /\+ hud: \{"ultra":"off"\}\nNothing was written \(--print\)\.\n$/);
+    assert.deepEqual(w.backups(), []);
+    r = w.run(['look', 'hud', '--ultra', 'off', '--poison', 'off'], noGh);
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /Back with: hungerbar look hud --ultra on --poison on\n/);
+    assert.match(r.stdout, /\nhud\.ultra off: a grey \? and dark hearts when the account has no 5-hour limit; hud\.poison off: the skull and dark hearts while the credits pay; a limit that is not live is marked ~ and dimmed\n/);
+    assert.equal(w.text(), '{\n  "look": "hud",\n  "hud": {\n    "ultra": "off",\n    "poison": "off"\n  }\n}\n');
+    assert.equal(w.backups().length, 1);
+    r = w.run(['look', 'hud', '--poison', 'on'], noGh);
+    assert.match(r.stdout, /\nhud\.ultra off: [^\n]*; hud\.poison on: poison-green hearts for the credits left while they pay for a used-up 5-hour window; /);
+    assert.match(r.stdout, /Back with: hungerbar look hud --poison off\n/);
+    assert.doesNotMatch(r.stdout, /hud\.bed /, 'only what changed is noted');
+    // look with no argument: the summary after the player's, and the flags after the player's line
+    r = w.run(['look'], noGh);
+    assert.match(r.stdout, /\nhud\.bed on: [^\n]*\nhud\.ultra off: [^\n]*hud\.poison on: [^\n]*\nswitch with: /);
+    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\n$/);
+    const d = w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' });
+    assert.equal(d.status, 0, d.stderr);
+    assert.match(d.stdout.slice(d.stdout.indexOf('\nLook\n')), / {2}· {5}hud\.ultra off: a grey \? [^\n]*; hud\.poison on: [^\n]*\n/);
+  } finally {
+    w.cleanup();
+  }
+  for (const [args, msg] of [
+    [['look', 'hud', '--ultra', 'gold'], /--ultra takes on or off \(got "gold"\)\nusage: hungerbar look /],
+    [['look', 'hud', '--poison'], /--poison takes on or off\n/],
+    [['look', 'classic', '--ultra', 'off'], /--ultra goes with the HUD: hungerbar look hud --ultra off/],
+    [['look', '--poison', 'off'], /--poison goes with the HUD: hungerbar look hud --poison off/],
+    [['look', 'hud', '--ultr', 'off'], /unknown option --ultr/],
+  ] as const) {
+    const e = world('{"a": 1}');
+    try {
+      const before = e.snapshot();
+      const r = e.run([...args]);
+      assert.equal(r.status, 1, args.join(' '));
+      assert.match(r.stderr, msg, args.join(' '));
+      assert.deepEqual(e.snapshot(), before, `${args.join(' ')} wrote nothing`);
+    } finally {
+      e.cleanup();
+    }
+  }
+});
+
+test('preview --poison: the extra day\'s poisoned hearts, or with off its skull and dark hearts; --ultra off draws as 1.0 does', () => {
+  const w = world();
+  try {
+    const hearts = (args: string[]): string => w.run(['preview', '--situation', 'extra', '--look', 'hud', ...args], { FORCE_COLOR: '3' }).stdout.split('\n')[1]!;
+    assert.match(hearts([]), /^\x1b\[38;2;255;170;0m☼\u00a0\x1b\[0m\x1b\[38;2;170;170;170m1h05m/u, 'poison on (the default): the day\'s ☼ and the clock');
+    assert.ok(hearts([]).includes('\x1b[38;2;141;179;58m♥\u00a0♥\u00a0'), 'poison green');
+    assert.match(hearts(['--poison', 'off']), /^\x1b\[38;2;255;85;85m☠\u00a0\u00a0\x1b\[0m/u, 'off: the skull');
+    assert.equal(hearts(['--ultra', 'off']), hearts([]), 'no demo has an account without a 5-hour window');
+  } finally {
+    w.cleanup();
+  }
+});
+
+test('the 1.1.0 glyph census: over the demos and every mark, the vitals add only ∞ and the engine\'s own day icons, each listed by glyphs --hud at 1 cell', () => {
+  const cps = (lines: readonly (readonly { t: string }[])[]): Set<string> => new Set(lines.flatMap((l) => l.flatMap((s) => [...s.t])).filter((c) => c.codePointAt(0)! > 0x7f));
+  const added = new Set<string>();
+  for (const s of ['normal', 'tight', 'extra', 'fable']) {
+    const d = DEMOS[s]!;
+    const r = renderPayload(JSON.stringify(d.payload), { env: { FORCE_COLOR: '3' }, config: { ...defaults(), look: 'hud', network: { ...defaults().network, usageApi: true, scopedWeekly: true } }, sources: demoSources(d), now: DEMO_NOW });
+    // the demo as it is, and as an account with no 5-hour window would draw it
+    for (const lines of [r.hud!.lines, renderHud({ ...r.hud!.input, h5: null }, 'boss')]) {
+      const base = cps(frameHud(lines));
+      for (const ultra of [false, true]) {
+        for (const poison of [null, { lit: 1, day: S('☾ ', '#AAAAAA') }, { lit: 9, day: S('☼ ', '#FFAA00') }]) {
+          for (const [stale5, staleWk] of [[false, false], [true, false], [false, true], [true, true]] as const) {
+            const m: VitalMarks = { ultra, poison, stale5, staleWk };
+            for (const c of cps(frameHud(heartsHud(lines, m)))) if (!base.has(c)) added.add(c);
+          }
+        }
+      }
+    }
+  }
+  const listed = new Map(HUD_GLYPHS.map(([g, what]) => [g, what]));
+  for (const g of added) {
+    assert.ok(listed.has(g), `U+${g.codePointAt(0)!.toString(16).toUpperCase()} is listed by glyphs --hud`);
+    assert.equal(cellWidth(g), 1, `${g} is 1 cell`);
+  }
+  assert.deepEqual([...added].sort(), ['∞', '☼', '☾'].sort(), 'Ultra\'s ∞, and the day\'s own icons where the extra day drew its skull');
+  assert.match(listed.get('∞')!, /Ultra/);
+});
+
+test('help names the 1.1.0 flags of look, setup and preview', () => {
+  const r = runDist('', { PATH: process.env.PATH ?? '' }, ['--help']);
+  assert.equal(r.status, 0);
+  assert.equal(r.stdout.split('\n').filter((l) => l.trim() === '[--ultra on|off] [--poison on|off]').length, 3);
 });

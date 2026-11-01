@@ -1193,6 +1193,11 @@ test('setup --look hud with --pr, --user, --op, --bed and --phantoms: written by
     assert.equal(r.status, 0, r.stderr);
     assert.deepEqual(JSON.parse(readFileSync(cfg, 'utf8')), { $schema: SCHEMA_URL, hud: { user: 'user@host', bed: 'off' } }, 'hud, the default, writes no look');
     assert.match(run('--look', 'hud', '--user', 'user@host', '--bed', 'off', '--phantoms', 'on').stdout, /look: hud, user user@host, bed off, phantoms on, unchanged/);
+    // the 1.1.0 keys (--ultra, --poison): flags only, through the same writer, after the 0.7.0 ones
+    const v = run('--look', 'hud', '--poison', 'off', '--ultra', 'off');
+    assert.equal(v.status, 0, v.stderr);
+    assert.deepEqual(JSON.parse(readFileSync(cfg, 'utf8')), { $schema: SCHEMA_URL, hud: { user: 'user@host', bed: 'off', ultra: 'off', poison: 'off' } });
+    assert.match(run('--look', 'hud', '--ultra', 'off', '--poison', 'off').stdout, /look: hud, ultra off, poison off, unchanged/);
   } finally {
     w.cleanup();
   }
@@ -1203,6 +1208,8 @@ test('setup --look hud with --pr, --user, --op, --bed and --phantoms: written by
     [['--look', 'hud', '--op', 'red'], /--op takes off, tag or gold \(got "red"\)/],
     [['--look', 'hud', '--bed'], /--bed takes on or off\n/],
     [['--look', 'hud', '--phantoms', 'many'], /--phantoms takes on or off \(got "many"\)/],
+    [['--look', 'hud', '--ultra', 'gold'], /--ultra takes on or off \(got "gold"\)/],
+    [['--poison', 'off'], /--poison goes with the HUD: --look hud --poison off/],
     [['--look', 'hud', '--pr', 'yes'], /--pr takes on or off \(got "yes"\)/],
     [['--look', 'hud', '--usr', 'user'], /unknown option --usr/],
   ] as const) {
