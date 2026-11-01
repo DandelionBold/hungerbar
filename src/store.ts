@@ -74,13 +74,15 @@ function sleepMs(ms: number): void {
 
 /**
  * Temp file then rename; the rename is retried because Windows briefly locks files that are being read. Off Windows the
- * file keeps its mode (a settings.json at 0600 stays 0600), which the rename would otherwise take from the temp file.
+ * file keeps its mode (a settings.json at 0600 stays 0600), which the rename would otherwise take from the temp file:
+ * the temp file is created with it, so the text is never readable more widely, then chmod'ed, as the umask may have
+ * narrowed it.
  */
 export function writeAtomic(path: string, data: string): void {
   mkdirSync(dirname(path), { recursive: true });
   const tmp = `${path}.${process.pid}.${Math.random().toString(36).slice(2, 8)}.tmp`;
   const mode = process.platform === 'win32' ? undefined : statSafe(path)?.mode;
-  writeFileSync(tmp, data);
+  writeFileSync(tmp, data, mode !== undefined ? { mode: mode & 0o777 } : undefined);
   if (mode !== undefined) {
     try { chmodSync(tmp, mode & 0o777); } catch { /* a file system without modes */ }
   }
