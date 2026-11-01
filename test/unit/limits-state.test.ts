@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { defaults } from '../../src/config.ts';
-import { liveLimits, noFiveHour, resolveLimits, view } from '../../src/limits.ts';
+import { liveLimits, newer, noFiveHour, resolveLimits, view } from '../../src/limits.ts';
 import type { Payload } from '../../src/payload.ts';
 import { collect, type Sources } from '../../src/state.ts';
 import type { TxSummary } from '../../src/transcript.ts';
@@ -64,7 +64,7 @@ test('limits.json is written only when a value changes', () => {
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
-// 1.1.0: an account with no 5-hour window (noFiveHour, limits.json's fiveHourNone)
+// 1.1.0: an account with no 5-hour window (noFiveHour, limits.json's fiveHourNone) and newer() for the saved file
 // ---------------------------------------------------------------------------------------------------------------------
 
 const WEEK = { used_percentage: 41, resets_at: NOW + 302400 };
@@ -172,6 +172,37 @@ test('h5None reaches the State (false when a source leaves it out) and RenderRes
     assert.match(c.text, /Weekly/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('newer(): the later reset wins; the same reset, the higher use; without both resets, the payload', () => {
+  const k = (pct: number, resets_at: number | null) => ({ pct, resets_at });
+  assert.deepEqual(newer(k(90, NOW + 100), k(5, NOW + 18000)), k(5, NOW + 18000), 'a new window');
+  assert.deepEqual(newer(k(5, NOW + 18000), k(90, NOW + 100)), k(5, NOW + 18000), 'an older payload never moves it back');
+  assert.deepEqual(newer(k(30, NOW + 100), k(10, NOW + 100)), k(30, NOW + 100), 'same window: use only grows');
+  assert.deepEqual(newer(k(10, NOW + 100), k(30, NOW + 100)), k(30, NOW + 100));
+  assert.deepEqual(newer(k(30, NOW + 100), k(30, NOW + 100)), k(30, NOW + 100));
+  assert.deepEqual(newer(null, k(1, NOW)), k(1, NOW));
+  assert.deepEqual(newer(k(1, NOW), null), k(1, NOW));
+  assert.equal(newer(null, null), null);
+  assert.deepEqual(newer(k(30, null), k(10, NOW + 100)), k(10, NOW + 100), 'no saved reset: the payload');
+  assert.deepEqual(newer(k(30, NOW + 100), k(10, null)), k(10, null), 'no live reset: the payload');
+});
+
+test('two sessions on one account: limits.json keeps the newer data per window, and each session draws its own stdin', () => {
+  const w = acctWith();
+  try {
+    const a: Payload = { rate_limits: { five_hour: { used_percentage: 30, resets_at: NOW + 9000 }, seven_day: { used_percentage: 50, resets_at: NOW + 300000 } } };
+    const b: Payload = { rate_limits: { five_hour: { used_percentage: 12, resets_at: NOW + 9000 }, seven_day: { used_percentage: 95, resets_at: NOW - 4000 } } };
+    resolveLimits(a, w.acct, NOW, true);
+    const drawn = resolveLimits(b, w.acct, NOW + 5, true);
+    assert.deepEqual([drawn.h5?.pct, drawn.week], [12, { pct: 0, left: null, dim: false }], 'b draws its own stdin');
+    assert.deepEqual(w.saved(), { v: 1, five_hour: { pct: 30, resets_at: NOW + 9000 }, seven_day: { pct: 50, resets_at: NOW + 300000 }, at: NOW }, 'a stays: higher use, later reset');
+    resolveLimits({ rate_limits: { five_hour: { used_percentage: 31, resets_at: NOW + 9000 } } }, w.acct, NOW + 10, true);
+    assert.deepEqual((w.saved() as { five_hour: unknown }).five_hour, { pct: 31, resets_at: NOW + 9000 }, 'more use in the same window is newer');
+    assert.equal(resolveLimits({}, w.acct, NOW + 20, false).week?.pct, 50, 'the fallback is the newer weekly');
+  } finally {
+    w.cleanup();
   }
 });
 

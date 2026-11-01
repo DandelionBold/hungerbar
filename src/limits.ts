@@ -75,11 +75,24 @@ export function noFiveHour(p: Payload): boolean {
   return none && liveLimits(p).week !== null;
 }
 
+/**
+ * The newer of a window's saved value and this payload's, for limits.json (1.1.0), so sessions on older payloads never
+ * move it back: the later reset wins; with the same reset the higher use wins, as use only grows within a window.
+ * Without both resets nothing orders them, and this payload's wins, as before 1.1.0.
+ */
+export function newer(saved: Known | null, live: Known | null): Known | null {
+  if (!live) return saved;
+  if (!saved || saved.resets_at === null || live.resets_at === null) return live;
+  if (saved.resets_at !== live.resets_at) return live.resets_at > saved.resets_at ? live : saved;
+  return live.pct >= saved.pct ? live : saved;
+}
+
 const same = (a: Known | null, b: Known | null): boolean => a === b || (!!a && !!b && a.pct === b.pct && a.resets_at === b.resets_at);
 
 /**
- * Resolves both windows: each from stdin, else last known. The last-known file is written only when a value changes.
- * With no 5-hour window (noFiveHour, or its saved flag while no live five_hour comes) h5 is null and never last known.
+ * Resolves both windows: each from stdin, else last known. The last-known file keeps the newer value of each window and
+ * is written only when it changes. With no 5-hour window (noFiveHour, or its saved flag while no live five_hour comes)
+ * h5 is null and never last known.
  */
 export function resolveLimits(p: Payload, acct: string, now: number, persist: boolean): Limits {
   const { h5, week } = liveLimits(p);
@@ -89,8 +102,8 @@ export function resolveLimits(p: Payload, acct: string, now: number, persist: bo
   const none = noFiveHour(p), h5None = none || (!h5 && prev?.fiveHourNone === true);
   const next: LimitsFile = {
     v: 1,
-    five_hour: none ? null : h5 ?? prev?.five_hour ?? null,
-    seven_day: week ?? prev?.seven_day ?? null,
+    five_hour: none ? null : newer(prev?.five_hour ?? null, h5),
+    seven_day: newer(prev?.seven_day ?? null, week),
     at: now,
     ...(h5None ? { fiveHourNone: true as const } : {}),
   };
