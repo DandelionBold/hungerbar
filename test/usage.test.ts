@@ -302,6 +302,40 @@ test('the token never lands in a file, an argv or the output', async () => {
   }
 });
 
+test('HUNGERBAR_CAPTURE (1.1.0): a fetch that worked saves the answer\'s extra_usage and limits only, as the day\'s usage-YYYYMMDD.json', async () => {
+  const w = world();
+  try {
+    const dir = join(w.dir, 'capture'), env = { ...w.env, HUNGERBAR_CAPTURE: dir };
+    reply(200, JSON.stringify({ ...BODY, account: { email: 'steve@example.com' } }));
+    await refresh(env);
+    const file = join(dir, 'usage-20261024.json');
+    assert.deepEqual(JSON.parse(readFileSync(file, 'utf8')), { extra_usage: BODY.extra_usage, limits: BODY.limits }, 'only the two keys');
+    assert.deepEqual(listFiles(dir), [file]);
+    // a later answer that day replaces it; one without the keys saves nulls; a failed fetch saves nothing
+    reply(200, JSON.stringify({ five_hour: BODY.five_hour }));
+    await refresh({ ...env, HUNGERBAR_NOW: String(NOW + 600) });
+    assert.deepEqual(JSON.parse(readFileSync(file, 'utf8')), { extra_usage: null, limits: null });
+    reply(503, JSON.stringify(BODY));
+    await refresh({ ...env, HUNGERBAR_NOW: String(NOW + 86400) });
+    assert.deepEqual(listFiles(dir), [file], 'no usage-20261025.json');
+    for (const f of listFiles(w.dir)) {
+      const t = readFileSync(f, 'utf8');
+      assert.ok(!t.includes(TOKEN) && !t.includes('steve@example.com') && !t.includes('five_hour'), `nothing else in ${f}`);
+    }
+    // without HUNGERBAR_CAPTURE nothing is captured
+    const v = world();
+    try {
+      reply(200, JSON.stringify(BODY));
+      await refresh(v.env);
+      assert.deepEqual(listFiles(v.dir).filter((f) => /usage-\d{8}\.json$/.test(f)), []);
+    } finally {
+      v.cleanup();
+    }
+  } finally {
+    w.cleanup();
+  }
+});
+
 // ---------------------------------------------------------------------------------------------------------------------
 // 1.1.0: `hungerbar refresh usage` for people
 // ---------------------------------------------------------------------------------------------------------------------

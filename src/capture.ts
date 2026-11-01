@@ -20,6 +20,21 @@ export function scrub(raw: string): string | null {
   return text + '\n';
 }
 
+/**
+ * HUNGERBAR_CAPTURE=<dir> for the usage API (1.1.0): after a fetch that worked, the parsed answer's extra_usage and
+ * limits keys only (never the raw body, its headers or the token) as usage-<YYYYMMDD>.json (UTC), the day's latest
+ * answer, so the units and an Ultra account's shape can be checked against real data.
+ */
+export function captureUsage(body: unknown, dir: string, now: number): void {
+  try {
+    const o = body && typeof body === 'object' && !Array.isArray(body) ? (body as Record<string, unknown>) : {};
+    const day = new Date(now * 1000).toISOString().slice(0, 10).replaceAll('-', '');
+    writeAtomic(join(dir, `usage-${day}.json`), JSON.stringify({ extra_usage: o.extra_usage ?? null, limits: o.limits ?? null }, null, 2) + '\n');
+  } catch {
+    /* a capture never breaks a refresh */
+  }
+}
+
 export function capture(raw: string, dir: string): void {
   try {
     const p = JSON.parse(raw) as { version?: unknown };

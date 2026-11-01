@@ -360,7 +360,7 @@ For example, the full setup with both network features on:
 | `HUNGERBAR_OFFLINE=1`, `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | turns everything that uses the network off |
 | `HUNGERBAR_CONFIG`, `HUNGERBAR_CACHE_DIR` | another config file, another cache folder |
 | `HUNGERBAR_DEBUG=1` | phase timings on stderr |
-| `HUNGERBAR_CAPTURE=<dir>` | saves one payload per Claude Code version, with the working and project folders, the transcript path and the session id replaced; other paths, such as a worktree's, are kept, so read it before you share it |
+| `HUNGERBAR_CAPTURE=<dir>` | saves one payload per Claude Code version, with the working and project folders, the transcript path and the session id replaced; other paths, such as a worktree's, are kept, so read it before you share it; with the usage API on, also the day's answer as `usage-<YYYYMMDD>.json`, its `extra_usage` and `limits` only (never the token or headers) |
 
 ## Commands
 
@@ -435,7 +435,7 @@ Hungerbar runs on your machine and keeps what it learns there. Two features use 
 - `hungerbar.json` (with a backup) when you run `setup` or `look`.
 - Windows Terminal's `settings.json` (only the font face, with a backup) when you run `icons plain` or `icons colour`, or `setup --icons plain` or `setup --icons colour`.
 - For `doctor`'s timed render, a throwaway cache folder in your temp folder, deleted when it is done.
-- With `HUNGERBAR_CAPTURE=<dir>` set, one payload per Claude Code version in that folder.
+- With `HUNGERBAR_CAPTURE=<dir>` set, one payload per Claude Code version in that folder, and, with the usage API on, the day's latest usage answer (only its `extra_usage` and `limits`).
 
 **What uses the network, and only after you say yes**
 

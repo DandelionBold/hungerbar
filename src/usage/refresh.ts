@@ -1,5 +1,6 @@
 // `hungerbar refresh usage`: the opt-in OAuth usage worker, and since 1.1.0 a command for people too. Never runs on the
 // render path (SPEC §11, §13).
+import { captureUsage } from '../capture.ts';
 import { loadConfig } from '../config.ts';
 import { intEnv, nowSec, offline, VERSION, type Env } from '../env.ts';
 import { limitPct, moneyLimit, moneyUsed, timeLeft } from '../format.ts';
@@ -105,6 +106,7 @@ export async function refreshUsage(env: Env, readKeychain: KeychainReader = secu
       return keep(30, 'parse');
     }
     const { extra, scoped } = parseBody(body ?? {});
+    if (env.HUNGERBAR_CAPTURE) captureUsage(body, env.HUNGERBAR_CAPTURE, nowSec(env));
     return write({ v: 1, at: nowSec(env), extra, scoped, lockUntil: 0 });
   } finally {
     unlock(lock);
