@@ -610,11 +610,11 @@ How it degrades:
 - **Lock:** `git/<key>.lock` opened with `fs.openSync(p,'wx')`. It counts as stale after 10 s; then unlink it and retry once.
 - **git binary:**
   - `HUNGERBAR_GIT_BIN` in tests;
-  - otherwise the first `git`/`git.exe` in an **absolute** PATH entry. `.`, empty and relative entries are skipped.
+  - otherwise the first `git`/`git.exe` in an **absolute** PATH entry. `.`, empty and relative entries are skipped, and on Windows so is an entry with no drive or UNC share (`\Users\x` means the current drive's, though `path.win32.isAbsolute` calls it absolute); off Windows the file must be executable (1.1.0).
   - The result is cached in `gitbin.json`, keyed by fnv(PATH).
 - **Command:** `git --no-optional-locks -C <root> diff HEAD --shortstat --no-ext-diff --no-textconv`. On an unborn branch it is `git --no-optional-locks -C <root> diff --cached --shortstat --no-ext-diff --no-textconv`.
 - **Environment:** the inherited env plus `GIT_OPTIONAL_LOCKS=0 GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=Never LC_ALL=C LANG=C`.
-- **Timeout:** `git.timeoutMs` (2000). Then `taskkill /PID <pid> /T /F` on win32, `SIGKILL` elsewhere.
+- **Timeout:** `git.timeoutMs` (2000). Then `taskkill /PID <pid> /T /F` on win32. Elsewhere the child is spawned `detached`, so it leads a process group of its own, and `SIGKILL` goes to that group (`-pid`), its children included, else to the pid (1.1.0).
 - **Parse:**
   - `/(\d+) files? changed/`, `/(\d+) insertions?\(\+\)/` and `/(\d+) deletions?\(-\)/`;
   - empty output means clean, 0/0.
@@ -648,7 +648,7 @@ How it degrades:
 - `previous-statusline.json`, written by setup.
 - `capture/`, only with `HUNGERBAR_CAPTURE`.
 
-Every write goes to a temp file and is then renamed. A missing or corrupt file is treated as absent.
+Every write goes to a temp file and is then renamed. Off Windows the file keeps the mode it had (1.1.0), which the rename would otherwise take from the temp file. A missing or corrupt file is treated as absent.
 
 # 11. Opt-in usage API (off by default)
 ## When it runs
@@ -743,6 +743,7 @@ Test-only variables:
   - merges ONLY the `statusLine` key, keeping the order of the other keys;
   - reads BOM and CRLF, and writes UTF-8 without a BOM, with a 2-space indent, keeping CRLF if the file used it;
   - follows symlinks;
+  - refuses a read-only settings.json in one line before any question or write, and so does `--restore` (1.1.0): off Windows the rename would replace it, as the folder alone decides. `look` and `icons` refuse a read-only `hungerbar.json` or Windows Terminal `settings.json` the same way, before their backup;
   - with `--print`, shows the diff and writes nothing.
 - **`hungerbar refresh git <root>` / `refresh usage`:** internal.
 - **`hungerbar mirror <dir>`:** copies the source (without node_modules), dist, schema, README, LICENSE and the current .tgz into a folder. Since 1.0.0 (before its publication) it also copies `docs/`, `scripts/`, `.github/`, `CHANGELOG.md` and `CONTRIBUTING.md`, and it keeps a tarball the folder already has, so earlier releases stay there when the checkout no longer has them. It runs only from a source checkout (an installed release has no `src/`), so the README's command list leaves it out and CONTRIBUTING describes it.
@@ -790,7 +791,7 @@ Test-only variables:
 2. **A user runs `npm i -g hungerbar`, then `hungerbar setup`.** Setup writes the command for the platform:
    - **Windows with Git Bash:** the .cmd launcher plus `exec "…/statusline.cmd"`, as above.
    - **Windows without Git Bash** (CC runs the command in PowerShell): `& "C:/…/hungerbar/statusline.cmd"`. Before release, CI must confirm that UTF-8 bytes pass through unchanged; if they don't, setup sets icons=ascii for this path.
-   - **macOS and Linux:** `'<process.execPath>' '<npm root -g>/hungerbar/dist/hungerbar.mjs'`.
+   - **macOS and Linux:** `'<process.execPath>' '<npm root -g>/hungerbar/dist/hungerbar.mjs'`, a `'` inside a path written `'\''` (1.1.0).
    - `doctor` flags nvm, fnm or volta version-specific execPaths and offers `--node bare` (about +6 ms).
 3. **Without npm:** download `hungerbar.mjs` from the release and run `node hungerbar.mjs setup --install-self`. It copies itself to `<data>/hungerbar/app/` and wires that copy.
 4. **README:**
