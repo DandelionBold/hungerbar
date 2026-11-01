@@ -239,7 +239,8 @@ test('(c) the hud-* golden cases cover the plan list', () => {
   for (const n of ['normal', 'tight', 'fresh', 'extra', 'boss-opus', 'boss-fable', 'boss-low', 'boss-used-up', 'tail-fable', 'tooltip-fable', 'beacon-opus',
     'beacon-fable', 'two-scoped', 'scoped-reset', 'first-render', 'commit-gold', 'not-a-repo', 'unborn', 'detached', 'worktree', '256', 'placeholders',
     'injection', 'huge', 'fable-unknown', 'cfg-invalid', 'no-offhand', 'wide-label', 'center', 'center-boss', 'center-branch',
-    'git-merge', 'git-ahead', 'git-rebase', 'pr', 'pr-branch', 'who', 'who-gold', 'idle', 'phantoms', 'defaults']) assert.ok(HUD_CASES.includes(`hud-${n}`), `hud-${n}`);
+    'git-merge', 'git-ahead', 'git-rebase', 'pr', 'pr-branch', 'who', 'who-gold', 'idle', 'phantoms', 'defaults', 'ultra', 'ultra-boss', 'ultra-stale',
+    'poison']) assert.ok(HUD_CASES.includes(`hud-${n}`), `hud-${n}`);
 });
 
 for (const name of HUD_CASES) {
