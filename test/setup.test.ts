@@ -5,6 +5,7 @@ import { chmodSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, st
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { test } from 'node:test';
+import { ccShell } from '../src/cli/doctor.ts';
 import { demoLines, promptName, promptSentence } from '../src/cli/look.ts';
 import { commandFor } from '../src/cli/setup.ts';
 import { defaults, merge } from '../src/config.ts';
@@ -193,9 +194,15 @@ test('mirror copies source, tests, docs and build, never node_modules or .git, s
   }
 });
 
-test('doctor times the live command without touching the real caches', { skip: process.platform !== 'win32' }, () => {
+test('doctor times the live command without touching the real caches', (t) => {
   const w = world(null);
   try {
+    // the shell doctor times it in, as Claude Code finds it: Git Bash on Windows, else $SHELL or /bin/sh (POSIX)
+    const shell = ccShell(w.env);
+    if (!shell || !existsSync(shell)) {
+      t.skip(`no shell here to time the command in (${shell ?? 'no Git Bash'})`);
+      return;
+    }
     const fwd = (p: string): string => p.split('\\').join('/');
     writeFileSync(w.file, JSON.stringify({ statusLine: { type: 'command', command: `"${fwd(process.execPath)}" "${fwd(DIST)}"` } }));
     const r = runDist('', w.env, ['doctor']);
