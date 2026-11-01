@@ -1,6 +1,6 @@
 // Runs one fixture case through dist/hungerbar.mjs with seeded temp state (SPEC §16.1).
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -94,6 +94,14 @@ export const MODES: Record<string, Record<string, string>> = {
   w200c: { FORCE_COLOR: '3', COLUMNS: '200' },
 };
 
+/**
+ * A new temp folder, by its real path. On macOS tmpdir() is under /var, a link to /private/var, and what the programs
+ * under test see (process.cwd(), realpath) is the real one, so a world built on the link would not match their paths.
+ */
+export function tempDir(prefix: string): string {
+  return realpathSync(mkdtempSync(join(tmpdir(), prefix)));
+}
+
 export function loadCase(name: string): Case {
   return JSON.parse(readFileSync(join(CASES, name + '.json'), 'utf8')) as Case;
 }
@@ -124,7 +132,7 @@ export interface Prepared {
 
 /** Builds the temp world for a case: mapped folders, caches, config and the stdin text. */
 export function prepare(c: Case): Prepared {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-'));
+  const dir = tempDir('hb-');
   const claude = join(dir, 'claude'), cache = join(dir, 'cache');
   mkdirSync(claude, { recursive: true });
   const map: Record<string, string> = {};

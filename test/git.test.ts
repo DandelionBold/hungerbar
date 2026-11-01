@@ -10,7 +10,7 @@ import { entryPath, lockPath, readEntry } from '../src/git/cache.ts';
 import { findRepo, isUnborn } from '../src/git/head.ts';
 import { renderPayload } from '../src/render.ts';
 import { tryLock, unlock } from '../src/store.ts';
-import { DIST, ROOT, runDist } from './harness.ts';
+import { DIST, ROOT, runDist, tempDir } from './harness.ts';
 
 const GIT = findGit(process.env.PATH ?? '');
 const FAKE = join(ROOT, 'bench', 'fake-git.mjs');
@@ -20,7 +20,7 @@ function git(cwd: string, ...args: string[]): string {
 }
 
 function world(): { dir: string; repo: string; cache: string; env: Record<string, string>; cleanup(): void } {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-git-'));
+  const dir = tempDir('hb-git-');
   const repo = join(dir, 'repo'), cache = join(dir, 'cache');
   mkdirSync(repo);
   git(repo, 'init', '-q', '-b', 'main');

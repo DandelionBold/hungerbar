@@ -5,7 +5,7 @@
 // a remote is on GitHub, and runs no process itself.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -15,7 +15,7 @@ import { prLockPath, prPath, readPrEntry } from '../src/pr/cache.ts';
 import { PR_ARGS, type PrInfo } from '../src/pr/gh.ts';
 import { refreshPr } from '../src/pr/refresh.ts';
 import { renderPayload, type RenderResult } from '../src/render.ts';
-import { DIST, stripAnsi } from './harness.ts';
+import { DIST, stripAnsi, tempDir } from './harness.ts';
 import { plainDefaults } from './plain-config.ts';
 
 const NOW = 1792859460;
@@ -48,7 +48,7 @@ interface World {
 }
 
 function world(config = GITHUB): World {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-pr-'));
+  const dir = tempDir('hb-pr-');
   const repo = join(dir, 'repo'), cache = join(dir, 'cache'), bin = join(dir, 'bin'), log = join(dir, 'gh.log'), cfg = join(dir, 'stub.json'), stub = join(dir, 'stub-gh.mjs');
   mkdirSync(join(repo, '.git'), { recursive: true });
   mkdirSync(bin);

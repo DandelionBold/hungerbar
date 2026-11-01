@@ -9,12 +9,12 @@ import { demoLines, promptName, promptSentence } from '../src/cli/look.ts';
 import { defaults, merge } from '../src/config.ts';
 import { FABLE_OPTIONS } from '../src/hud/fable.ts';
 import { whoAmI } from '../src/whoami.ts';
-import { DIST, listFiles, ROOT, runDist } from './harness.ts';
+import { DIST, listFiles, ROOT, runDist, tempDir } from './harness.ts';
 
 const ORIGINAL = '\uFEFF{\r\n  "model": "opus[1m]",\r\n  "statusLine": {\r\n    "type": "command",\r\n    "command": "ccstatusline",\r\n    "padding": 0,\r\n    "refreshInterval": 10\r\n  },\r\n  "effortLevel": "medium",\r\n  "theme": "dark"\r\n}\r\n';
 
 function world(settings: string | null) {
-  const dir = mkdtempSync(join(tmpdir(), 'hb-setup-'));
+  const dir = tempDir('hb-setup-');
   const claude = join(dir, 'claude'), cache = join(dir, 'cache');
   mkdirSync(claude);
   const file = join(claude, 'settings.json');
