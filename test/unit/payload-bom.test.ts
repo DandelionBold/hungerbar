@@ -38,3 +38,19 @@ test('the consent text names the macOS Keychain after .credentials.json on macOS
   const both = consentLines({ ...env, CLAUDE_CODE_OAUTH_TOKEN: 'abc' }, true, 'darwin').join('\n');
   assert.ok(both.includes(`the CLAUDE_CODE_OAUTH_TOKEN variable, else ${file}${KEYCHAIN} and calls`), both);
 });
+
+test('the consent text states the cadence the refresher keeps (1.1.0): with scopedWeekly every 3 minutes; without it hourly, or every 3 minutes while hungry', () => {
+  const env = { CLAUDE_CONFIG_DIR: '/home/steve/.claude' };
+  for (const platform of ['win32', 'linux', 'darwin'] as const) {
+    // look and setup turn both keys on, so every ttlSeconds (usage/file.ts usageTtl): no hourly case to name
+    for (const asking of [false, true] as const) {
+      const t = consentLines(env, asking, platform).join('\n');
+      assert.match(t, /api\.anthropic\.com\/api\/oauth\/usage about every 3 minutes while a terminal session renders\./, `${asking} ${platform}`);
+      assert.doesNotMatch(t, /once an hour/);
+    }
+    // the usage API already on, scopedWeekly asked: what it changes, and what it is without it
+    const scoped = consentLines(env, 'scoped', platform).join('\n');
+    assert.ok(scoped.includes('about every 3 minutes\nwhile a terminal session renders, even when your account has no extra usage (without it: once an hour,\n'
+      + 'or every 3 minutes while a limit is at 10% left or less).\nIt reads your Claude login token from '), `${platform}: ${scoped}`);
+  }
+});

@@ -57,7 +57,7 @@
           "default": false
         },
         "ttlSeconds": { "type": "integer", "minimum": 60, "maximum": 86400, "default": 180 },
-        "scopedWeekly": { "description": "Fetch and show per-model weekly limits (e.g. Fable) for the scopedWeek item and the HUD's hud.fable options. With it on, usage.json refreshes every ttlSeconds (180 s) while a session renders, instead of hourly. Off until you say yes, with usageApi.", "type": "boolean", "default": false }
+        "scopedWeekly": { "description": "Fetch and show per-model weekly limits (e.g. Fable) for the scopedWeek item and the HUD's hud.fable options. With it on, usage.json refreshes every ttlSeconds (180 s) while a session renders. With it off and no extra usage on the account, it refreshes once an hour, or every ttlSeconds while a limit is at 10% left or less. Off until you say yes, with usageApi.", "type": "boolean", "default": false }
       }
     },
     "limits": {

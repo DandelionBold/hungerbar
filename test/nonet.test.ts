@@ -28,6 +28,23 @@ test('dist render with the network trapped: normal output, no usage refresh, not
   }
 });
 
+test('a hungry limit (10% left or less, 1.1.0) with the usage API off: no usage refresh, no fetch', () => {
+  const c = loadCase('normal');
+  delete c.config;
+  const pl = c.payload as { rate_limits: { five_hour: { used_percentage: number } } };
+  pl.rate_limits.five_hour.used_percentage = 97;
+  const p = prepare(c);
+  try {
+    const r = spawnSync(process.execPath, ['--import', STUB, DIST], { input: p.stdin, env: { ...p.env, NO_COLOR: '1' }, encoding: 'utf8', windowsHide: true });
+    assert.deepEqual([r.status, r.stderr], [0, '']);
+    for (const env of [p.env, { ...p.env, HUNGERBAR_USAGE_API: '1', HUNGERBAR_OFFLINE: '1' }]) {
+      assert.ok(!renderPayload(p.stdin, { env }).spawns.some((s) => s[1] === 'usage'), 'no usage refresher');
+    }
+  } finally {
+    p.cleanup();
+  }
+});
+
 test('the usage refresher itself is a no-op when offline, even with the network trapped', () => {
   const p = prepare({ payload: {} });
   try {

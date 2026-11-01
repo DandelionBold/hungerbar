@@ -308,7 +308,8 @@ export function consentLines(env: Env, asking: boolean | 'scoped' = false, platf
     ? [
       "Fable's weekly comes from the usage API, which hungerbar.json has on, and it needs network.scopedWeekly too.",
       `With that on, the background refresher calls ${USAGE_URL.replace(/^https:\/\//, '')} about every 3 minutes`,
-      'while a terminal session renders, even when your account has no extra usage (without it: once an hour).',
+      'while a terminal session renders, even when your account has no extra usage (without it: once an hour,',
+      'or every 3 minutes while a limit is at 10% left or less).',
       `It reads your Claude login token from ${creds}. The token is never stored or sent anywhere else.`,
     ]
     : [

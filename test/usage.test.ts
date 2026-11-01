@@ -6,10 +6,11 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { after, before, test } from 'node:test';
 import { VERSION } from '../src/env.ts';
+import { hungry } from '../src/limits.ts';
 import { renderPayload } from '../src/render.ts';
 import { acctDir } from '../src/store.ts';
 import { getToken, keychainService, type KeychainReader } from '../src/usage/creds.ts';
-import { readUsage, usageLockPath } from '../src/usage/file.ts';
+import { readUsage, usageLockPath, usageTtl, type UsageFile } from '../src/usage/file.ts';
 import { refreshUsage, usageUrl } from '../src/usage/refresh.ts';
 import { listFiles, NOW, tempDir } from './harness.ts';
 
@@ -210,6 +211,47 @@ test('render side: refresh only when stale, unlocked and enabled; is_enabled=fal
     reply(429, '{}', { 'retry-after': '900' });
     await refreshUsage({ ...w.env, HUNGERBAR_NOW: String(NOW + 3601) });
     assert.deepEqual(spawnsOf({ ...on, HUNGERBAR_NOW: String(NOW + 4000) }), [], 'locked by the 429');
+  } finally {
+    w.cleanup();
+  }
+});
+
+test('hungry TTL (1.1.0): a limit at 10% left or less asks every ttlSeconds even with extra usage off; idle, an hour', () => {
+  const file = (enabled: boolean | null): UsageFile => ({ v: 1, at: NOW, extra: enabled === null ? null : { enabled, usedCents: 0, limitCents: null, currency: 'USD' }, scoped: [], lockUntil: 0 });
+  assert.equal(usageTtl(file(false), 180, false, true), 180, 'disabled + hungry');
+  assert.equal(usageTtl(file(false), 180, false, false), 3600, 'disabled + idle');
+  assert.equal(usageTtl(file(null), 180, false), 3600, 'no extra_usage at all, idle (hungry left out)');
+  assert.equal(usageTtl(file(null), 180, false, true), 180, 'no extra_usage at all, hungry');
+  for (const h of [true, false]) {
+    assert.equal(usageTtl(file(true), 180, false, h), 180, `enabled, hungry ${h}`);
+    assert.equal(usageTtl(file(false), 180, true, h), 180, `scopedWeekly, hungry ${h}`);
+    assert.equal(usageTtl(null, 180, false, h), 180, `no usage.json yet, hungry ${h}`);
+  }
+  assert.equal(usageTtl(file(false), 600, false, true), 600, 'hungry is plain ttlSeconds, not 180');
+  // hungry: a drawn limit at 90% used or more (10% left or less), live or last known; a refilled or missing one is not
+  const v = (pct: number, dim = false) => ({ pct, left: 60, dim });
+  assert.equal(hungry({ h5: v(90), week: null }), true);
+  assert.equal(hungry({ h5: v(10), week: v(100, true) }), true, 'used up, last known');
+  assert.equal(hungry({ h5: v(89), week: v(89) }), false, '11% left');
+  assert.equal(hungry({ h5: null, week: null }), false);
+  assert.equal(hungry({ h5: { pct: 0, left: null, dim: false }, week: v(50) }), false, 'refilled');
+});
+
+test('render side, hungry: with extra usage off, a limit at 10% left or less queues the refresher after ttlSeconds, not an hour', async () => {
+  const w = world();
+  try {
+    const on = { ...w.env, HUNGERBAR_USAGE_API: '1', NO_COLOR: '1' };
+    const payload = (used: number): string => JSON.stringify({ model: { display_name: 'Opus 5.5' }, workspace: { current_dir: w.dir },
+      rate_limits: { five_hour: { used_percentage: used, resets_at: NOW + 9000 }, seven_day: { used_percentage: 40, resets_at: NOW + 300000 } } });
+    const spawnsOf = (used: number, at: number): string[][] =>
+      renderPayload(payload(used), { env: { ...on, HUNGERBAR_NOW: String(at) } }).spawns.filter((s) => s[1] === 'usage');
+    reply(200, JSON.stringify({ ...BODY, extra_usage: { is_enabled: false } }));
+    await refreshUsage(w.env);
+    assert.deepEqual(spawnsOf(85, NOW + 181), [], '15% left: an hour between refreshes');
+    assert.deepEqual(spawnsOf(90, NOW + 181), [['refresh', 'usage']], '10% left: after 180 s');
+    assert.deepEqual(spawnsOf(100, NOW + 181), [['refresh', 'usage']], 'used up');
+    assert.deepEqual(spawnsOf(95, NOW + 120), [], 'still fresh');
+    assert.deepEqual(renderPayload(payload(95), { env: { ...w.env, NO_COLOR: '1', HUNGERBAR_NOW: String(NOW + 181) } }).spawns.filter((s) => s[1] === 'usage'), [], 'usage API off: hungry asks nothing');
   } finally {
     w.cleanup();
   }

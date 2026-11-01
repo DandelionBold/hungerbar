@@ -33,13 +33,16 @@ export function readUsage(acct: string): UsageFile | null {
   return u && u.v === 1 && typeof u.at === 'number' ? u : null;
 }
 
-/** 180 s normally; an hour while there is nothing on the line that changes often. */
-export function usageTtl(u: UsageFile | null, ttlSeconds: number, scopedWeekly: boolean): number {
-  return u && !u.extra?.enabled && !scopedWeekly ? Math.max(ttlSeconds, 3600) : ttlSeconds;
+/**
+ * ttlSeconds (180 s) normally; an hour while there is nothing on the line that changes often: extra usage off,
+ * scopedWeekly off, and no limit hungry (limits.ts hungry: 10% left or less, 1.1.0).
+ */
+export function usageTtl(u: UsageFile | null, ttlSeconds: number, scopedWeekly: boolean, hungry = false): number {
+  return u && !u.extra?.enabled && !scopedWeekly && !hungry ? Math.max(ttlSeconds, 3600) : ttlSeconds;
 }
 
-export function usageNeedsRefresh(acct: string, u: UsageFile | null, now: number, ttlSeconds: number, scopedWeekly: boolean): boolean {
+export function usageNeedsRefresh(acct: string, u: UsageFile | null, now: number, ttlSeconds: number, scopedWeekly: boolean, hungry = false): boolean {
   if (u && u.lockUntil > now) return false;
-  if (u && now - u.at < usageTtl(u, ttlSeconds, scopedWeekly) && now >= u.at) return false;
+  if (u && now - u.at < usageTtl(u, ttlSeconds, scopedWeekly, hungry) && now >= u.at) return false;
   return !lockLive(usageLockPath(acct), 30_000, Date.now());
 }

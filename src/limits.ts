@@ -117,3 +117,9 @@ export function resolveLimits(p: Payload, acct: string, now: number, persist: bo
     h5None,
   };
 }
+
+/**
+ * Hungry (1.1.0): a drawn limit has 10% left or less, or none. The usage refresher then asks every ttlSeconds even
+ * while extra usage is off (usage/file.ts usageTtl).
+ */
+export const hungry = (l: Pick<Limits, 'h5' | 'week'>): boolean => [l.h5, l.week].some((v) => v !== null && v.pct >= 90);

@@ -19,7 +19,7 @@ import { diskHistory, histSid } from './hud/history.ts';
 import { hudGate, renderHudLook } from './hud/look.ts';
 import type { Span } from './hud/spans.ts';
 import { renderLines, budget } from './layout.ts';
-import { resolveLimits } from './limits.ts';
+import { hungry, resolveLimits, type Limits } from './limits.ts';
 import { num, str, type Payload } from './payload.ts';
 import { githubRemote, onBranch, PR_LOCK_STALE_MS, prFresh, prLockPath, prShown, readPrEntry } from './pr/cache.ts';
 import type { PrInfo } from './pr/gh.ts';
@@ -105,6 +105,9 @@ export function diskSources(p: Payload, env: Env, cfg: Config, now: number, spaw
   const cd = cacheDir(env), acct = acctDir(env);
   let tx: TxSummary | null | undefined;
   let usage: UsageFile | null | undefined;
+  let lim: Limits | undefined;
+  /** Read once per render: the usage refresher asks how hungry the limits are (1.1.0). */
+  const limits = (): Limits => (lim ??= resolveLimits(p, acct, now, persist));
   /** Read once per render, by whichever asks first; a delta over the budget queues the worker unless it already runs. */
   const transcript = (): TxSummary | null => {
     if (tx !== undefined) return tx;
@@ -135,12 +138,12 @@ export function diskSources(p: Payload, env: Env, cfg: Config, now: number, spaw
       }
       return { isRepo: true, branch: repo.branch, added: e?.added ?? null, removed: e?.removed ?? null, repo, ...state(e?.st) };
     },
-    limits: () => resolveLimits(p, acct, now, persist),
+    limits,
     usage(): UsageFile | null {
       if (usage !== undefined) return usage;
       if (!usageEnabled(cfg, env)) return (usage = null);
       usage = readUsage(acct);
-      if (usageNeedsRefresh(acct, usage, now, cfg.network.ttlSeconds, cfg.network.scopedWeekly)) spawns.push(['refresh', 'usage']);
+      if (usageNeedsRefresh(acct, usage, now, cfg.network.ttlSeconds, cfg.network.scopedWeekly, hungry(limits()))) spawns.push(['refresh', 'usage']);
       return usage;
     },
     transcript,
