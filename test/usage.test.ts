@@ -10,11 +10,14 @@ import { hungry } from '../src/limits.ts';
 import { renderPayload } from '../src/render.ts';
 import { acctDir } from '../src/store.ts';
 import { getToken, keychainService, type KeychainReader } from '../src/usage/creds.ts';
-import { readUsage, usageLockPath, usageTtl, type UsageFile } from '../src/usage/file.ts';
+import { readUsage, usageLockPath, usagePath, usageTtl, type UsageFile } from '../src/usage/file.ts';
 import { refreshUsage, usageUrl } from '../src/usage/refresh.ts';
 import { listFiles, NOW, tempDir } from './harness.ts';
 
 const TOKEN = 'sk-ant-oat01-TEST-ONLY-never-shown-7f3a';
+/** No Keychain item: every refresh here gets this stub, so the real /usr/bin/security never runs, on any OS. */
+const NO_KEYCHAIN: KeychainReader = () => null;
+const refresh = (env: Record<string, string>): Promise<void> => refreshUsage(env, NO_KEYCHAIN);
 let handler: (req: IncomingMessage, res: ServerResponse) => void = (_q, s) => s.end();
 const seen: IncomingMessage[] = [];
 const server = createServer((req, res) => {
@@ -64,7 +67,7 @@ test('200: extra and scoped are stored, with honest headers', async () => {
   try {
     reply(200, JSON.stringify(BODY));
     seen.length = 0;
-    await refreshUsage(w.env);
+    await refresh(w.env);
     const u = readUsage(w.acct)!;
     assert.deepEqual(u.extra, { enabled: true, usedCents: 420, limitCents: 5000, currency: 'USD' });
     assert.deepEqual(u.scoped, [{ name: 'Fable', pct: 100, resets_at: Date.parse('2026-10-25T15:59:59Z') / 1000 }]);
@@ -93,9 +96,9 @@ test('errors lock the refresher and keep the last digest', async () => {
     const w = world();
     try {
       reply(200, JSON.stringify(BODY));
-      await refreshUsage(w.env);
+      await refresh(w.env);
       setup();
-      await refreshUsage({ ...w.env, HUNGERBAR_NOW: String(NOW + 1000) });
+      await refresh({ ...w.env, HUNGERBAR_NOW: String(NOW + 1000) });
       const u = readUsage(w.acct)!;
       assert.equal(u.lockUntil, NOW + 1000 + lock, `${error}: lock`);
       assert.equal(u.error, error);
@@ -114,7 +117,7 @@ test('no token: a 600 s lock and no request', async () => {
     const env: Record<string, string> = { ...w.env, CLAUDE_CODE_OAUTH_TOKEN: '' };
     mkdirSync(env.CLAUDE_CONFIG_DIR!, { recursive: true });
     writeFileSync(join(env.CLAUDE_CONFIG_DIR!, '.credentials.json'), JSON.stringify({ claudeAiOauth: { accessToken: 'expired', expiresAt: 1000 } }));
-    await refreshUsage(env);
+    await refresh(env);
     assert.equal(seen.length, 0);
     assert.equal(readUsage(w.acct)?.error, 'no-credentials');
     assert.equal(readUsage(w.acct)?.lockUntil, NOW + 600);
@@ -131,8 +134,33 @@ test('the credentials file is used when not expired', async () => {
     const env: Record<string, string> = { ...w.env, CLAUDE_CODE_OAUTH_TOKEN: '' };
     mkdirSync(env.CLAUDE_CONFIG_DIR!, { recursive: true });
     writeFileSync(join(env.CLAUDE_CONFIG_DIR!, '.credentials.json'), JSON.stringify({ claudeAiOauth: { accessToken: TOKEN, expiresAt: Date.now() + 3_600_000 } }));
-    await refreshUsage(env);
+    await refresh(env);
     assert.equal(seen[0]?.headers.authorization, `Bearer ${TOKEN}`);
+  } finally {
+    w.cleanup();
+  }
+});
+
+test('refreshUsage hands its Keychain reader and platform to getToken: the macOS path runs anywhere, with a stub', async () => {
+  const w = world();
+  try {
+    const env: Record<string, string> = { ...w.env, CLAUDE_CODE_OAUTH_TOKEN: '' };
+    const asked: string[] = [];
+    const item: KeychainReader = (service) => {
+      asked.push(service);
+      return JSON.stringify({ claudeAiOauth: { accessToken: TOKEN, expiresAt: Date.now() + 3_600_000 } });
+    };
+    seen.length = 0;
+    reply(200, JSON.stringify(BODY));
+    await refreshUsage(env, item, 'darwin');
+    assert.deepEqual(asked, [keychainService(env)]);
+    assert.equal(seen[0]?.headers.authorization, `Bearer ${TOKEN}`, 'the stub\'s token was sent');
+    for (const platform of ['linux', 'win32'] as const) {
+      seen.length = 0;
+      await refreshUsage({ ...env, HUNGERBAR_NOW: String(NOW + 1000) }, item, platform);
+      assert.deepEqual([asked.length, seen.length, readUsage(w.acct)?.error], [1, 0, 'no-credentials'], `${platform}: no Keychain`);
+      rmSync(usagePath(w.acct));
+    }
   } finally {
     w.cleanup();
   }
@@ -178,7 +206,7 @@ test('offline switches stop the refresher before any request', async () => {
     const w = world();
     try {
       seen.length = 0;
-      await refreshUsage({ ...w.env, ...off });
+      await refresh({ ...w.env, ...off });
       assert.equal(seen.length, 0);
       assert.equal(readUsage(w.acct), null);
     } finally {
@@ -196,7 +224,7 @@ test('render side: refresh only when stale, unlocked and enabled; is_enabled=fal
     assert.deepEqual(spawnsOf(w.env), [], 'usage API off: nothing');
     assert.deepEqual(spawnsOf(on), [['refresh', 'usage']], 'no usage.json yet');
     reply(200, JSON.stringify(BODY));
-    await refreshUsage(w.env);
+    await refresh(w.env);
     assert.deepEqual(spawnsOf(on), [], 'fresh');
     assert.match(renderPayload(payload, { env: on }).text, /Extra: \$4\.20\/\$50/);
     assert.deepEqual(spawnsOf({ ...on, HUNGERBAR_NOW: String(NOW + 181) }), [['refresh', 'usage']], 'stale after 180 s');
@@ -204,12 +232,12 @@ test('render side: refresh only when stale, unlocked and enabled; is_enabled=fal
     assert.deepEqual(spawnsOf({ ...on, HUNGERBAR_NOW: String(NOW + 181) }), [], 'a live lock');
     rmSync(usageLockPath(w.acct));
     reply(200, JSON.stringify({ ...BODY, extra_usage: { is_enabled: false } }));
-    await refreshUsage(w.env);
+    await refresh(w.env);
     assert.doesNotMatch(renderPayload(payload, { env: on }).text, /Extra/);
     assert.deepEqual(spawnsOf({ ...on, HUNGERBAR_NOW: String(NOW + 181) }), [], 'extra off: an hour between refreshes');
     assert.deepEqual(spawnsOf({ ...on, HUNGERBAR_NOW: String(NOW + 3601) }), [['refresh', 'usage']]);
     reply(429, '{}', { 'retry-after': '900' });
-    await refreshUsage({ ...w.env, HUNGERBAR_NOW: String(NOW + 3601) });
+    await refresh({ ...w.env, HUNGERBAR_NOW: String(NOW + 3601) });
     assert.deepEqual(spawnsOf({ ...on, HUNGERBAR_NOW: String(NOW + 4000) }), [], 'locked by the 429');
   } finally {
     w.cleanup();
@@ -246,7 +274,7 @@ test('render side, hungry: with extra usage off, a limit at 10% left or less que
     const spawnsOf = (used: number, at: number): string[][] =>
       renderPayload(payload(used), { env: { ...on, HUNGERBAR_NOW: String(at) } }).spawns.filter((s) => s[1] === 'usage');
     reply(200, JSON.stringify({ ...BODY, extra_usage: { is_enabled: false } }));
-    await refreshUsage(w.env);
+    await refresh(w.env);
     assert.deepEqual(spawnsOf(85, NOW + 181), [], '15% left: an hour between refreshes');
     assert.deepEqual(spawnsOf(90, NOW + 181), [['refresh', 'usage']], '10% left: after 180 s');
     assert.deepEqual(spawnsOf(100, NOW + 181), [['refresh', 'usage']], 'used up');
@@ -261,9 +289,9 @@ test('the token never lands in a file, an argv or the output', async () => {
   const w = world();
   try {
     reply(401, '{}');
-    await refreshUsage(w.env);
+    await refresh(w.env);
     reply(200, JSON.stringify(BODY));
-    await refreshUsage({ ...w.env, HUNGERBAR_NOW: String(NOW + 700) });
+    await refresh({ ...w.env, HUNGERBAR_NOW: String(NOW + 700) });
     const r = renderPayload(JSON.stringify({ model: { display_name: 'Opus 5.5' } }), { env: { ...w.env, HUNGERBAR_USAGE_API: '1', HUNGERBAR_NOW: String(NOW + 2000) } });
     assert.ok(!r.text.includes(TOKEN));
     assert.ok(!JSON.stringify(r.spawns).includes(TOKEN));

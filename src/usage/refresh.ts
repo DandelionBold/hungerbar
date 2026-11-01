@@ -1,7 +1,7 @@
 // `hungerbar refresh usage`: the opt-in OAuth usage worker. Never runs on the render path (SPEC §11).
 import { flag, intEnv, nowSec, VERSION, type Env } from '../env.ts';
 import { acctDir, tryLock, unlock, writeJson } from '../store.ts';
-import { getToken } from './creds.ts';
+import { getToken, securityKeychain, type KeychainReader } from './creds.ts';
 import { readUsage, usageLockPath, usagePath, type UsageExtra, type UsageFile, type UsageScoped } from './file.ts';
 
 export const USAGE_URL = 'https://api.anthropic.com/api/oauth/usage';
@@ -55,7 +55,11 @@ export function parseBody(body: ApiBody): { extra: UsageExtra | null; scoped: Us
   return { extra, scoped };
 }
 
-export async function refreshUsage(env: Env): Promise<void> {
+/**
+ * One fetch. `readKeychain` and `platform` go to getToken, so the tests hand it a stub and never run the real
+ * `security`, on any OS.
+ */
+export async function refreshUsage(env: Env, readKeychain: KeychainReader = securityKeychain, platform: NodeJS.Platform = process.platform): Promise<void> {
   if (env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC || flag(env, 'HUNGERBAR_OFFLINE')) return;
   const acct = acctDir(env);
   const lock = usageLockPath(acct);
@@ -65,7 +69,7 @@ export async function refreshUsage(env: Env): Promise<void> {
   const keep = (lockFor: number, error: string): void =>
     writeJson(usagePath(acct), { v: 1, at: prev?.at ?? now, extra: prev?.extra ?? null, scoped: prev?.scoped ?? [], lockUntil: now + lockFor, error } satisfies UsageFile);
   try {
-    const token = getToken(env, Date.now());
+    const token = getToken(env, Date.now(), platform, readKeychain);
     if (!token) return keep(600, 'no-credentials');
     const url = usageUrl(env);
     // The timeout override exists for the mock-server tests and only applies to a local URL.
