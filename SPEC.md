@@ -103,7 +103,7 @@ The adapter also applies these rules:
 *Config* (amends §12; `schema.json` documents each key).
 - `"look": "classic" | "hud"`, default hud since §0.10 (classic before). `HUNGERBAR_LOOK=classic|hud` wins over the file.
 - `"hud": {"fable": "off" | "tail" | "tooltip" | "boss" | "beacon", "minWidth": 80, "align": "left" | "center", "pr": "off" | "on", "user": "off" | "user" | "user@host", "op": "off" | "tag" | "gold", "bed": "on" | "off", "phantoms": "on" | "off"}`. An absent `fable` is boss (§0.10; off before), the engine's ids (`fable-boss`) are accepted, and any other value is off. `minWidth` is an integer from 62 to 200. `align` is center unless it is exactly `left` (§0.10; 0.6.0 had it left unless exactly `center`); `HUNGERBAR_HUD_ALIGN=left|center` wins over the file, as `HUNGERBAR_LOOK` does, and other values are ignored. `pr` is off unless it is exactly `on` (0.7.0); `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` or `HUNGERBAR_OFFLINE` keeps it off whatever the file says (`prEnabled`). `user` (default user since §0.10, off before), `op` (default gold since §0.10, tag before), `bed` and `phantoms` (default on) are the player's layers (0.7.0, *The player* below); any other value is the default. Test hooks, as `HUNGERBAR_NOW`: `HUNGERBAR_USER`, `HUNGERBAR_HOST` and `HUNGERBAR_ELEVATED=1|0`.
-- Every Fable option but off needs `network.usageApi` and `network.scopedWeekly`. Without them `scoped` is `[]`, the HUD draws its plain 5 lines, and doctor warns. `scopedWeekly` shortens the usage refresh from 3600 s to `network.ttlSeconds` (180 s), about 20 calls an hour while a session renders.
+- Every Fable option but off needs `network.usageApi` and `network.scopedWeekly`. Without them `scoped` is `[]`, the HUD draws its plain 5 lines, and doctor warns. `scopedWeekly` shortens the usage refresh from 3600 s (while extra usage is off and no limit is hungry, §11) to `network.ttlSeconds` (180 s), about 20 calls an hour while a session renders.
 - The HUD honours `bold` (false drops its bold), `nbsp`, `color`, `colorDepth` and `widthReserve`. It ignores `lines`, `bar`, `thresholds`, `limits` and `minecraft`.
 
 *Gate* (`hudGate`). Classic is drawn, byte for byte, by the first of these that holds:
@@ -249,7 +249,7 @@ With an unknown width the HUD always draws. It never re-fits itself; 110 cells i
 - **Not seen on screen yet:** background cells (NBSP ones too), the trailing background cell of line 4 outside a repo, the 6-line case, Ⅲ, 🮂, the frame as 0.5.1 draws it, and a centred HUD by eye (the margin is settled under **Padding**). They wait for a look on a real screen; the rollback is one command.
 
 *Measured* (2026-10-27; timings are noise, so none is asserted).
-- **Bundle.** `dist/hungerbar.mjs` is 229,322 bytes at 1.1.0, with the git state, the PR status, the player's layers, their CLI, §0.10's defaults, §0.11's boss bar without its name and 1.1.0's fixes for macOS and Linux. The 0.6.0 that shipped (4f4e2d8, the last 0.6.0 commit) was 182,607, so the git state (7,699 bytes, at 7de75ba), the PR status (12,491 bytes, at f09d0fb), the player's layers (8,228 bytes, at e0bbc2c) and their CLI (the new options of look, setup, preview and doctor, the demos' git state and doctor's wider leftover check: 7,544 bytes) and the fixes after review (the open tool calls that keep the bed away while Claude works, and doctor's note for git.mode off: 2,146 bytes) and the new defaults, with setup's two questions for what uses the network (§0.10: 1,273 bytes), and the fixes after the publish review (look's way back after a Fable change, the two questions pre-selected by their own keys, the PR status's fuller consent text and mirror's wider copy: 1,659 bytes) and the fixes after the second publish review (the setup prompt's wording for no Fable, and the network hint after flags and without a pending yes: 866 bytes) and setup's no to the usage API saved as false (519 bytes) and the boss bar without its name (§0.11: 496 bytes) and the fix after the final publish review (setup's note for an unreadable `hungerbar.json` without a terminal: 197 bytes) and the fixes after the last publish review (a UTF-8 BOM on piped stdin, and the consent text naming the login token's variable: 164 bytes) and 1.1.0's fix after the first CI run (doctor's process list through `[wmisearcher]`, which loads no module, and a warn instead of an ok when the list cannot be read: 580 bytes) and 1.1.0's fixes for macOS and Linux (a folder name over 255 bytes, a timed-out child's whole process group, drive-less and non-executable PATH entries, read-only files refused and modes kept, doctor's process list from /proc or ps, a ' in the POSIX command, and the platform as a parameter of the consent text and the token's Keychain read: 2,853 bytes) added 46,715 bytes; 0.6.0 was 181,306 when it was cut (6b77019), before the reviews of the centring, and 0.4.0 was 89,168 (bd5a52a), before the HUD. 0.5.0 was 173,203 as shipped (7aaebbb) and 170,603 as cut (52c65ec). The timings below were taken at 52c65ec.
+- **Bundle.** `dist/hungerbar.mjs` is 233,308 bytes at 1.1.0, with the git state, the PR status, the player's layers, their CLI, §0.10's defaults, §0.11's boss bar without its name, 1.1.0's fixes for macOS and Linux and its freshness and data rules. The 0.6.0 that shipped (4f4e2d8, the last 0.6.0 commit) was 182,607, so the git state (7,699 bytes, at 7de75ba), the PR status (12,491 bytes, at f09d0fb), the player's layers (8,228 bytes, at e0bbc2c) and their CLI (the new options of look, setup, preview and doctor, the demos' git state and doctor's wider leftover check: 7,544 bytes) and the fixes after review (the open tool calls that keep the bed away while Claude works, and doctor's note for git.mode off: 2,146 bytes) and the new defaults, with setup's two questions for what uses the network (§0.10: 1,273 bytes), and the fixes after the publish review (look's way back after a Fable change, the two questions pre-selected by their own keys, the PR status's fuller consent text and mirror's wider copy: 1,659 bytes) and the fixes after the second publish review (the setup prompt's wording for no Fable, and the network hint after flags and without a pending yes: 866 bytes) and setup's no to the usage API saved as false (519 bytes) and the boss bar without its name (§0.11: 496 bytes) and the fix after the final publish review (setup's note for an unreadable `hungerbar.json` without a terminal: 197 bytes) and the fixes after the last publish review (a UTF-8 BOM on piped stdin, and the consent text naming the login token's variable: 164 bytes) and 1.1.0's fix after the first CI run (doctor's process list through `[wmisearcher]`, which loads no module, and a warn instead of an ok when the list cannot be read: 580 bytes) and 1.1.0's fixes for macOS and Linux (a folder name over 255 bytes, a timed-out child's whole process group, drive-less and non-executable PATH entries, read-only files refused and modes kept, doctor's process list from /proc or ps, a ' in the POSIX command, and the platform as a parameter of the consent text and the token's Keychain read: 2,853 bytes) and 1.1.0's freshness and data rules (a live window refilled at its reset, an account with no 5-hour window and its saved flag, the newer limits kept, the hungry usage TTL and its consent wording, `refresh usage` for people with its one line, the usage capture and the extra credits' fetch time: 3,986 bytes) added 50,701 bytes; 0.6.0 was 181,306 when it was cut (6b77019), before the reviews of the centring, and 0.4.0 was 89,168 (bd5a52a), before the HUD. 0.5.0 was 173,203 as shipped (7aaebbb) and 170,603 as cut (52c65ec). The timings below were taken at 52c65ec.
 - **Bench.** `npm run bench -- --no-ccs`, 15 interleaved rounds, medians:
   - Git Bash floor 79.3 ms, bare node 137.3 ms;
   - Hungerbar direct with a cache hit 160.7 ms (+23.3 over node), launcher 186.0 ms, stale render 170.8 ms;
@@ -385,15 +385,18 @@ When renders happen: on Claude Code events (debounced 300 ms; a new trigger canc
 | Folder (1) | basename of `workspace.current_dir` (parsed with path.win32 when it has a drive letter or backslash, else path.posix) | `cwd`, then `process.cwd()` | never |
 | Branch (1, `folder@branch`) | `worktree.branch` (only in --worktree sessions) | `.git/HEAD` read from disk (section 9) | not a repo |
 | Diff (1, `+1210 -279`) | not on stdin; `cost.total_lines_added/removed` only invalidates the cache | the git cache file written by the background `git diff HEAD --shortstat` | both 0, no cache yet, or git.mode is off |
-| 5h limit + time left (2, merged) | `rate_limits.five_hour.used_percentage` + `.resets_at` (epoch seconds) | limits.json last-known, dimmed with `~`, used while its resets_at > now; once that has passed it shows `5h ~0%` with no time | no stdin value and no cache |
-| Week limit + time left (2, merged) | `rate_limits.seven_day.used_percentage` + `.resets_at` | as for 5h | as for 5h |
+| 5h limit + time left (2, merged) | `rate_limits.five_hour.used_percentage` + `.resets_at` (epoch seconds); once resets_at has passed, a live window is refilled too: 0% used, no time, not dimmed (1.1.0) | limits.json last-known, dimmed with `~`, used while its resets_at > now; once that has passed it shows `5h ~0%` with no time | no stdin value and no cache, or the account has no 5-hour window (1.1.0, below) |
+| Week limit + time left (2, merged) | `rate_limits.seven_day.used_percentage` + `.resets_at` | as for 5h | no stdin value and no cache |
 | Scoped weekly, e.g. Fable (2, opt-in) | not on stdin | usage.json `scoped[]` from OAuth `limits[]` entries with kind `weekly_scoped` | `network.scopedWeekly` is false, or there is no data |
 | Cache hit + countdown (2, merged) | `prompt_cache.{hit_ratio, warm, expires_at, ttl, caching_observed}` | transcript (old CC, or before the first response of a resumed session): session sums plus the last cached row's timestamp + TTL; the whole item is dimmed with `~` | `caching_observed === false`, or there is no data |
-| Extra-usage credits (2) | `rate_limits.spend_limit.{used_usd, limit_usd, used_percentage}` (Claude apps gateway only) | opt-in usage.json `extra` (`extra_usage.is_enabled`, `used_credits`, `monthly_limit` in cents, `currency`) | `is_enabled` is false or there is no source |
+| Extra-usage credits (2) | `rate_limits.spend_limit.{used_usd, limit_usd, used_percentage}` (Claude apps gateway only) | opt-in usage.json `extra` (`extra_usage.is_enabled`, `used_credits`, `monthly_limit` in cents, `currency`); `ExtraView.at` carries usage.json's `at` (null for stdin), for the layers that grey a stale count (1.1.0, data only) | `is_enabled` is false or there is no source |
 | Claude Code version (2) | `version` | none (the transcript's `version` is from session start, so it is wrong) | absent |
 
 Rules:
 - **Glitch rule (from v1.4.4).** If every window that is present has used_percentage 0 and no resets_at, treat rate_limits as absent.
+- **No 5-hour window (1.1.0, `noFiveHour` in `src/limits.ts`).** When `rate_limits` is an object, its `five_hour` is missing, null or an object with neither `used_percentage` nor `resets_at`, and its `seven_day` is real (it passes the glitch rule), the account has no 5-hour window (an Ultra plan). The 5-hour window is then null and never last known, and `State.h5None` is true: classic draws no Session item, and the HUD still draws its unknown 5-hour (`?`) until its vitals layer reads h5None. limits.json saves `"five_hour":null,"fiveHourNone":true`, so a payload with no live five_hour (no rate_limits at all, or the glitch rule's) keeps h5None; a live five_hour clears it. Only the 5-hour window has the rule: a five_hour without a seven_day still falls back to the weekly last known (golden `week-expired`; `ultra-classic` pins the rule).
+- **Newer wins (1.1.0, `newer`).** limits.json keeps, per window, the newer of the saved value and this payload's: the later resets_at; with the same resets_at the higher used_percentage, as use only grows within a window; without both resets, this payload's, as before. Only the fallback file changes: every session still draws its own stdin.
+- **Other agents (1.1.0).** Nothing checks who sends stdin; `{}` draws a HUD. README's *Other agents* section is the contract for another tool: the fields read and what each draws, what stays Claude Code's own (the transcript's counts, the usage API, the 5-hour and 7-day windows), `COLUMNS` or `HUNGERBAR_WIDTH` for fitting and centring, and a separate `HUNGERBAR_CACHE_DIR` and `CLAUDE_CONFIG_DIR` per tool, since a payload without rate_limits draws the account's last-known limits (golden `hud-foreign` renders one in a clean cache: no limits).
 - **Transcript reader** (only when a fallback needs it):
   - Main-chain rows only: type `assistant`, `isSidechain !== true` and `isApiErrorMessage !== true`.
   - Dedupe by `message.id`; several rows share one id.
@@ -637,7 +640,8 @@ How it degrades:
 - `git/<key>.json`, `git/<key>.lock` and `gitbin.json`.
 - `acct-<fnv(CLAUDE_CONFIG_DIR or ~/.claude)>/limits.json`:
   - Contents: `{"v":1,"five_hour":{"pct":2.4,"resets_at":1792876800},"seven_day":{"pct":86.1,"resets_at":1792943999},"at":<epoch>}`.
-  - It is written only when the values change, so a normal render writes nothing.
+  - It is written only when the values change, so a normal render writes nothing. Each window keeps the newer value (1.1.0, §5's *Newer wins*).
+  - For an account with no 5-hour window (1.1.0, §5) it holds `"five_hour":null,"fiveHourNone":true`. Readers before 1.1.0 ignore the key and find five_hour null.
 - `acct-…/usage.json` (opt-in):
   - Contents: `{"v":1,"at":<epoch>,"extra":{"enabled":false,"usedCents":0,"limitCents":null,"currency":"USD"},"scoped":[{"name":"Fable","pct":100,"resets_at":<epoch>}],"lockUntil":<epoch>}`.
   - The token is never stored.
@@ -646,7 +650,7 @@ How it degrades:
   - Contents: `{"v":1,"size","offset","sumRead","sumCreate","sumInput","recentIds":[≤64],"lastCached":{"ts","ttl"},"lastUsage","lastModel","lastEffort"}`.
   - Files older than 7 days are pruned, and only by the refresher.
 - `previous-statusline.json`, written by setup.
-- `capture/`, only with `HUNGERBAR_CAPTURE`.
+- `capture/`, only with `HUNGERBAR_CAPTURE`; with the usage API on, also `usage-<YYYYMMDD>.json` there (1.1.0, §11).
 
 Every write goes to a temp file and is then renamed. Off Windows the file keeps the mode it had (1.1.0), which the rename would otherwise take from the temp file. A missing or corrupt file is treated as absent.
 
@@ -654,7 +658,7 @@ Every write goes to a temp file and is then renamed. Off Windows the file keeps 
 ## When it runs
 - On only when `network.usageApi:true` or `HUNGERBAR_USAGE_API=1`.
 - Always off when `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` or `HUNGERBAR_OFFLINE=1` is set.
-- The render spawns `hungerbar refresh usage` only when usage.json is older than `network.ttlSeconds` and the lock is not live. The TTL is 180 s, or 3600 s while extra is disabled and scopedWeekly is off.
+- The render spawns `hungerbar refresh usage` only when usage.json is older than `network.ttlSeconds` and the lock is not live. The TTL is 180 s, or 3600 s while extra is disabled and scopedWeekly is off and no limit is hungry. Hungry (1.1.0): a drawn limit (live or last known) is at 10% left or less, or used up; the TTL is then plain `network.ttlSeconds` even with extra disabled. The render reads the limits once and hands the flag to the check. The consent text that names the hourly cadence (setup's, when only scopedWeekly is asked), README's *Privacy and network* and schema.json's `scopedWeekly` say "once an hour, or every 3 minutes while a limit is at 10% left or less".
 - The render never waits for the fetch.
 
 ## Token
@@ -680,6 +684,15 @@ Every write goes to a temp file and is then renamed. Off Windows the file keeps 
 
 ## Proxy
 When HTTPS_PROXY is set, the refresher runs with `NODE_USE_ENV_PROXY=1` where the Node version supports it. `doctor` reports whether it is active.
+
+## By hand (1.1.0)
+- `hungerbar refresh usage` is also a command for people (§13): one fetch now, whatever the TTL, and exactly one line on stdout. On success: `extra credits $45.80 left of $50 (fetched now)` (`… used, no monthly limit`, `extra usage is off for this account` or `no extra usage in the answer` otherwise), with `; Fable's weekly 38% left` for each scoped limit while scopedWeekly is on. On an error: `usage API: <what went wrong>; the next try is in <time>`, from usage.json's error and lockUntil.
+- Nothing is fetched and no token read while non-essential traffic is off, while the usage API is off in the config (`the usage API is off (network.usageApi); nothing fetched`), or while a 429's lock lasts; another refresh holding the lock is said too. Any other lock (401/403, no token, a failed answer) does not stop a person's ask.
+- The render's detached worker runs the same command; its stdout goes nowhere, and the checks it adds are the ones the render made before spawning it.
+- The tests hand `refreshUsage` a Keychain reader stub (a parameter, as getToken's), so the real `security` never runs in them.
+
+## Capture (1.1.0)
+- With `HUNGERBAR_CAPTURE=<dir>`, a fetch that worked also writes `usage-<YYYYMMDD>.json` (UTC) there, the day's latest: only the parsed answer's `extra_usage` and `limits` keys, never the raw body, its headers or the token. It is there to check the credits' units and an Ultra account's answer against real data.
 
 # 12. Config
 Location: `${CLAUDE_CONFIG_DIR:-~/.claude}/hungerbar.json` (for example `C:/Users/you/.claude/hungerbar.json`), or `HUNGERBAR_CONFIG` to override.
@@ -721,7 +734,7 @@ Test-only variables:
 - `HUNGERBAR_NOW` (epoch seconds);
 - `HUNGERBAR_NO_SPAWN=1`;
 - `HUNGERBAR_GIT_BIN`;
-- `HUNGERBAR_CAPTURE=<dir>`, which tees a scrubbed copy of the payload;
+- `HUNGERBAR_CAPTURE=<dir>`, which tees a scrubbed copy of the payload, and (1.1.0) the usage API's answer, its `extra_usage` and `limits` only (§11);
 - `HUNGERBAR_USAGE_URL`, accepted only for 127.0.0.1 or localhost.
 
 # 13. CLI
@@ -745,7 +758,8 @@ Test-only variables:
   - follows symlinks;
   - refuses a read-only settings.json in one line before any question or write, and so does `--restore` (1.1.0): off Windows the rename would replace it, as the folder alone decides. `look` and `icons` refuse a read-only `hungerbar.json` or Windows Terminal `settings.json` the same way, before their backup;
   - with `--print`, shows the diff and writes nothing.
-- **`hungerbar refresh git <root>` / `refresh usage`:** internal.
+- **`hungerbar refresh git <root>`:** internal.
+- **`hungerbar refresh usage`:** the usage API's worker, and since 1.1.0 a command for people, in the help and README: one fetch now and one line saying what came back, or nothing fetched while the usage API is off or a 429's lock lasts (§11 *By hand*).
 - **`hungerbar mirror <dir>`:** copies the source (without node_modules), dist, schema, README, LICENSE and the current .tgz into a folder. Since 1.0.0 (before its publication) it also copies `docs/`, `scripts/`, `.github/`, `CHANGELOG.md` and `CONTRIBUTING.md`, and it keeps a tarball the folder already has, so earlier releases stay there when the checkout no longer has them. It runs only from a source checkout (an installed release has no `src/`), so the README's command list leaves it out and CONTRIBUTING describes it.
 
 # 14. Install from a tarball (pinned, no per-render download)
