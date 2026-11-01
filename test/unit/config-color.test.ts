@@ -85,7 +85,7 @@ test('the defaults are the chosen setup, with what uses the network off (SPEC §
   const d = defaults();
   assert.deepEqual({ ...d, hud: { ...d.hud, pr: 'on' }, network: { ...d.network, usageApi: true, scopedWeekly: true } }, chosen, 'the chosen setup, but for the network');
   assert.equal(d.look, 'hud');
-  assert.deepEqual(d.hud, { fable: 'boss', minWidth: 80, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on' });
+  assert.deepEqual(d.hud, { fable: 'boss', minWidth: 80, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on', ultra: 'on', poison: 'on' });
   // never on by themselves: the usage API (with the user's Claude login), scopedWeekly and the PR status (through gh)
   assert.deepEqual([d.network.usageApi, d.network.scopedWeekly, d.hud.pr], [false, false, 'off']);
   assert.deepEqual(merge({}), d, 'no hungerbar.json, or an empty one: the defaults');
@@ -109,9 +109,12 @@ test('look and hud: defaults, merge, the fable- prefix, minWidth 62..200', () =>
   }
   for (const [v, want] of [[62, 62], [200, 200], [120, 120], [61, 80], [201, 80], [100.5, 80], ['100', 80], [-1, 80]] as const)
     assert.equal(merge({ hud: { minWidth: v } }).hud.minWidth, want, String(v));
-  assert.deepEqual(merge({ look: 'hud', hud: { fable: 'fable-tail', minWidth: 96, extra: 1 } }).hud, { fable: 'tail', minWidth: 96, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on' });
-  assert.deepEqual(merge({ hud: { fable: 'off', align: 'left', user: 'off', op: 'tag' } }).hud, { fable: 'off', minWidth: 80, align: 'left', pr: 'off', user: 'off', op: 'tag', bed: 'on', phantoms: 'on' }, 'the defaults before §0.10, set');
+  assert.deepEqual(merge({ look: 'hud', hud: { fable: 'fable-tail', minWidth: 96, extra: 1 } }).hud, { fable: 'tail', minWidth: 96, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on', ultra: 'on', poison: 'on' });
+  assert.deepEqual(merge({ hud: { fable: 'off', align: 'left', user: 'off', op: 'tag' } }).hud, { fable: 'off', minWidth: 80, align: 'left', pr: 'off', user: 'off', op: 'tag', bed: 'on', phantoms: 'on', ultra: 'on', poison: 'on' }, 'the defaults before §0.10, set');
   for (const hud of ['boss', ['boss'], null, 7]) assert.deepEqual(merge({ look: 'hud', hud }).hud, defaults().hud, JSON.stringify(hud));
+  // the hearts line's looks (1.1.0): on (the default) or off; any other value is the default
+  assert.deepEqual([merge({ hud: { ultra: 'off', poison: 'off' } }).hud.ultra, merge({ hud: { poison: 'off' } }).hud.poison], ['off', 'off']);
+  for (const v of ['OFF', 'no', false, 0, null, {}]) assert.deepEqual([merge({ hud: { ultra: v, poison: v } }).hud.ultra, merge({ hud: { poison: v } }).hud.poison], ['on', 'on'], String(v));
 });
 
 test('HUNGERBAR_LOOK wins over the file; other values are ignored', () => {
@@ -125,7 +128,7 @@ test('HUNGERBAR_LOOK wins over the file; other values are ignored', () => {
     writeFileSync(path, JSON.stringify({ $schema: 'x', network: { usageApi: true }, look: 'hud', hud: { fable: 'tail', minWidth: 90 } }));
     const c = loadConfig({ HUNGERBAR_CONFIG: path }).cfg;
     assert.equal(c.look, 'hud');
-    assert.deepEqual(c.hud, { fable: 'tail', minWidth: 90, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on' });
+    assert.deepEqual(c.hud, { fable: 'tail', minWidth: 90, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on', ultra: 'on', poison: 'on' });
     assert.equal(loadConfig({ HUNGERBAR_CONFIG: path, HUNGERBAR_LOOK: 'classic' }).cfg.look, 'classic');
     writeFileSync(path, '{ "look": "hud" ');
     const bad = loadConfig({ HUNGERBAR_CONFIG: path, HUNGERBAR_LOOK: 'hud' });
@@ -154,7 +157,7 @@ test('hud.align: left or center (the default); anything else is center; HUNGERBA
   try {
     const path = join(dir, 'hungerbar.json');
     writeFileSync(path, JSON.stringify({ look: 'hud', hud: { fable: 'boss', align: 'center' } }));
-    assert.deepEqual(loadConfig({ HUNGERBAR_CONFIG: path }).cfg.hud, { fable: 'boss', minWidth: 80, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on' });
+    assert.deepEqual(loadConfig({ HUNGERBAR_CONFIG: path }).cfg.hud, { fable: 'boss', minWidth: 80, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on', ultra: 'on', poison: 'on' });
     assert.equal(loadConfig({ HUNGERBAR_CONFIG: path, HUNGERBAR_HUD_ALIGN: 'left' }).cfg.hud.align, 'left');
     assert.equal(loadConfig({ HUNGERBAR_CONFIG: join(dir, 'none.json') }).cfg.hud.align, 'center', 'no file: the default');
     assert.equal(loadConfig({ HUNGERBAR_CONFIG: join(dir, 'none.json'), HUNGERBAR_HUD_ALIGN: 'left' }).cfg.hud.align, 'left', 'no file');
@@ -178,6 +181,8 @@ test('schema.json has every config key, and look and hud as config.ts reads them
   assert.deepEqual([hud.op.enum, hud.op.default], [[...HUD_OPS], defaults().hud.op]);
   assert.deepEqual([hud.bed.enum, hud.bed.default], [[...HUD_SWITCHES], defaults().hud.bed]);
   assert.deepEqual([hud.phantoms.enum, hud.phantoms.default], [[...HUD_SWITCHES], defaults().hud.phantoms]);
+  assert.deepEqual([hud.ultra.enum, hud.ultra.default], [[...HUD_SWITCHES], defaults().hud.ultra]);
+  assert.deepEqual([hud.poison.enum, hud.poison.default], [[...HUD_SWITCHES], defaults().hud.poison]);
   assert.deepEqual(Object.keys(hud).sort(), Object.keys(defaults().hud).sort(), 'every hud key');
 });
 

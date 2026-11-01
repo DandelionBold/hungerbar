@@ -125,6 +125,16 @@
           "description": "on: phantoms circle in line 1's empty sky, one for each sign of a long session (100 or more prompts, 4 hours or more, 2 or more compactions, context at 70% or more): one sign brings one small, dim phantom far away; two or more bring that many big ones with green eyes, a hint that /clear would help. The session's age is Claude Code's cost.total_duration_ms, else the HUD history's first render in this repo. off: never. hungerbar look hud --phantoms on|off sets it.",
           "enum": ["on", "off"],
           "default": "on"
+        },
+        "ultra": {
+          "description": "on: an account with no 5-hour limit (the Ultra plan: Claude Code sends only the week) gets the golden apple on the hearts line: a yellow ☼, a bold gold ∞ where the 5-hour % would be, and all ten hearts in gold, Minecraft's absorption hearts. off: a grey ? and ten dark hearts, as 1.0 drew it. hungerbar look hud --ultra on|off sets it.",
+          "enum": ["on", "off"],
+          "default": "on"
+        },
+        "poison": {
+          "description": "on: while the 5-hour window is used up and the extra credits pay (more than $0 left), the hearts show the share of credits left in poison green, at least one heart while anything is left (round(10 × left ÷ limit)), and the gutter shows the day's icon and the time to the reset instead of the skull ☠. When the credits run out, the skull and the dark hearts are back. A used-up week changes nothing on the hearts. off: the skull and ten dark hearts while the credits pay, as 1.0 drew it. hungerbar look hud --poison on|off sets it.",
+          "enum": ["on", "off"],
+          "default": "on"
         }
       }
     }

@@ -34,7 +34,10 @@ export type HudUser = (typeof HUD_USERS)[number];
  */
 export const HUD_OPS = ['off', 'tag', 'gold'] as const;
 export type HudOp = (typeof HUD_OPS)[number];
-/** The idle bed in hotbar slot 4 and the phantoms of a long session (SPEC §0.9, 0.7.0): on (the default) or off. */
+/**
+ * The idle bed in hotbar slot 4 and the phantoms of a long session (SPEC §0.9, 0.7.0), and the hearts line's Ultra and
+ * poison looks (SPEC §0.12, 1.1.0): on (the default) or off.
+ */
 export const HUD_SWITCHES = ['on', 'off'] as const;
 export type HudSwitch = (typeof HUD_SWITCHES)[number];
 
@@ -61,14 +64,15 @@ export interface Config {
    * pr: the branch's pull request and its CI after the branch, from a background gh (opt-in: it uses the network);
    * user: your name before the folder; op: the operator's mark while Claude Code runs elevated; bed: a bed in hotbar
    * slot 4 after 5 minutes without a message, not while a tool runs; phantoms: phantoms in line 1's sky for each sign
-   * of a long session.
+   * of a long session; ultra: gold hearts and ∞ for an account with no 5-hour window (1.1.0); poison: poison-green
+   * hearts for the credits left while they pay for a used-up 5-hour window (1.1.0).
    */
-  hud: { fable: HudFable; minWidth: number; align: HudAlign; pr: HudPr; user: HudUser; op: HudOp; bed: HudSwitch; phantoms: HudSwitch };
+  hud: { fable: HudFable; minWidth: number; align: HudAlign; pr: HudPr; user: HudUser; op: HudOp; bed: HudSwitch; phantoms: HudSwitch; ultra: HudSwitch; poison: HudSwitch };
 }
 
 /**
  * The defaults (SPEC §0.10): the HUD with Fable's boss bar, centred, the user's name with the gold
- * operator's mark, the bed and the phantoms. What uses the network stays off until the user says yes: the usage API and
+ * operator's mark, the bed and the phantoms, and (1.1.0) the Ultra and poison hearts. What uses the network stays off until the user says yes: the usage API and
  * scopedWeekly (which the Fable options need, so the boss bar draws nothing until then) and the PR status. setup asks
  * for both.
  */
@@ -88,7 +92,7 @@ export function defaults(): Config {
     nbsp: true,
     widthReserve: 0,
     look: 'hud',
-    hud: { fable: 'boss', minWidth: 80, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on' },
+    hud: { fable: 'boss', minWidth: 80, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on', ultra: 'on', poison: 'on' },
   };
 }
 
@@ -155,10 +159,11 @@ export function merge(raw: unknown): Config {
     look: oneOf(raw.look, ['classic', 'hud'] as const, d.look),
     // 62 at least: the hotbar sits at columns 16-61 (plan §9)
     // an absent hud.fable is the default (boss), any other value that is not an option off; for the other keys anything
-    // but a listed value is the default: align center, pr off, user user, op gold, bed and phantoms on
+    // but a listed value is the default: align center, pr off, user user, op gold, bed, phantoms, ultra and poison on
     hud: {
       fable: hud.fable === undefined ? d.hud.fable : fableId(hud.fable), minWidth: int(hud.minWidth, d.hud.minWidth, 62, 200), align: oneOf(hud.align, HUD_ALIGNS, d.hud.align), pr: oneOf(hud.pr, HUD_PRS, d.hud.pr),
       user: oneOf(hud.user, HUD_USERS, d.hud.user), op: oneOf(hud.op, HUD_OPS, d.hud.op), bed: oneOf(hud.bed, HUD_SWITCHES, d.hud.bed), phantoms: oneOf(hud.phantoms, HUD_SWITCHES, d.hud.phantoms),
+      ultra: oneOf(hud.ultra, HUD_SWITCHES, d.hud.ultra), poison: oneOf(hud.poison, HUD_SWITCHES, d.hud.poison),
     },
   };
 }
