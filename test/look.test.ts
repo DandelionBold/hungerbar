@@ -1166,6 +1166,25 @@ test("doctor's leftover check sees every child 0.7.0 starts: the git status, gh 
   assert.deepEqual((['win32', 'linux', 'darwin', 'freebsd'] as const).map((p) => processSource(p)), ['powershell.exe', '/proc', 'ps', 'ps']);
   if (process.platform !== 'linux') assert.deepEqual(listProcesses('linux'), { lines: [], problem: 'could not be read: ENOENT' });
   if (process.platform === 'win32') assert.deepEqual(listProcesses('darwin'), { lines: [], problem: 'was not found' });
+  // Linux's reader on a planted /proc: NUL-separated arguments, a kernel thread with none, a pid gone since; and a
+  // /proc with no process in it (not mounted) is a list that could not be read, so doctor warns instead of saying ok
+  const proc = tempDir('hb-proc-');
+  try {
+    const put = (pid: string, cmdline: string | null): void => {
+      mkdirSync(join(proc, pid));
+      if (cmdline !== null) writeFileSync(join(proc, pid, 'cmdline'), cmdline);
+    };
+    assert.deepEqual(listProcesses('linux', proc), { lines: [], problem: 'has no processes (not mounted?)' });
+    put('12', 'node\0/x/hungerbar.mjs\0refresh\0usage\0');
+    assert.deepEqual(listProcesses('linux', proc), { lines: [], problem: 'has no processes (not mounted?)' }, 'no /proc/self');
+    put('self', null);
+    put('2', '');
+    put('31', null);
+    mkdirSync(join(proc, 'sys'));
+    assert.deepEqual(listProcesses('linux', proc).lines.sort(), ['12 node /x/hungerbar.mjs refresh usage']);
+  } finally {
+    rmSync(proc, { recursive: true, force: true });
+  }
 });
 
 test("doctor lists a stranded git status and gh pr view as still running, and not a gh of the user's (live)", () => {

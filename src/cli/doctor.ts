@@ -67,21 +67,24 @@ export function processSource(platform: NodeJS.Platform = process.platform): str
 /**
  * The running processes, one `<pid> <command line>` a line, or why they could not be listed (then nothing was checked).
  * Windows: the WMI query, node.exe, git.exe and gh.exe only. Linux: every /proc/<pid>/cmdline, with no process. macOS
- * and other Unixes: `ps -A -ww -o pid=,args=` (-ww: whole command lines). A list from a process gets 15 s.
+ * and other Unixes: `ps -A -ww -o pid=,args=` (-ww: whole command lines). A list from a process gets 15 s. A /proc with
+ * no process in it (procfs not mounted, as in some containers) is a list that could not be read, not an empty one.
+ * `proc` is the folder Linux reads, a parameter for the tests.
  */
-export function listProcesses(platform: NodeJS.Platform = process.platform): { lines: string[]; problem: string | null } {
+export function listProcesses(platform: NodeJS.Platform = process.platform, proc = '/proc'): { lines: string[]; problem: string | null } {
   if (platform === 'linux') {
     let pids: string[];
     try {
-      pids = readdirSync('/proc').filter((f) => /^\d+$/.test(f));
+      pids = readdirSync(proc).filter((f) => /^\d+$/.test(f));
     } catch (e) {
       return { lines: [], problem: `could not be read: ${(e as NodeJS.ErrnoException).code ?? (e as Error).message}` };
     }
+    if (!pids.length || !existsSync(join(proc, 'self'))) return { lines: [], problem: 'has no processes (not mounted?)' };
     const lines: string[] = [];
     for (const pid of pids) {
       let cmd: string;
       try {
-        cmd = readFileSync(`/proc/${pid}/cmdline`, 'utf8');
+        cmd = readFileSync(join(proc, pid, 'cmdline'), 'utf8');
       } catch {
         continue;                                             // gone since, or not ours to read
       }
