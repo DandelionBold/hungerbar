@@ -140,26 +140,35 @@ test('diskShown: the step on disk; the write waits on `after` and is made only o
   }
 });
 
-/** A temp world for renderPayload and dist: the cache and Claude config folders, a hungerbar.json. */
-function world(config: unknown): { dir: string; cache: string; env: Record<string, string>; cleanup(): void } {
-  const dir = tempDir('hb-shown-w-');
+/**
+ * A temp world for renderPayload and dist: the cache and Claude config folders, a hungerbar.json, and the folder the
+ * payloads run in, `work`, which is no repo on any OS: git's ceiling is the world, so the walk up from it stops there.
+ * (A Windows path such as C:\ is relative on macOS and Linux: it resolved under the test's own checkout, found its .git,
+ * and the history step's write joined the render's `after` list there and nowhere else.)
+ */
+function world(config: unknown): {
+  dir: string; cache: string; env: Record<string, string>; cleanup(): void;
+  /** A payload: the 5-hour at `used` %, the week at 40%, $50 of credits with `spent` spent (stdin's spend_limit). */
+  payload(used: number, spent: number, sid?: string | null): string;
+} {
+  const dir = tempDir('hb-shown-w-'), work = join(dir, 'work');
   mkdirSync(join(dir, 'claude'));
+  mkdirSync(work);
   writeFileSync(join(dir, 'claude', 'hungerbar.json'), JSON.stringify(config));
   const cache = join(dir, 'cache');
   return {
     dir, cache,
     env: {
       PATH: process.env.PATH ?? '', SystemRoot: process.env.SystemRoot ?? 'C:\\Windows', TEMP: dir, TMP: dir, CLAUDE_CONFIG_DIR: join(dir, 'claude'),
-      HUNGERBAR_CACHE_DIR: cache, HUNGERBAR_NOW: String(NOW), HUNGERBAR_NO_SPAWN: '1', HUNGERBAR_ELEVATED: '0', FORCE_COLOR: '3',
+      HUNGERBAR_CACHE_DIR: cache, HUNGERBAR_NOW: String(NOW), HUNGERBAR_NO_SPAWN: '1', HUNGERBAR_ELEVATED: '0', FORCE_COLOR: '3', GIT_CEILING_DIRECTORIES: dir,
     },
     cleanup: () => rmSync(dir, { recursive: true, force: true }),
+    payload: (used, spent, sid = 'sess-2') => JSON.stringify({
+      ...(sid ? { session_id: sid } : {}), cwd: work, model: { display_name: 'Opus 5.5' }, version: '2.1.306',
+      rate_limits: { five_hour: { used_percentage: used, resets_at: NOW + 3900 }, seven_day: { used_percentage: 40, resets_at: NOW + 345540 }, spend_limit: { used_usd: spent, limit_usd: 50 } },
+    }),
   };
 }
-/** A payload: the 5-hour at `used` %, the week at 40%, $50 of credits with `spent` spent (stdin's spend_limit). */
-const payload = (used: number, spent: number, sid: string | null = 'sess-2'): string => JSON.stringify({
-  ...(sid ? { session_id: sid } : {}), cwd: 'C:\\', model: { display_name: 'Opus 5.5' }, version: '2.1.306',
-  rate_limits: { five_hour: { used_percentage: used, resets_at: NOW + 3900 }, seven_day: { used_percentage: 40, resets_at: NOW + 345540 }, spend_limit: { used_usd: spent, limit_usd: 50 } },
-});
 const hotbar = (text: string): string => text.split('\n').at(-2)!.replace(/\x1b\[[\d;]*m/g, '');
 
 test('the HUD path: the shown-file is stepped only with hud.totem on and a session key; its pop draws ☥✦ between gold sides for 30 s', () => {
@@ -171,36 +180,40 @@ test('the HUD path: the shown-file is stepped only with hud.totem on and a sessi
       return { text: r.text, after: r.after };
     };
     // 99% used: one heart; the totem waits in the offhand (the window is at 1%)
-    let r = render(payload(99, 4.2), NOW);
+    let r = render(w.payload(99, 4.2), NOW);
     assert.match(hotbar(r.text), /^v2\.1\.306\u00a0\u00a0☥\u00a045\u00a0\u00a0▐/u);
     for (const f of r.after) f();
     assert.deepEqual(JSON.parse(readFileSync(path, 'utf8')), { v: 1, at: NOW, h5: 1, week: 6, credits: 45, until: { pop: 0 } });
     // used up: the pop, with the credits paying
-    r = render(payload(100, 4.2), NOW + 60);
+    r = render(w.payload(100, 4.2), NOW + 60);
     assert.match(hotbar(r.text), /^v2\.1\.306\u00a0▐☥✦45▌\u00a0▐/u);
     assert.ok(r.text.includes('\x1b[38;2;255;200;61;48;2;93;93;93m▐\x1b[0m'), 'a gold side on the frame grey');
     for (const f of r.after) f();
     assert.equal(JSON.parse(readFileSync(path, 'utf8')).until.pop, NOW + 90);
     // 29 s later still; at 30 s the paying emerald
-    assert.match(hotbar(render(payload(100, 4.2), NOW + 89).text), /▐☥✦45▌/u);
-    assert.match(hotbar(render(payload(100, 4.2), NOW + 90).text), /^v2\.1\.306\u00a0▐◆\u00a045▌/u);
+    assert.match(hotbar(render(w.payload(100, 4.2), NOW + 89).text), /▐☥✦45▌/u);
+    assert.match(hotbar(render(w.payload(100, 4.2), NOW + 90).text), /^v2\.1\.306\u00a0▐◆\u00a045▌/u);
     // hud.totem off: the file is not read (no pop), and not written
-    assert.match(hotbar(render(payload(100, 4.2), NOW + 70).text), /▐☥✦45▌/u, 'on (the default): the pop from the file');
+    assert.match(hotbar(render(w.payload(100, 4.2), NOW + 70).text), /▐☥✦45▌/u, 'on (the default): the pop from the file');
     const w2 = world({ look: 'hud', hud: { align: 'left', user: 'off', totem: 'off' } });
     try {
       mkdirSync(join(w2.cache, 'hud'), { recursive: true });
       const p2 = shownPath(w2.cache, 'sess-2'), saved = JSON.stringify({ v: 1, at: NOW + 60, h5: 0, week: 6, credits: 45, until: { pop: NOW + 90 } });
       writeFileSync(p2, saved);
-      const t = renderPayload(payload(100, 4.2), { env: { ...w2.env, HUNGERBAR_NOW: String(NOW + 70) } });
-      assert.match(hotbar(t.text), /^v2\.1\.306\u00a0▐◆\u00a045▌/u, 'off: no pop');
+      const t = renderPayload(w2.payload(100, 4.2), { env: { ...w2.env, HUNGERBAR_NOW: String(NOW + 70) } });
+      // the world is no repo on any OS, so no history step defers a write either: what could be deferred is the shown-file's
+      assert.equal(t.state?.git.isRepo, false, 'the payload runs in no repo (a cwd that resolves into a checkout brings the history\'s write)');
+      assert.match(hotbar(t.text), /^v2\.1\.306\u00a0▐◆\u00a045▌/u, 'off: no pop, so the file was not read');
       assert.equal(t.after.length, 0, 'off: no write');
+      for (const f of t.after) f();
       assert.equal(readFileSync(p2, 'utf8'), saved);
+      assert.deepEqual(readdirSync(join(w2.cache, 'hud')), ['sess-2.shown.json'], 'off: nothing else is written there');
     } finally {
       w2.cleanup();
     }
     // no session key: nothing read or written
     const before = readdirSync(join(w.cache, 'hud'));
-    const n = render(payload(100, 4.2, null), NOW + 70);
+    const n = render(w.payload(100, 4.2, null), NOW + 70);
     assert.match(hotbar(n.text), /^v2\.1\.306\u00a0▐◆\u00a045▌/u, 'no key: no pop');
     for (const f of n.after) f();
     assert.deepEqual(readdirSync(join(w.cache, 'hud')), before);
@@ -220,25 +233,25 @@ test('dist: the shown-file is written after the line is out; a second render wri
       assert.ok(m, r.stderr);
       return { stdout: r.stdout, order: JSON.parse(m[1]!) as string[] };
     };
-    const first = run(payload(99, 4.2, 'dist-order'));
+    const first = run(w.payload(99, 4.2, 'dist-order'));
     const shown = first.order.findIndex((e) => /\/hud\/dist-order\.shown\.json$/.test(e.replace(/^rename /, '')));
     assert.ok(shown >= 0, JSON.stringify(first.order));
     assert.ok(first.order.indexOf('stdout') >= 0 && first.order.indexOf('stdout') < shown, `stdout first: ${JSON.stringify(first.order)}`);
-    const second = run(payload(99, 4.2, 'dist-order'));
+    const second = run(w.payload(99, 4.2, 'dist-order'));
     assert.equal(second.stdout, first.stdout);
     assert.ok(!second.order.some((e) => e.includes('.shown.json')), 'nothing changed: no write');
     // preview --payload (persist false): a saved pop is not drawn, and nothing is written
     const path = shownPath(w.cache, 'dist-order');
     writeFileSync(path, JSON.stringify({ v: 1, at: NOW, h5: 0, week: 6, credits: 45, until: { pop: NOW + 30 } }));
     const pf = join(w.dir, 'p.json');
-    writeFileSync(pf, payload(100, 4.2, 'dist-order'));
+    writeFileSync(pf, w.payload(100, 4.2, 'dist-order'));
     const before = readFileSync(path, 'utf8');
     const p = runDist('', w.env, ['preview', '--payload', pf]);
     assert.equal(p.status, 0, p.stderr);
     assert.match(hotbar(p.stdout.trimEnd()), /^v2\.1\.306\u00a0▐◆\u00a045▌/u, 'preview: no pop');
     assert.equal(readFileSync(path, 'utf8'), before);
     // and the status line itself pops from it
-    assert.match(hotbar(run(payload(100, 4.2, 'dist-order')).stdout), /▐☥✦45▌/u);
+    assert.match(hotbar(run(w.payload(100, 4.2, 'dist-order')).stdout), /▐☥✦45▌/u);
   } finally {
     w.cleanup();
   }
