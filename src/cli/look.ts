@@ -1,12 +1,12 @@
 // `hungerbar look [classic|hud] [--fable off|tail|tooltip|boss|beacon] [--align left|center] [--pr on|off]
 // [--user off|user|user@host] [--op off|tag|gold] [--bed on|off] [--phantoms on|off] [--ultra on|off] [--poison on|off]
-// [--totem on|off] [--print]` and what `setup` shares
+// [--totem on|off] [--agents off|allays|bees] [--pickaxe tiers|plain] [--print]` and what `setup` shares
 // with it (plan §8): the hungerbar.json writer, the consent texts a Fable option and the PR status print, the gate verdict
 // for this terminal, what the player's options show here, and the TTY prompt with in-memory previews of the demo situations.
 // The writer reads hungerbar.json as strict JSON (a BOM is accepted) and refuses anything else, with the by-hand steps,
 // before a byte is written. It merges only `look`, `hud.fable`, `hud.align`, the 0.7.0 keys (`hud.pr`, `hud.user`,
-// `hud.op`, `hud.bed`, `hud.phantoms`), the 1.1.0 keys (`hud.ultra`, `hud.poison`, `hud.totem`) and, for a Fable option,
-// `network.usageApi` and `network.scopedWeekly`; every other
+// `hud.op`, `hud.bed`, `hud.phantoms`), the 1.1.0 keys (`hud.ultra`, `hud.poison`, `hud.totem`, `hud.agents`,
+// `hud.pickaxe`) and, for a Fable option, `network.usageApi` and `network.scopedWeekly`; every other
 // key keeps its value and its place (setup.ts withKey). It backs the file up to hungerbar.json.bak.<stamp>, writes 2-space
 // indented UTF-8 without a BOM (CRLF kept), and creates a missing file with its $schema. settings.json is never touched:
 // Claude Code reads the look on its next render.
@@ -18,7 +18,7 @@ import { pathToFileURL } from 'node:url';
 import { detectDepth, type Depth } from '../color.ts';
 import {
   configPath, defaults, fableId, HUD_ALIGNS, HUD_FABLES, loadConfig, merge, usageEnabled, type Config,
-  type HudAlign, type HudFable, type HudOp, type HudPr, type HudSwitch, type HudUser, type Look,
+  type HudAgents, type HudAlign, type HudFable, type HudOp, type HudPickaxe, type HudPr, type HudSwitch, type HudUser, type Look,
 } from '../config.ts';
 import { DEMOS, DEMO_NOW, demoSources } from '../demo.ts';
 import { claudeDir, flag, intEnv, offline, type Env } from '../env.ts';
@@ -50,10 +50,12 @@ export interface LookChoice {
   op?: HudOp;
   bed?: HudSwitch;
   phantoms?: HudSwitch;
-  /** The hearts line's looks and the offhand's totem (1.1.0, SPEC §0.12). */
+  /** The hearts line's looks, the offhand's totem, the agents at work and the pickaxe's tiers (1.1.0, SPEC §0.12). */
   ultra?: HudSwitch;
   poison?: HudSwitch;
   totem?: HudSwitch;
+  agents?: HudAgents;
+  pickaxe?: HudPickaxe;
   /**
    * The keys setup's consent questions answered (SPEC §0.10): each is written even at its default into a file that does
    * not have it, so a no to the PR status stays a no at the next setup's Enter.
@@ -69,7 +71,8 @@ export interface LookChoice {
 /**
  * The HUD's keys that look, setup and preview take as flags of the same name (--pr on, --user user@host …): the values
  * the command line accepts, in the order help names them. Each key's default is defaults().hud's: off for pr, user for
- * user, gold for op, on for bed and phantoms, and (1.1.0) on for ultra, poison and totem.
+ * user, gold for op, on for bed and phantoms, and (1.1.0) on for ultra, poison and totem, bees for agents and tiers for
+ * pickaxe.
  */
 export const HUD_FLAGS = {
   pr: ['on', 'off'],
@@ -80,15 +83,17 @@ export const HUD_FLAGS = {
   ultra: ['on', 'off'],
   poison: ['on', 'off'],
   totem: ['on', 'off'],
+  agents: ['off', 'allays', 'bees'],
+  pickaxe: ['tiers', 'plain'],
 } as const satisfies { [K in HudKey]: readonly Config['hud'][K][] };
-type HudKey = 'pr' | 'user' | 'op' | 'bed' | 'phantoms' | 'ultra' | 'poison' | 'totem';
+type HudKey = 'pr' | 'user' | 'op' | 'bed' | 'phantoms' | 'ultra' | 'poison' | 'totem' | 'agents' | 'pickaxe';
 /** The 0.7.0 keys, in the order help names them. */
 export const HUD_FLAG_KEYS: readonly HudKey[] = ['pr', 'user', 'op', 'bed', 'phantoms'];
 /**
- * The 1.1.0 keys, the hearts line's looks and the offhand's totem (SPEC §0.12): after the 0.7.0 ones in help, the writer
- * and the checks.
+ * The 1.1.0 keys, the hearts line's looks, the offhand's totem, the agents at work and the pickaxe's tiers (SPEC §0.12):
+ * after the 0.7.0 ones in help, the writer and the checks.
  */
-export const V11_FLAG_KEYS: readonly HudKey[] = ['ultra', 'poison', 'totem'];
+export const V11_FLAG_KEYS: readonly HudKey[] = ['ultra', 'poison', 'totem', 'agents', 'pickaxe'];
 /** The 1.1.0 keys of the hearts line (look's report names them apart from the offhand's). */
 const HEARTS_KEYS: readonly HudKey[] = ['ultra', 'poison'];
 /** Every key that is a flag of the same name. */
@@ -155,7 +160,10 @@ export function alignFlag(a: Args): Flag<HudAlign> {
   return { ok: true, value: parseAlign(v) };
 }
 
-/** --pr, --user, --op, --bed, --phantoms, --ultra, --poison or --totem (look, setup, preview): one of its values; a bare one or any other value is an error. */
+/**
+ * --pr, --user, --op, --bed, --phantoms, --ultra, --poison, --totem, --agents or --pickaxe (look, setup, preview): one of
+ * its values; a bare one or any other value is an error.
+ */
 export function hudFlag<K extends HudKey>(a: Args, k: K): Flag<Config['hud'][K]> {
   const v = a.values.get(k);
   if (a.flags.has(k) || (v !== undefined && !parseHudOption(k, v))) return { ok: false, error: `--${k} takes ${either(HUD_FLAGS[k])}${v ? ` (got "${v}")` : ''}` };
@@ -166,8 +174,9 @@ export function hudFlag<K extends HudKey>(a: Args, k: K): Flag<Config['hud'][K]>
 export const HUD_OPTION_NAMES: readonly string[] = CHOICE_KEYS;
 
 /**
- * The HUD's options from the flags (--fable, --align, --pr, --user, --op, --bed, --phantoms, --ultra, --poison, --totem): the part of a LookChoice
- * they give, or the first error, flag by flag in that order: a value it does not take, then the flag given where the
+ * The HUD's options from the flags (--fable, --align, --pr, --user, --op, --bed, --phantoms, --ultra, --poison, --totem,
+ * --agents, --pickaxe): the part of a LookChoice they give, or the first error, flag by flag in that order: a value it
+ * does not take, then the flag given where the
  * look is not the HUD (`notHud`), whose fix names `how` (`hungerbar look hud` for look, `--look hud` for setup and
  * preview).
  */
@@ -190,12 +199,13 @@ export const choiceOptions = (c: LookChoice): string[] => CHOICE_KEYS.flatMap((k
 /**
  * hungerbar.json with the choice merged in: key order and every other key kept. A default (defaults(), SPEC §0.10) is
  * written only over a different value: an absent look stays absent for hud, an absent hud.fable for boss, hud.align for
- * center, hud.pr for off, hud.user for user, hud.op for gold, hud.bed, hud.phantoms, hud.ultra, hud.poison and hud.totem for on (setup's Enter on a config
- * with none of them changes nothing); a value that is not the default, an unknown one included, is replaced. A Fable
+ * center, hud.pr for off, hud.user for user, hud.op for gold, hud.bed, hud.phantoms, hud.ultra, hud.poison and hud.totem
+ * for on, hud.agents for bees and hud.pickaxe for tiers (setup's Enter on a config with none of them changes nothing); a
+ * value that is not the default, an unknown one included, is replaced. A Fable
  * option but off also turns on network.usageApi and network.scopedWeekly, which it needs: the default boss included,
  * because a choice that names it is the user's yes. A key setup's consent question answered (`answered`) is written into
  * a file that does not have it, the default included, and so is a no to the usage API (`network`, as false). New hud
- * keys go last, in the order fable, align, pr, user, op, bed, phantoms, ultra, poison, totem.
+ * keys go last, in the order fable, align, pr, user, op, bed, phantoms, ultra, poison, totem, agents, pickaxe.
  */
 export function mergeLook(obj: Obj, c: LookChoice): Obj {
   const d = defaults();
@@ -438,6 +448,24 @@ export function offhandSummary(cfg: Config): string {
   return `hud.totem ${cfg.hud.totem}: ${totem}; the emerald counts dollars past $99 (◆250, ◆ 1k), an old count is grey, and the frame stays grey when the credits are out`;
 }
 
+/**
+ * hud.agents as hungerbar.json sets it (1.1.0): what line 1's sky shows for the agents at work, and what is read for it
+ * (the subagents folder's file names and times, by the transcript's background worker), or that nothing is.
+ */
+export function agentsSummary(cfg: Config): string {
+  const a = cfg.hud.agents;
+  if (a === 'off') return 'hud.agents off: nothing for the agents at work, and the subagents folder is never read';
+  const what = a === 'bees' ? 'a bee flying home to its hive' : 'a blue allay';
+  return `hud.agents ${a}: ${what} in line 1's sky for each agent at work (up to four, then a count); the background worker reads only the subagents folder's file names and times`;
+}
+
+/** hud.pickaxe as hungerbar.json sets it (1.1.0): the tiers' inks, or 1.0's. */
+export function pickaxeSummary(cfg: Config): string {
+  return cfg.hud.pickaxe === 'tiers'
+    ? 'hud.pickaxe tiers: the pickaxe and its numeral in the model\'s tool tier: netherite Fable, diamond Opus, iron Sonnet, gold Haiku, stone any other'
+    : 'hud.pickaxe plain: 1.0\'s pickaxe colours and the numeral in the enchant pink';
+}
+
 /** Where the HUD's git state comes from (always on with the HUD, 0.7.0). */
 export function gitStateNote(cfg: Config): string {
   if (cfg.git.mode === 'off') return 'git.mode off: no git status, so ⎇ stays grey with no counts or arrows; a merge, rebase or cherry-pick in progress and a detached HEAD still show (read from .git)';
@@ -666,10 +694,11 @@ function yesNo(p: Prompter, q: string, dflt: boolean): Promise<boolean | null> {
  * where the HUD sits (0.6.0): left, or centred, with a preview of the normal day centred in this window (previewWidth).
  * Then (0.7.0) your name before the folder (hud.user) and the operator's mark (hud.op), each with line 3 of the normal day
  * as this machine's names draw it (the operator's previews as if Claude Code ran elevated, and the question says whether
- * this terminal does), and, only when gh is found here, the pull request status (hud.pr) with the tight day's line 4. Every
- * preview draws with `who` (whoAmI: this machine's names and elevation) as base asks. Enter keeps what `file`
+ * this terminal does), and, only when gh is found here, the pull request status (hud.pr) with the tight day's line 4.
+ * Last (1.1.0), the agents at work (hud.agents): bees, allays or nothing, each with line 1 of the agents day (three at
+ * work). Every preview draws with `who` (whoAmI: this machine's names and elevation) as base asks. Enter keeps what `file`
  * (hungerbar.json as strict JSON, null when there is none) already has, marked (current); with no file it takes the
- * defaults (SPEC §0.10): the HUD, boss, centre, the user name and gold, marked (default).
+ * defaults (SPEC §0.10): the HUD, boss, centre, the user name, gold and (1.1.0) the bees, marked (default).
  * What uses the network is a yes-or-no question after its consent text (SPEC §0.10). The usage API comes right after the
  * Fable answer when that option is not off and hungerbar.json does not have network.usageApi and network.scopedWeekly
  * on (with the usage API on already, the question is about scopedWeekly alone); no makes the option off and writes the
@@ -791,7 +820,21 @@ export async function promptLook(p: Prompter, env: Env, base: Config, file: Obj 
     if (on === null) return null;
     pr = on ? 'on' : 'off';
   }
-  return { look, fable, align, ...(pr !== null ? { pr, answered: ['pr'] as const } : {}), user, op, ...(network ? { network } : {}) };
+
+  // 1.1.0, the agents at work: line 1 of the agents day (three at work) in each look
+  say("\nYour agents at work: while Claude Code's subagents or a workflow's agents run, the HUD can show each one in line 1's sky.");
+  const AGENTS: ReadonlyArray<readonly [HudAgents, string]> = [
+    ['bees', 'Bees, flying home to their hive'], ['allays', 'Allays, the calm option'], ['off', 'Nothing (the subagents folder is never read)'],
+  ];
+  for (const [i, [a, label]] of AGENTS.entries()) {
+    say(`\n  ${i + 1}  ${label}${a === cur.hud.agents ? mark : ''}`);
+    say(line(5, 'agents', { user, op, agents: a }, who));
+  }
+  say('');
+  const agentAnswers = new Map<string, HudAgents>([['', cur.hud.agents], ['1', 'bees'], ['bees', 'bees'], ['2', 'allays'], ['allays', 'allays'], ['3', 'off'], ['off', 'off']]);
+  const agents = await choose(p, `Agents [${AGENTS.findIndex(([a]) => a === cur.hud.agents) + 1}]: `, agentAnswers, 'Answer 1 (bees), 2 (allays) or 3 (nothing).');
+  if (agents === null) return null;
+  return { look, fable, align, ...(pr !== null ? { pr, answered: ['pr'] as const } : {}), user, op, agents, ...(network ? { network } : {}) };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -807,7 +850,8 @@ function fail(msg: string): number {
 
 /**
  * The look, its options, this terminal's verdict, the usage API, the PR status, the player's options here and (1.1.0)
- * the hearts line's looks and the offhand, as `hungerbar look` prints them with no argument.
+ * the hearts line's looks, the offhand, the agents at work and the pickaxe, as `hungerbar look` prints them with no
+ * argument.
  */
 function status(env: Env): number {
   const loaded = loadConfig(env), cfg = loaded.cfg;
@@ -825,10 +869,14 @@ function status(env: Env): number {
   say(idleSummary(cfg));
   say(vitalsSummary(cfg));
   say(offhandSummary(cfg));
+  say(agentsSummary(cfg));
+  say(pickaxeSummary(cfg));
   say(`switch with: hungerbar look classic   or   hungerbar look hud [--fable ${FABLE_HELP}] [--align ${ALIGN_HELP}] [--pr ${PR_HELP}]`);
   say(`the player: hungerbar look hud ${HUD_FLAG_KEYS.filter((k) => k !== 'pr').map((k) => `[--${k} ${hudHelp(k)}]`).join(' ')}`);
   say(`the hearts: hungerbar look hud ${HEARTS_KEYS.map((k) => `[--${k} ${hudHelp(k)}]`).join(' ')}`);
   say(`the offhand: hungerbar look hud [--totem ${hudHelp('totem')}]`);
+  say(`the sky: hungerbar look hud [--agents ${hudHelp('agents')}]`);
+  say(`the pickaxe: hungerbar look hud [--pickaxe ${hudHelp('pickaxe')}]`);
   return 0;
 }
 
@@ -857,7 +905,10 @@ export function reportPlan(p: ConfigPlan, env: Env, print: boolean, consent: boo
   return 0;
 }
 
-/** The notes after a choice is written: what the player's options it set show here (0.7.0), and the hearts' and the offhand's (1.1.0). */
+/**
+ * The notes after a choice is written: what the player's options it set show here (0.7.0), and the hearts', the
+ * offhand's, the agents' and the pickaxe's (1.1.0).
+ */
 export function playerNotes(c: LookChoice, cfg: Config, env: Env): string[] {
   return [
     ...(c.user !== undefined ? [userSummary(cfg, env)] : []),
@@ -865,6 +916,8 @@ export function playerNotes(c: LookChoice, cfg: Config, env: Env): string[] {
     ...(c.bed !== undefined || c.phantoms !== undefined ? [idleSummary(cfg)] : []),
     ...(c.ultra !== undefined || c.poison !== undefined ? [vitalsSummary(cfg)] : []),
     ...(c.totem !== undefined ? [offhandSummary(cfg)] : []),
+    ...(c.agents !== undefined ? [agentsSummary(cfg)] : []),
+    ...(c.pickaxe !== undefined ? [pickaxeSummary(cfg)] : []),
   ];
 }
 

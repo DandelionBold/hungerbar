@@ -1,6 +1,7 @@
-// `hungerbar preview`: the demo situations (the picker's four, and Fable in use), or any payload file, rendered without
-// touching the caches, in the configured look; --look, --fable, --align, the 0.7.0 keys (--pr, --user, --op, --bed,
-// --phantoms) and the 1.1.0 keys (--ultra, --poison, --totem) try another look in memory (nothing is written), and --width (or --cols) sets the window's columns, as
+// `hungerbar preview`: the demo situations (the picker's four, Fable in use and, 1.1.0, agents at work), or any payload
+// file, rendered without touching the caches, in the configured look; --look, --fable, --align, the 0.7.0 keys (--pr,
+// --user, --op, --bed, --phantoms) and the 1.1.0 keys (--ultra, --poison, --totem, --agents, --pickaxe) try another look
+// in memory (nothing is written), and --width (or --cols) sets the window's columns, as
 // HUNGERBAR_WIDTH, to show the fit and the centring. The demos draw this machine's names (whoAmI) as hud.user asks, and
 // the operator's mark only while this terminal runs elevated, unless --op tag|gold asks to see it: then as if it did.
 import { readFileSync } from 'node:fs';

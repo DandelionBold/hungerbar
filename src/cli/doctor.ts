@@ -15,7 +15,7 @@ import { readUsage } from '../usage/file.ts';
 import { parseArgs, say } from './args.ts';
 import { iconSummary } from './icons.ts';
 import {
-  alignNote, fableWarning, gateHere, gateInputs, gitStateNote, histFiles, idleSummary, lookSummary, offhandSummary, opSummary, prBlocked, prFiles, prSummary, shownFiles,
+  agentsSummary, alignNote, fableWarning, gateHere, gateInputs, gitStateNote, histFiles, idleSummary, lookSummary, offhandSummary, opSummary, pickaxeSummary, prBlocked, prFiles, prSummary, shownFiles,
   userSummary, vitalsSummary,
   verdict,
 } from './look.ts';
@@ -149,7 +149,8 @@ export const median = (xs: number[]): number => {
  * usage API the Fable options need, usage.json's scoped weekly limits, how many history files the HUD keeps, and (0.7.0)
  * where the git state comes from, the PR status here (a warning while it is on but cannot show) with how many answers
  * the PR cache keeps, the name line 3 shows here, whether this terminal runs elevated, the bed and the phantoms, and
- * (1.1.0) the hearts line's looks, the offhand and how many shown-files (the totem's memory) it keeps.
+ * (1.1.0) the hearts line's looks, the offhand and how many shown-files (the totem's memory) it keeps, the agents at work
+ * and the pickaxe.
  */
 function lookSection(cfg: Config, error: string | null, env: Env): void {
   say('\nLook');
@@ -181,6 +182,8 @@ function lookSection(cfg: Config, error: string | null, env: Env): void {
   info(idleSummary(cfg));
   info(vitalsSummary(cfg));
   info(offhandSummary(cfg));
+  info(agentsSummary(cfg));
+  info(pickaxeSummary(cfg));
 }
 
 export function doctor(argv: string[], env: Env, self: string): number {

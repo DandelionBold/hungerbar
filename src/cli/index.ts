@@ -17,10 +17,12 @@ usage:
                     [--look classic|hud] [--fable off|tail|tooltip|boss|beacon] [--align left|center]
                     [--pr on|off] [--user off|user|user@host] [--op off|tag|gold] [--bed on|off] [--phantoms on|off]
                     [--ultra on|off] [--poison on|off] [--totem on|off]
+                    [--agents off|allays|bees] [--pickaxe tiers|plain]
                     [--width N] [--icons minecraft|unicode|ascii] [--now T] [--no-color]
   hungerbar look [classic|hud] [--fable off|tail|tooltip|boss|beacon] [--align left|center] [--print]
                  [--pr on|off] [--user off|user|user@host] [--op off|tag|gold] [--bed on|off] [--phantoms on|off]
                  [--ultra on|off] [--poison on|off] [--totem on|off]
+                 [--agents off|allays|bees] [--pickaxe tiers|plain]
                                  shows or switches the look: Classic Plus or the Minecraft HUD (hungerbar.json only)
   hungerbar glyphs [--hud]       width ruler for the icons (--hud: the Minecraft HUD's)
   hungerbar doctor [--bench]     checks the install and times a render
@@ -29,6 +31,7 @@ usage:
                   [--look classic|hud] [--fable off|tail|tooltip|boss|beacon] [--align left|center]
                   [--pr on|off] [--user off|user|user@host] [--op off|tag|gold] [--bed on|off] [--phantoms on|off]
                   [--ultra on|off] [--poison on|off] [--totem on|off]
+                  [--agents off|allays|bees] [--pickaxe tiers|plain]
                                  a terminal asks for the look when --look is not given
   hungerbar setup --restore      puts the previous status line back
   hungerbar icons [plain|colour] shows or switches the icon style (a Windows Terminal font setting)

@@ -14,7 +14,7 @@ import { parseArgs } from '../src/cli/args.ts';
 import {
   alignFlag, alignNote, choiceOptions, demoLines, diffLines, elevatedAs, handSteps, HUD_FLAG_KEYS, HUD_FLAGS, hudFlag, hudOptions, mergeLook, opSummary, ownSentence,
   parseAlign, parseFable, parseHudOption, parseLook, promptName, promptSentence, sentences, gateHere, V11_FLAG_KEYS, vitalsSummary,
-  histFiles, HUD_OPTION_NAMES, offhandSummary, playerNotes, shownFiles,
+  histFiles, HUD_OPTION_NAMES, offhandSummary, playerNotes, shownFiles, agentsSummary, pickaxeSummary,
 } from '../src/cli/look.ts';
 import { isLeftover, LEFTOVER_PS, listProcesses, NO_SPAWN_WARNING, paddingWarning, processSource } from '../src/cli/doctor.ts';
 import { gitArgs } from '../src/git/refresh.ts';
@@ -31,6 +31,8 @@ import { prBadge } from '../src/hud/prci.ts';
 import { renderHud } from '../src/hud/fable.ts';
 import { S } from '../src/hud/spans.ts';
 import { offhandHud, type OffhandMarks } from '../src/hud/offhand.ts';
+import { agentsHud } from '../src/hud/agents.ts';
+import { tiersHud } from '../src/hud/tiers.ts';
 import { heartsHud, type VitalMarks } from '../src/hud/vitals.ts';
 import type { PrInfo } from '../src/pr/gh.ts';
 import { renderPayload } from '../src/render.ts';
@@ -637,7 +639,7 @@ test('look hud --align left|center: a backup, hud.align next to the other hud ke
 
 test('refused before any write: a bad --fable, --fable without hud, an unknown look, invalid JSON, a non-object, non-UTF-8', () => {
   const cases: Array<[string | Buffer, string[], RegExp]> = [
-    ['{"a": 1}', ['look', 'hud', '--align', 'middle'], /--align takes left or center \(got "middle"\)\nusage: hungerbar look \[classic\|hud\] \[--fable [^\]]*\] \[--align left\|center\] \[--pr on\|off\] \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\] \[--ultra on\|off\] \[--poison on\|off\] \[--totem on\|off\] \[--print\]/],
+    ['{"a": 1}', ['look', 'hud', '--align', 'middle'], /--align takes left or center \(got "middle"\)\nusage: hungerbar look \[classic\|hud\] \[--fable [^\]]*\] \[--align left\|center\] \[--pr on\|off\] \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\] \[--ultra on\|off\] \[--poison on\|off\] \[--totem on\|off\] \[--agents off\|allays\|bees\] \[--pickaxe tiers\|plain\] \[--print\]/],
     ['{"a": 1}', ['look', 'hud', '--align'], /--align takes left or center\n/],
     ['{"a": 1}', ['look', 'classic', '--align', 'center'], /--align goes with the HUD: hungerbar look hud --align center/],
     ['{"a": 1}', ['look', '--align', 'left'], /--align goes with the HUD: hungerbar look hud --align left/],
@@ -973,7 +975,7 @@ test('look hud --user, --op, --bed and --phantoms: a backup, --print, what they 
     r = w.run(['look'], noGh);
     assert.match(r.stdout, /\nhud\.pr off: no pull request status\nhud\.user user@host: line 3 reads "⌂ steve@DESKTOP: <folder>" here\nhud\.op tag: a bold red \[OP\] before your name while Claude Code runs as (Administrator|root); this terminal does not, so nothing shows here\nhud\.bed off: no bed; hud\.phantoms off: no phantoms\n/);
     // the player's flags, then (1.1.0) the hearts'
-    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\nthe offhand: hungerbar look hud \[--totem on\|off\]\n$/);
+    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\nthe offhand: hungerbar look hud \[--totem on\|off\]\nthe sky: hungerbar look hud \[--agents off\|allays\|bees\]\nthe pickaxe: hungerbar look hud \[--pickaxe tiers\|plain\]\n$/);
     // no user name found here: said so
     assert.match(w.run(['look'], { ...noGh, HUNGERBAR_USER: '\x1b[31m' }).stdout, /\nhud\.user user@host, but no user name is found here, so none shows\n/);
     r = w.run(['look', 'hud', '--op', 'off', '--user', 'off'], noGh);
@@ -1286,9 +1288,9 @@ test('help names the 0.7.0 flags of look, setup and preview', () => {
 // ---------------------------------------------------------------------------------------------------------------------
 
 test('V11_FLAG_KEYS: --ultra, --poison and --totem take on or off, strictly, after the 0.7.0 keys; the writer writes off, and on only over a value', () => {
-  assert.deepEqual(V11_FLAG_KEYS, ['ultra', 'poison', 'totem']);
+  assert.deepEqual(V11_FLAG_KEYS, ['ultra', 'poison', 'totem', 'agents', 'pickaxe'], 'the switches, then the agents\' and the pickaxe\'s keys (below)');
   assert.deepEqual(HUD_FLAG_KEYS, ['pr', 'user', 'op', 'bed', 'phantoms'], 'the 0.7.0 keys as they were');
-  for (const k of V11_FLAG_KEYS) {
+  for (const k of ['ultra', 'poison', 'totem'] as const) {
     assert.deepEqual([...HUD_FLAGS[k]].sort(), [...HUD_SWITCHES].sort(), k);
     assert.equal(defaults().hud[k], 'on', `${k} is on by default`);
     for (const v of HUD_SWITCHES) assert.equal(parseHudOption(k, v), v);
@@ -1332,8 +1334,8 @@ test('look hud --ultra and --poison: a backup, --print, what they show, the way 
     assert.doesNotMatch(r.stdout, /hud\.bed /, 'only what changed is noted');
     // look with no argument: the summary after the player's, and the flags after the player's line
     r = w.run(['look'], noGh);
-    assert.match(r.stdout, /\nhud\.bed on: [^\n]*\nhud\.ultra off: [^\n]*hud\.poison on: [^\n]*\nhud\.totem on: [^\n]*\nswitch with: /);
-    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\nthe offhand: hungerbar look hud \[--totem on\|off\]\n$/);
+    assert.match(r.stdout, /\nhud\.bed on: [^\n]*\nhud\.ultra off: [^\n]*hud\.poison on: [^\n]*\nhud\.totem on: [^\n]*\nhud\.agents bees: [^\n]*\nhud\.pickaxe tiers: [^\n]*\nswitch with: /);
+    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\nthe offhand: hungerbar look hud \[--totem on\|off\]\nthe sky: hungerbar look hud \[--agents off\|allays\|bees\]\nthe pickaxe: hungerbar look hud \[--pickaxe tiers\|plain\]\n$/);
     const d = w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' });
     assert.equal(d.status, 0, d.stderr);
     assert.match(d.stdout.slice(d.stdout.indexOf('\nLook\n')), / {2}· {5}hud\.ultra off: a grey \? [^\n]*; hud\.poison on: [^\n]*\n/);
@@ -1447,7 +1449,7 @@ test('look hud --totem off: a backup, what it shows, the way back; look with no 
     assert.doesNotMatch(r.stdout, /hud\.ultra /, 'only what changed is noted');
     assert.equal(w.text(), '{\n  "look": "hud",\n  "hud": {\n    "totem": "off"\n  }\n}\n');
     r = w.run(['look'], noGh);
-    assert.match(r.stdout, /\nhud\.totem off: no totem; [^\n]*\nswitch with: /);
+    assert.match(r.stdout, /\nhud\.totem off: no totem; [^\n]*\nhud\.agents bees: [^\n]*\nhud\.pickaxe tiers: [^\n]*\nswitch with: /);
     const d = w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' });
     assert.equal(d.status, 0, d.stderr);
     const look = d.stdout.slice(d.stdout.indexOf('\nLook\n'));
@@ -1518,4 +1520,132 @@ test('the 1.1.0 glyph census for the offhand: over the demos and every mark, the
   }
   assert.deepEqual([...added].sort(), ['☥', '✦'].sort(), 'the totem and its spark; ◆, ▐ and ▌ are the engine\'s');
   assert.match(listed.get('☥')!, /Totem of Undying/);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// 1.1.0: --agents and --pickaxe in look, setup, preview and doctor; the agents' and the tiers' glyph census
+// ---------------------------------------------------------------------------------------------------------------------
+
+test('--agents and --pickaxe: three values and two, strictly, last of V11_FLAG_KEYS; the writer writes all but the defaults (bees, tiers)', () => {
+  assert.deepEqual([...HUD_FLAGS.agents], ['off', 'allays', 'bees']);
+  assert.deepEqual([...HUD_FLAGS.pickaxe], ['tiers', 'plain']);
+  assert.deepEqual([defaults().hud.agents, defaults().hud.pickaxe], ['bees', 'tiers']);
+  for (const v of HUD_FLAGS.agents) assert.equal(parseHudOption('agents', v), v);
+  for (const v of HUD_FLAGS.pickaxe) assert.equal(parseHudOption('pickaxe', v), v);
+  for (const bad of ['', 'on', 'BEES', 'bee', 'constructor', undefined]) assert.equal(parseHudOption('agents', bad), null, String(bad));
+  for (const bad of ['', 'off', 'TIERS', 'tier', undefined]) assert.equal(parseHudOption('pickaxe', bad), null, String(bad));
+  assert.deepEqual(hudFlag(parseArgs(['--agents', 'wasps'], ['agents']), 'agents'), { ok: false, error: '--agents takes off, allays or bees (got "wasps")' });
+  assert.deepEqual(hudFlag(parseArgs(['--pickaxe'], ['pickaxe']), 'pickaxe'), { ok: false, error: '--pickaxe takes tiers or plain' });
+  const all = parseArgs(['--pickaxe', 'plain', '--agents', 'allays', '--totem', 'off'], ['fable', 'align', ...HUD_FLAG_KEYS, ...V11_FLAG_KEYS]);
+  assert.deepEqual(hudOptions(all, false, 'x'), { ok: true, value: { totem: 'off', agents: 'allays', pickaxe: 'plain' } });
+  assert.deepEqual(hudOptions(parseArgs(['--agents', 'off'], ['agents']), true, '--look hud'), { ok: false, error: '--agents goes with the HUD: --look hud --agents off' });
+  assert.ok(HUD_OPTION_NAMES.includes('agents') && HUD_OPTION_NAMES.includes('pickaxe'), 'setup and preview take them');
+  assert.deepEqual(mergeLook({ hud: { fable: 'boss' } }, { look: 'hud', agents: 'bees', pickaxe: 'tiers' }), { hud: { fable: 'boss' } }, 'the defaults on a file with none: nothing');
+  assert.deepEqual(mergeLook({}, { look: 'hud', pickaxe: 'plain', agents: 'off', totem: 'off' }).hud, { totem: 'off', agents: 'off', pickaxe: 'plain' }, 'the writer\'s order: last');
+  assert.deepEqual(mergeLook({ hud: { agents: 'allays', pickaxe: 'gold' } }, { look: 'hud', agents: 'bees', pickaxe: 'tiers' }), { hud: { agents: 'bees', pickaxe: 'tiers' } }, 'the default over another value');
+  assert.deepEqual(choiceOptions({ look: 'hud', agents: 'off', pickaxe: 'plain' }), ['agents off', 'pickaxe plain']);
+  assert.deepEqual(handSteps({ look: 'hud', agents: 'allays' }), ['"look": "hud"', '"hud": { "agents": "allays" }   (next to any other keys in "hud")']);
+  const cfg = (agents: Config['hud']['agents'], pickaxe: Config['hud']['pickaxe']): Config => ({ ...defaults(), hud: { ...defaults().hud, agents, pickaxe } });
+  assert.equal(agentsSummary(cfg('bees', 'tiers')), 'hud.agents bees: a bee flying home to its hive in line 1\'s sky for each agent at work (up to four, then a count); the background worker reads only the subagents folder\'s file names and times');
+  assert.equal(agentsSummary(cfg('allays', 'tiers')), 'hud.agents allays: a blue allay in line 1\'s sky for each agent at work (up to four, then a count); the background worker reads only the subagents folder\'s file names and times');
+  assert.equal(agentsSummary(cfg('off', 'tiers')), 'hud.agents off: nothing for the agents at work, and the subagents folder is never read');
+  assert.equal(pickaxeSummary(cfg('bees', 'tiers')), 'hud.pickaxe tiers: the pickaxe and its numeral in the model\'s tool tier: netherite Fable, diamond Opus, iron Sonnet, gold Haiku, stone any other');
+  assert.equal(pickaxeSummary(cfg('bees', 'plain')), 'hud.pickaxe plain: 1.0\'s pickaxe colours and the numeral in the enchant pink');
+  assert.deepEqual(playerNotes({ look: 'hud', agents: 'off' }, cfg('off', 'tiers'), {}), [agentsSummary(cfg('off', 'tiers'))]);
+  assert.deepEqual(playerNotes({ look: 'hud', pickaxe: 'plain' }, cfg('bees', 'plain'), {}), [pickaxeSummary(cfg('bees', 'plain'))]);
+});
+
+test('look hud --agents and --pickaxe: what they show, the way back; look with no argument and doctor report them; refused before any write', () => {
+  const w = world('{\n  "look": "hud"\n}\n');
+  try {
+    const noGh = { PATH: join(w.dir, 'no-bin') };
+    let r = w.run(['look', 'hud', '--agents', 'allays', '--pickaxe', 'plain'], noGh);
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /Back with: hungerbar look hud --agents bees --pickaxe tiers\n/);
+    assert.match(r.stdout, /\nhud\.agents allays: a blue allay in line 1's sky for each agent at work /);
+    assert.match(r.stdout, /\nhud\.pickaxe plain: 1\.0's pickaxe colours and the numeral in the enchant pink\n/);
+    assert.doesNotMatch(r.stdout, /hud\.totem /, 'only what changed is noted');
+    assert.equal(w.text(), '{\n  "look": "hud",\n  "hud": {\n    "agents": "allays",\n    "pickaxe": "plain"\n  }\n}\n');
+    // look with no argument: the summaries after the offhand's, and the flags on their own lines after the offhand's
+    r = w.run(['look'], noGh);
+    assert.match(r.stdout, /\nhud\.totem on: [^\n]*\nhud\.agents allays: [^\n]*\nhud\.pickaxe plain: [^\n]*\nswitch with: /);
+    assert.match(r.stdout, /\nthe offhand: hungerbar look hud \[--totem on\|off\]\nthe sky: hungerbar look hud \[--agents off\|allays\|bees\]\nthe pickaxe: hungerbar look hud \[--pickaxe tiers\|plain\]\n$/);
+    const d = w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' });
+    assert.equal(d.status, 0, d.stderr);
+    const look = d.stdout.slice(d.stdout.indexOf('\nLook\n'));
+    assert.match(look, / {2}· {5}hud\.totem on: [^\n]*\n {2}· {5}hud\.agents allays: [^\n]*\n {2}· {5}hud\.pickaxe plain: [^\n]*\n/);
+    r = w.run(['look', 'hud', '--agents', 'off'], noGh);
+    assert.match(r.stdout, /\nhud\.agents off: nothing for the agents at work, and the subagents folder is never read\n/);
+    assert.match(r.stdout, /Back with: hungerbar look hud --agents allays\n/);
+  } finally {
+    w.cleanup();
+  }
+  for (const [args, msg] of [
+    [['look', 'hud', '--agents', 'wasps'], /--agents takes off, allays or bees \(got "wasps"\)\nusage: hungerbar look /],
+    [['look', 'hud', '--pickaxe', 'gold'], /--pickaxe takes tiers or plain \(got "gold"\)/],
+    [['look', 'classic', '--agents', 'off'], /--agents goes with the HUD: hungerbar look hud --agents off/],
+    [['look', '--pickaxe', 'plain'], /--pickaxe goes with the HUD: hungerbar look hud --pickaxe plain/],
+    [['look', 'hud', '--agent', 'off'], /unknown option --agent/],
+  ] as const) {
+    const e = world('{"a": 1}');
+    try {
+      const before = e.snapshot();
+      const r = e.run([...args]);
+      assert.equal(r.status, 1, args.join(' '));
+      assert.match(r.stderr, msg, args.join(' '));
+      assert.deepEqual(e.snapshot(), before, `${args.join(' ')} wrote nothing`);
+    } finally {
+      e.cleanup();
+    }
+  }
+});
+
+test('preview --agents: the agents day\'s three bees, allays, or nothing; --pickaxe plain: 1.0\'s numeral; nothing is written', () => {
+  const w = world();
+  try {
+    const out = (s: string, args: string[]): string[] => w.run(['preview', '--situation', s, '--look', 'hud', '--align', 'left', ...args], { FORCE_COLOR: '3' }).stdout.split('\n');
+    const sky = (args: string[]): string => out('agents', args)[0]!.replace(/\x1b\[[\d;]*m/g, '').replace(/ /g, ' ');
+    assert.match(sky([]), / {3}▤ ▐▐\u{1FB02} ▐▐\u{1FB0B} ▐▐\u{1FB02}$/u, 'bees (the default)');
+    assert.match(sky(['--agents', 'allays']), / {5}\u{1FB0E}\u{1FB39}\u{1FB06} \u{1FB0E}\u{1FB39}\u{1FB0B} \u{1FB0E}\u{1FB39}\u{1FB06}$/u);
+    assert.match(sky(['--agents', 'off']), /hit 98%$/);
+    assert.equal(out('normal', [])[0], out('normal', ['--agents', 'allays'])[0], 'the normal day has no agents at work');
+    const hot = (args: string[]): string => { const l = out('normal', args); return l[l.length - 3]!; };
+    assert.ok(hot([]).includes('\x1b[1;38;2;85;255;255;48;2;46;26;58mⅢ \x1b[0m'), 'tiers (the default): Opus\'s diamond numeral');
+    assert.ok(hot(['--pickaxe', 'plain']).includes('\x1b[1;38;2;255;85;255;48;2;46;26;58mⅢ \x1b[0m'), 'plain: the enchant pink');
+    assert.equal(existsSync(w.cache), false, 'preview writes nothing');
+  } finally {
+    w.cleanup();
+  }
+});
+
+test('the 1.1.0 glyph census for the agents and the tiers: over the demos and every mark, they add only the hive and the sextants, each listed by glyphs --hud at 1 cell', () => {
+  const cps = (lines: readonly (readonly { t: string }[])[]): Set<string> => new Set(lines.flatMap((l) => l.flatMap((s) => [...s.t])).filter((c) => c.codePointAt(0)! > 0x7f));
+  const added = new Set<string>();
+  for (const s of Object.keys(DEMOS)) {
+    const d = DEMOS[s]!;
+    const r = renderPayload(JSON.stringify(d.payload), { env: { FORCE_COLOR: '3' }, config: { ...defaults(), look: 'hud', hud: { ...defaults().hud, agents: 'off', pickaxe: 'plain' } }, sources: demoSources(d), now: DEMO_NOW });
+    const base = cps(frameHud(r.hud!.lines));
+    for (const look of ['bees', 'allays', null] as const) {
+      for (const live of [0, 1, 4, 6, 16]) {
+        for (const tiers of [null, { tier: 'gold', ink: '#FFAA00' }] as const) {
+          const lines = tiersHud(agentsHud(r.hud!.lines, { look, live, ultra: true }), tiers, r.hud!.input.model as string);
+          for (const c of cps(frameHud(lines))) if (!base.has(c)) added.add(c);
+        }
+      }
+    }
+  }
+  const listed = new Map(HUD_GLYPHS.map(([g, what]) => [g, what]));
+  for (const g of added) {
+    assert.ok(listed.has(g), `U+${g.codePointAt(0)!.toString(16).toUpperCase()} is listed by glyphs --hud`);
+    assert.equal(cellWidth(g), 1, `${g} is 1 cell`);
+  }
+  assert.deepEqual([...added].sort(), ['▤', '\u{1FB02}', '\u{1FB0B}', '\u{1FB0E}', '\u{1FB39}', '\u{1FB06}'].sort(),
+    'the hive and the sextants (the bees\' ▐ is the hotbar\'s own, and U+1FB0B a phantom\'s); the tiers add no glyph');
+});
+
+test('help names the agents\' and the pickaxe\'s flags of look, setup and preview, and the agents day', () => {
+  const r = runDist('', { PATH: process.env.PATH ?? '' }, ['--help']);
+  assert.equal(r.status, 0);
+  assert.equal(r.stdout.split('\n').filter((l) => l.trim() === '[--agents off|allays|bees] [--pickaxe tiers|plain]').length, 3);
+  assert.ok(r.stdout.includes('--situation normal|tight|fresh|extra|fable|agents|all'));
 });

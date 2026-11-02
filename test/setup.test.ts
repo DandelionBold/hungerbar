@@ -485,7 +485,7 @@ const askGh = (w: ReturnType<typeof world>, answers: string, extra: Record<strin
 test('the setup prompt: both looks previewed, the five Fable options with previews, the usage API asked right after, then where it sits', () => {
   const w = world(ORIGINAL);
   try {
-    const r = ask(w, 'x\n2\n9\n3\nmaybe\ny\nz\n1\n\n\n');
+    const r = ask(w, 'x\n2\n9\n3\nmaybe\ny\nz\n1\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     const out = r.stdout;
     assert.match(out, /1 {2}Classic Plus\n.*Model:\s.*Opus\s5\.5/);
@@ -529,7 +529,7 @@ test('the setup prompt: both looks previewed, the five Fable options with previe
 test("the setup prompt: Enter takes the defaults and the usage API's yes; no keeps Fable off; Fable off asks nothing; EOF cancels with nothing written", () => {
   let w = world(ORIGINAL);
   try {
-    const r = ask(w, '\n\n\n\n\n\n');
+    const r = ask(w, '\n\n\n\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     assert.match(r.stdout, /Look \[2\]: \n[\s\S]*Fable \[3\]: \n[\s\S]*Turn on the usage API\? \[Y\/n\]: \n[\s\S]*Align \[2\]: \n[\s\S]*Name \[2\]: \n[\s\S]*Operator \[2\]: \n/);
     // the HUD, boss, centre, the name and gold are defaults (SPEC §0.10): only the usage API's keys are written
@@ -541,13 +541,13 @@ test("the setup prompt: Enter takes the defaults and the usage API's yes; no kee
   // written (network.usageApi false), so a later Fable option's question pre-selects no and Enter keeps it off
   w = world(ORIGINAL);
   try {
-    const r = ask(w, '\n\nn\n\n\n\n');
+    const r = ask(w, '\n\nn\n\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     assert.match(r.stdout, /Turn on the usage API\? \[Y\/n\]: n\nThe usage API stays off \(network\.usageApi false\), so the HUD shows no Fable weekly \(hud\.fable off\)\. Later: hungerbar look hud --fable boss\n/);
     const cfg = join(w.claude, 'hungerbar.json');
     assert.deepEqual(JSON.parse(readFileSync(cfg, 'utf8')), { $schema: SCHEMA_URL, hud: { fable: 'off' }, network: { usageApi: false } });
     const before = readFileSync(cfg, 'utf8');
-    const again = ask(w, '\n3\n\n\n\n\n');
+    const again = ask(w, '\n3\n\n\n\n\n\n');
     assert.equal(again.status, 0, again.stderr);
     assert.match(again.stdout, /Turn on the usage API\? \[y\/N\]: \nThe usage API stays off \(network\.usageApi false\)/);
     assert.equal(readFileSync(cfg, 'utf8'), before, 'Enter keeps the no');
@@ -557,7 +557,7 @@ test("the setup prompt: Enter takes the defaults and the usage API's yes; no kee
   // Fable off: no consent and no question
   w = world(ORIGINAL);
   try {
-    const r = ask(w, '\n0\n\n\n\n');
+    const r = ask(w, '\n0\n\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     assert.doesNotMatch(r.stdout, ANY_CONSENT);
     assert.doesNotMatch(r.stdout, /usage API\?/);
@@ -576,7 +576,7 @@ test("the setup prompt: Enter takes the defaults and the usage API's yes; no kee
     w.cleanup();
   }
   // input that ends early, with or without a final newline (readline closes as it yields the last line)
-  for (const answers of ['', '2\n', '2', 'x', '2\n9', '\n\n', '2\n3\n', '2\n3', '2\n3\nmaybe', '2\n3\ny\n', '2\n3\ny\nx\n', '2\n3\ny\n2\n', '2\n3\ny\n2\nx\n', '2\n3\ny\n2\n2\n', '2\n3\ny\n2\n2\nnope']) {
+  for (const answers of ['', '2\n', '2', 'x', '2\n9', '\n\n', '2\n3\n', '2\n3', '2\n3\nmaybe', '2\n3\ny\n', '2\n3\ny\nx\n', '2\n3\ny\n2\n', '2\n3\ny\n2\nx\n', '2\n3\ny\n2\n2\n', '2\n3\ny\n2\n2\nnope', '2\n3\ny\n2\n2\n2\n', '2\n3\ny\n2\n2\n2\nwasps']) {
     w = world(ORIGINAL);
     try {
       const before = snapshot(w.dir);
@@ -591,9 +591,9 @@ test("the setup prompt: Enter takes the defaults and the usage API's yes; no kee
   // a last answer without a newline still counts
   w = world(ORIGINAL);
   try {
-    const r = ask(w, '2\n1\ny\ncentre\n\ntag');
+    const r = ask(w, '2\n1\ny\ncentre\n\ntag\nallays');
     assert.equal(r.status, 0, r.stderr);
-    assert.deepEqual(JSON.parse(readFileSync(join(w.claude, 'hungerbar.json'), 'utf8')).hud, { fable: 'tail', op: 'tag' });
+    assert.deepEqual(JSON.parse(readFileSync(join(w.claude, 'hungerbar.json'), 'utf8')).hud, { fable: 'tail', op: 'tag', agents: 'allays' });
   } finally {
     w.cleanup();
   }
@@ -602,7 +602,7 @@ test("the setup prompt: Enter takes the defaults and the usage API's yes; no kee
 test('the setup prompt: Enter keeps what hungerbar.json has, marked (current); a HUD config stays as it is', () => {
   // the options before SPEC §0.10 changed the defaults: left, no name and the tag, with the usage API on
   const HUD = json({ $schema: 'x', network: NET, look: 'hud', hud: { fable: 'boss', align: 'left', user: 'off', op: 'tag' } });
-  for (const answers of ['\n\n\n\n\n', '2\n\n\n\n\n', 'hud\n\n1\n1\ntag\n']) {
+  for (const answers of ['\n\n\n\n\n\n', '2\n\n\n\n\n\n', 'hud\n\n1\n1\ntag\nbees\n']) {
     const w = world(ORIGINAL);
     try {
       const cfg = join(w.claude, 'hungerbar.json');
@@ -622,7 +622,7 @@ test('the setup prompt: Enter keeps what hungerbar.json has, marked (current); a
       assert.doesNotMatch(r.stdout, ANY_CONSENT, 'the usage API is already on: nothing to consent to');
       assert.match(r.stdout, /\n {2}1 {2}No name \(current\)\n[\s\S]*Name \[1\]: 1?\n/);
       assert.match(r.stdout, /\n {2}1 {2}A red \[OP\] after the ⌂ \(current\)\n[\s\S]*Operator \[1\]: (?:tag)?\n/);
-      assert.match(r.stdout, /look: hud, fable boss, align left, user off, op tag, unchanged/);
+      assert.match(r.stdout, /look: hud, fable boss, align left, user off, op tag, agents bees, unchanged/);
       assert.equal(readFileSync(cfg, 'utf8'), HUD, JSON.stringify(answers));
       assert.deepEqual(readdirSync(w.claude).filter((f) => f.startsWith('hungerbar.json.bak.')), [], 'no backup: nothing changed');
     } finally {
@@ -640,7 +640,7 @@ test('the setup prompt: Enter keeps what hungerbar.json has, marked (current); a
     assert.match(r.stdout, /1 {2}Classic Plus \(current\)\n[\s\S]*Look \[1\]: \n/);
     assert.match(r.stdout, /look: classic, unchanged/);
     assert.deepEqual(readdirSync(w.claude).filter((f) => f.startsWith('hungerbar.json.bak.')), []);
-    r = ask(w, '2\n\n\n\n\n\n');
+    r = ask(w, '2\n\n\n\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     assert.match(r.stdout, /1 {2}Fable next to your weekly food \(current\)\n[\s\S]*Fable \[1\]: \n/);
     assert.match(r.stdout, CONSENT_ASK, 'tail needs the usage API');
@@ -654,12 +654,12 @@ test('the setup prompt: Enter keeps what hungerbar.json has, marked (current); a
   try {
     const cfg = join(c.claude, 'hungerbar.json');
     writeFileSync(cfg, LEFT);
-    let r = ask(c, '\n\n\n\n\n');
+    let r = ask(c, '\n\n\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     assert.match(r.stdout, /\n {2}1 {2}Left \(current\)\n[\s\S]*\n {2}2 {2}Centre\n[\s\S]*Align \[1\]: \n/);
-    assert.match(r.stdout, /look: hud, fable off, align left, user user, op gold, unchanged/);
+    assert.match(r.stdout, /look: hud, fable off, align left, user user, op gold, agents bees, unchanged/);
     assert.equal(readFileSync(cfg, 'utf8'), LEFT);
-    r = ask(c, '\n\ncentre\n\n\n');
+    r = ask(c, '\n\ncentre\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     assert.deepEqual(JSON.parse(readFileSync(cfg, 'utf8')), { look: 'hud', hud: { fable: 'off', align: 'center' } });
   } finally {
@@ -669,12 +669,12 @@ test('the setup prompt: Enter keeps what hungerbar.json has, marked (current); a
 
 test('the setup prompt: Enter on a config with every option at its default writes nothing and takes no backup (fix after review 11); without the usage API it asks for it', () => {
   // a default (boss, center, the name, gold; SPEC §0.10) is written only over a different value; any answer for it does the same
-  const UNCHANGED = 'look: hud, fable boss, align center, user user, op gold, unchanged';
+  const UNCHANGED = 'look: hud, fable boss, align center, user user, op gold, agents bees, unchanged';
   for (const [file, answers] of [
-    [json({ look: 'hud', hud: { align: 'center' }, network: NET }), '\n\n\n\n\n'],
-    [json({ look: 'hud', hud: { align: 'center' }, network: NET }), '2\n3\n2\n2\n2\n'],
-    [json({ look: 'hud', network: NET }), '\n\n\n\n\n'],
-    [json({ hud: { minWidth: 90 }, network: NET }), '\nboss\ncenter\nuser\ngold\n'],
+    [json({ look: 'hud', hud: { align: 'center' }, network: NET }), '\n\n\n\n\n\n'],
+    [json({ look: 'hud', hud: { align: 'center' }, network: NET }), '2\n3\n2\n2\n2\n1\n'],
+    [json({ look: 'hud', network: NET }), '\n\n\n\n\n\n'],
+    [json({ hud: { minWidth: 90 }, network: NET }), '\nboss\ncenter\nuser\ngold\nbees\n'],
   ] as const) {
     const w = world(ORIGINAL);
     try {
@@ -697,7 +697,7 @@ test('the setup prompt: Enter on a config with every option at its default write
     try {
       const cfg = join(w.claude, 'hungerbar.json');
       writeFileSync(cfg, JSON.stringify({ look: 'hud', hud: { fable: was }, network: NET }));
-      const r = ask(w, '\n3\n\n\n\n');
+      const r = ask(w, '\n3\n\n\n\n\n');
       assert.equal(r.status, 0, r.stderr);
       assert.deepEqual(JSON.parse(readFileSync(cfg, 'utf8')), { look: 'hud', hud: { fable: 'boss' }, network: NET }, was);
     } finally {
@@ -709,7 +709,7 @@ test('the setup prompt: Enter on a config with every option at its default write
   try {
     const cfg = join(w.claude, 'hungerbar.json');
     writeFileSync(cfg, '{\n  "look": "hud"\n}\n');
-    const r = ask(w, '\n\n\n\n\n\n');
+    const r = ask(w, '\n\n\n\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     assert.match(r.stdout, CONSENT_ASK);
     assert.equal(readFileSync(cfg, 'utf8'), json({ look: 'hud', network: NET }));
@@ -914,7 +914,7 @@ test("setup over a 0.6.0 hungerbar.json: Enter for the HUD, boss, centre, the na
     const cfg = join(w.claude, 'hungerbar.json');
     writeFileSync(cfg, json(CFG_060));
     // Enter keeps the HUD, boss and centre and takes the defaults for the name and the mark (SPEC §0.10); y: the PR status (gh found)
-    const r = askGh(w, '\n\n\n\n\ny\n');
+    const r = askGh(w, '\n\n\n\n\ny\n\n');
     assert.equal(r.status, 0, r.stderr);
     const out = r.stdout;
     assert.match(out, /\n {2}2 {2}Minecraft HUD \(current\)\n[\s\S]*\n {2}3 {2}A boss bar while you use Fable \(current\)\n[\s\S]*\n {2}2 {2}Centre \(current\)\n/);
@@ -940,12 +940,12 @@ test("setup over a 0.6.0 hungerbar.json: Enter for the HUD, boss, centre, the na
     assert.match(JSON.parse(readFileSync(w.file, 'utf8')).statusLine.command, /hungerbar|statusline\.cmd/, 'setup still sets the statusLine');
 
     // re-running setup and pressing Enter keeps all of it, marked (current), and writes nothing
-    const again = askGh(w, '\n\n\n\n\n\n');
+    const again = askGh(w, '\n\n\n\n\n\n\n');
     assert.equal(again.status, 0, again.stderr);
     assert.match(again.stdout, /\n {2}2 {2}Your user name \(current\)\n[\s\S]*Name \[2\]: \n/);
     assert.match(again.stdout, /\n {2}2 {2}Your name turns gold \(current\)\n[\s\S]*Operator \[2\]: \n/);
     assert.match(again.stdout, /\n\nShow the pull request status\? \[Y\/n\]: \n/);
-    assert.match(again.stdout, /look: hud, fable boss, align center, pr on, user user, op gold, unchanged/);
+    assert.match(again.stdout, /look: hud, fable boss, align center, pr on, user user, op gold, agents bees, unchanged/);
     assert.equal(readFileSync(cfg, 'utf8'), json(CFG_SETUP));
     assert.equal(readdirSync(w.claude).filter((f) => f.startsWith('hungerbar.json.bak.')).length, 1, 'no second backup');
 
@@ -962,10 +962,10 @@ test("setup over a 0.6.0 hungerbar.json: Enter for the HUD, boss, centre, the na
   try {
     const cfg = join(k.claude, 'hungerbar.json');
     writeFileSync(cfg, json(CFG_070));
-    const r = askGh(k, '\n\n\n\n\n\n');
+    const r = askGh(k, '\n\n\n\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     assert.doesNotMatch(r.stdout, ANY_CONSENT);
-    assert.match(r.stdout, /look: hud, fable boss, align center, pr on, user user, op gold, unchanged/);
+    assert.match(r.stdout, /look: hud, fable boss, align center, pr on, user user, op gold, agents bees, unchanged/);
     assert.equal(readFileSync(cfg, 'utf8'), json(CFG_070));
     assert.deepEqual(readdirSync(k.claude).filter((f) => f.startsWith('hungerbar.json.bak.')), []);
   } finally {
@@ -977,7 +977,7 @@ test("the defaults (SPEC §0.10): a first setup with Enter for every question dr
   const w = world(ORIGINAL);
   try {
     const cfg = join(w.claude, 'hungerbar.json');
-    const r = askGh(w, '\n\n\n\n\n\n\n');
+    const r = askGh(w, '\n\n\n\n\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     const out = r.stdout;
     // every question pre-selects the default, marked (default); the two network features say first what they send, yes pre-selected
@@ -1032,7 +1032,7 @@ test("the same setup by hand: look hud --user user --op gold --pr on writes the 
 test('the setup prompt (0.7.0): the name and operator questions preview line 3 with this machine\'s names; the operator\'s as if elevated', () => {
   const w = world(ORIGINAL);
   try {
-    const r = ask(w, '2\n0\n1\nmaybe\n3\n9\n1\n');
+    const r = ask(w, '2\n0\n1\nmaybe\n3\n9\n1\n\n');
     assert.equal(r.status, 0, r.stderr);
     const out = r.stdout;
     const name = out.slice(out.indexOf('Your name can go before the folder'), out.indexOf('Name [2]: maybe'));
@@ -1061,14 +1061,14 @@ test('the setup prompt (0.7.0): the name and operator questions preview line 3 w
   // no name: the labels say the ⌂ carries the mark; an elevated terminal is told so
   const e = world(ORIGINAL);
   try {
-    const r = ask(e, '2\n0\n1\n1\ngold\n', '--node', process.execPath);
+    const r = ask(e, '2\n0\n1\n1\ngold\n\n', '--node', process.execPath);
     assert.equal(r.status, 0, r.stderr);
     assert.match(r.stdout, /\n {2}1 {2}A red \[OP\] after the ⌂\n.*⌂\u00a0\x1b\[0m\x1b\[1;38;2;255;85;85m\[OP\]/u);
     assert.match(r.stdout, /\n {2}2 {2}The ⌂ turns gold \(default\)\n.*\x1b\[38;2;255;170;0m⌂\u00a0\x1b\[0m/u);
     assert.deepEqual(JSON.parse(readFileSync(join(e.claude, 'hungerbar.json'), 'utf8')).hud, { fable: 'off', align: 'left', user: 'off' }, 'gold is the default: not written');
-    const up = runDist('2\n0\n1\n1\n1\n', { ...e.env, PATH: join(e.dir, 'no-bin'), HUNGERBAR_SETUP_TTY: '1', FORCE_COLOR: '3', HUNGERBAR_ELEVATED: '1' }, ['setup', '--print']);
+    const up = runDist('2\n0\n1\n1\n1\n\n', { ...e.env, PATH: join(e.dir, 'no-bin'), HUNGERBAR_SETUP_TTY: '1', FORCE_COLOR: '3', HUNGERBAR_ELEVATED: '1' }, ['setup', '--print']);
     assert.doesNotMatch(up.stdout, /Name \[/, '--print never asks');
-    const el = runDist('2\n0\n1\n1\n1\n', { ...e.env, PATH: join(e.dir, 'no-bin'), HUNGERBAR_SETUP_TTY: '1', FORCE_COLOR: '3', HUNGERBAR_ELEVATED: '1' }, ['setup']);
+    const el = runDist('2\n0\n1\n1\n1\n\n', { ...e.env, PATH: join(e.dir, 'no-bin'), HUNGERBAR_SETUP_TTY: '1', FORCE_COLOR: '3', HUNGERBAR_ELEVATED: '1' }, ['setup']);
     assert.equal(el.status, 0, el.stderr);
     assert.match(el.stdout, /This terminal runs as (Administrator|root), so you would see it now\.\n/);
     assert.match(el.stdout, /\n {2}2 {2}Minecraft HUD \(current\)\n.*\n.*\n.*\x1b\[38;2;255;170;0m⌂/u, 'an elevated terminal: the look\'s preview draws the file\'s gold ⌂, as the status line would');
@@ -1081,19 +1081,19 @@ test('the setup prompt (0.7.0): the PR status is offered only where gh is found;
   const w = world(ORIGINAL);
   try {
     const cfg = join(w.claude, 'hungerbar.json');
-    const r = askGh(w, '2\n0\n1\n1\n1\n\n', { HUNGERBAR_OFFLINE: '1' });
+    const r = askGh(w, '2\n0\n1\n1\n1\n\n\n', { HUNGERBAR_OFFLINE: '1' });
     assert.equal(r.status, 0, r.stderr);
     assert.ok(r.stdout.indexOf('never sees or stores a token') < r.stdout.indexOf('Show the pull request status? [Y/n]: '), 'consent before the answer');
     assert.match(r.stdout, /note: CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC or HUNGERBAR_OFFLINE is set here, which keeps the PR status off\.\n\nShow the pull request status\? \[Y\/n\]: \n/);
     assert.deepEqual(JSON.parse(readFileSync(cfg, 'utf8')), { $schema: SCHEMA_URL, hud: { fable: 'off', align: 'left', pr: 'on', user: 'off', op: 'tag' } }, 'Enter: yes, the first time (SPEC §0.10)');
-    const bad = askGh(w, '2\n0\n1\n1\n1\nmaybe\nn\n');
+    const bad = askGh(w, '2\n0\n1\n1\n1\nmaybe\nn\n\n');
     assert.match(bad.stdout, /Show the pull request status\? \[Y\/n\]: maybe\nAnswer y \(yes\) or n \(no\)\.\nShow the pull request status\? \[Y\/n\]: n\n/, 'the file has it on: [Y/n]');
     assert.equal(JSON.parse(readFileSync(cfg, 'utf8')).hud.pr, 'off');
-    const keep = askGh(w, '2\n0\n1\n1\n1\n\n');
+    const keep = askGh(w, '2\n0\n1\n1\n1\n\n\n');
     assert.match(keep.stdout, /Show the pull request status\? \[y\/N\]: \n/, 'the file has it off: Enter keeps it off');
     assert.equal(JSON.parse(readFileSync(cfg, 'utf8')).hud.pr, 'off');
     for (const [answer, want] of [['yes', 'on'], ['off', 'off'], ['on', 'on'], ['no', 'off']] as const) {
-      askGh(w, `2\n0\n1\n1\n1\n${answer}\n`);
+      askGh(w, `2\n0\n1\n1\n1\n${answer}\n\n`);
       assert.equal(JSON.parse(readFileSync(cfg, 'utf8')).hud.pr, want, answer);
     }
     // input that ends at the PR question cancels, with nothing written (askGh rewrites its stub gh with the same bytes)
@@ -1115,7 +1115,7 @@ test("the consent questions pre-select by their keys: after a setup without a te
     assert.equal(w.run().status, 0);
     assert.equal(readFileSync(cfg, 'utf8'), json({ $schema: SCHEMA_URL }));
     // that file has neither key, so both questions pre-select yes, and Enter gives what a first install's Enter gives
-    const r = askGh(w, '\n\n\n\n\n\n\n');
+    const r = askGh(w, '\n\n\n\n\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     assert.match(r.stdout, /Turn on the usage API\? \[Y\/n\]: \n/);
     assert.match(r.stdout, /Show the pull request status\? \[Y\/n\]: \n/);
@@ -1128,14 +1128,14 @@ test("the consent questions pre-select by their keys: after a setup without a te
   try {
     const cfg = join(n.claude, 'hungerbar.json');
     writeFileSync(cfg, json({ $schema: SCHEMA_URL }));
-    const r = askGh(n, '\n\n\n\n\n\nn\n');
+    const r = askGh(n, '\n\n\n\n\n\nn\n\n');
     assert.equal(r.status, 0, r.stderr);
     assert.match(r.stdout, /Show the pull request status\? \[Y\/n\]: n\n/);
     assert.equal(readFileSync(cfg, 'utf8'), json({ $schema: SCHEMA_URL, network: NET, hud: { pr: 'off' } }));
-    const again = askGh(n, '\n\n\n\n\n\n');
+    const again = askGh(n, '\n\n\n\n\n\n\n');
     assert.equal(again.status, 0, again.stderr);
     assert.match(again.stdout, /Show the pull request status\? \[y\/N\]: \n/);
-    assert.match(again.stdout, /look: hud, fable boss, align center, pr off, user user, op gold, unchanged/);
+    assert.match(again.stdout, /look: hud, fable boss, align center, pr off, user user, op gold, agents bees, unchanged/);
     assert.equal(readFileSync(cfg, 'utf8'), json({ $schema: SCHEMA_URL, network: NET, hud: { pr: 'off' } }));
   } finally {
     n.cleanup();
@@ -1145,7 +1145,7 @@ test("the consent questions pre-select by their keys: after a setup without a te
   try {
     const cfg = join(off.claude, 'hungerbar.json');
     writeFileSync(cfg, json({ network: { usageApi: false } }));
-    const r = ask(off, '\n\n\n\n\n\n');
+    const r = ask(off, '\n\n\n\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     assert.ok(r.stdout.indexOf('never stored or sent anywhere else') < r.stdout.indexOf('Turn on the usage API? [y/N]: '), 'the consent before the question');
     assert.match(r.stdout, /Turn on the usage API\? \[y\/N\]: \nThe usage API stays off \(network\.usageApi false\), so the HUD shows no Fable weekly \(hud\.fable off\)\. Later: hungerbar look hud --fable boss\n/);
@@ -1160,7 +1160,7 @@ test('the usage API on and scopedWeekly off: setup asks about scopedWeekly alone
   try {
     const cfg = join(w.claude, 'hungerbar.json');
     writeFileSync(cfg, json({ network: { usageApi: true } }));
-    const r = ask(w, '\n\nn\n\n\n\n');
+    const r = ask(w, '\n\nn\n\n\n\n\n');
     assert.equal(r.status, 0, r.stderr);
     const out = r.stdout;
     assert.match(out, new RegExp(String.raw`Fable \[3\]: \n\nFable's weekly comes from the usage API, which hungerbar\.json has on, and it needs network\.scopedWeekly too\.\nWith that on, the background refresher calls api\.anthropic\.com\/api\/oauth\/usage about every 3 minutes\nwhile a terminal session renders, even when your account has no extra usage \(without it: once an hour,\nor every 3 minutes while a limit is at 10% left or less\)\.\nIt reads your Claude login token from .*\.credentials\.json${KEYCHAIN}\. The token is never stored or sent anywhere else\.\n\n`));
@@ -1169,7 +1169,7 @@ test('the usage API on and scopedWeekly off: setup asks about scopedWeekly alone
     assert.doesNotMatch(out, /The usage API stays off/);
     assert.deepEqual(JSON.parse(readFileSync(cfg, 'utf8')), { network: { usageApi: true, scopedWeekly: false }, hud: { fable: 'off' } }, 'the usage API is still on');
     // the no is saved, so the next setup pre-selects no; yes turns scopedWeekly on next to it
-    const y = ask(w, '\n3\ny\n\n\n\n');
+    const y = ask(w, '\n3\ny\n\n\n\n\n');
     assert.equal(y.status, 0, y.stderr);
     assert.match(y.stdout, /Turn on Fable's weekly \(network\.scopedWeekly\)\? \[y\/N\]: y\n/);
     assert.deepEqual(JSON.parse(readFileSync(cfg, 'utf8')), { network: NET, hud: { fable: 'boss' } });
@@ -1228,5 +1228,62 @@ test('setup --look hud with --pr, --user, --op, --bed and --phantoms: written by
     } finally {
       e.cleanup();
     }
+  }
+});
+
+test('the setup prompt (1.1.0): the agents at work, asked last, each look previewed on line 1 of the agents day; Enter keeps the file\'s, or bees', () => {
+  const w = world(ORIGINAL);
+  try {
+    // Fable off, left, no name, the tag; then a wrong answer, then allays
+    const r = ask(w, '2\n0\n1\n1\n1\nwasps\n2\n');
+    assert.equal(r.status, 0, r.stderr);
+    const out = r.stdout;
+    assert.ok(out.indexOf('Operator [2]: 1') < out.indexOf('Your agents at work:'), 'after the operator\'s (and the PR\'s, where gh is found)');
+    assert.match(out, /\nYour agents at work: while Claude Code's subagents or a workflow's agents run, the HUD can show each one in line 1's sky\.\n/);
+    const part = out.slice(out.indexOf('Your agents at work:'), out.indexOf('Agents [1]: wasps'));
+    const lines = part.split('\n');
+    const after = (label: string): string => lines[lines.findIndex((l) => l.startsWith(`  ${label}`)) + 1]!;
+    // line 1 of the agents day (three at work) with the answers so far: Fable off, left, no name, the tag
+    const sky = (agents: 'bees' | 'allays' | 'off'): string =>
+      demoLines('agents', 'hud', 'off', 'truecolor', { ...defaults(), hud: { ...defaults().hud, align: 'left', user: 'off', op: 'tag', agents } }, null, WHO)[0]!;
+    assert.equal(after('1  Bees, flying home to their hive (default)'), sky('bees'));
+    assert.equal(after('2  Allays, the calm option'), sky('allays'));
+    assert.equal(after('3  Nothing (the subagents folder is never read)'), sky('off'));
+    assert.ok(after('1  Bees').includes('\x1b[38;2;240;180;60;48;2;110;75;31m▤\x1b[0m'), 'the hive');
+    assert.ok(after('2  Allays').includes('\x1b[38;2;217;244;255m\u{1FB0E}\x1b[0m'), 'an allay\'s head');
+    assert.match(out, /Agents \[1\]: wasps\nAnswer 1 \(bees\), 2 \(allays\) or 3 \(nothing\)\.\nAgents \[1\]: 2\n/);
+    assert.deepEqual(JSON.parse(readFileSync(join(w.claude, 'hungerbar.json'), 'utf8')), { $schema: SCHEMA_URL, hud: { fable: 'off', align: 'left', user: 'off', op: 'tag', agents: 'allays' } },
+      'allays is not the default: written, last');
+    // the next setup: Enter keeps allays, marked (current); off is written; bees over allays is written too
+    const again = ask(w, '\n\n\n\n\n\n');
+    assert.equal(again.status, 0, again.stderr);
+    assert.match(again.stdout, /\n {2}2 {2}Allays, the calm option \(current\)\n[\s\S]*Agents \[2\]: \n/);
+    assert.match(again.stdout, /look: hud, fable off, align left, user off, op tag, agents allays, unchanged/);
+    ask(w, '\n\n\n\n\n3\n');
+    assert.equal(JSON.parse(readFileSync(join(w.claude, 'hungerbar.json'), 'utf8')).hud.agents, 'off');
+    ask(w, '\n\n\n\n\nbees\n');
+    assert.equal(JSON.parse(readFileSync(join(w.claude, 'hungerbar.json'), 'utf8')).hud.agents, 'bees', 'the default over another value');
+  } finally {
+    w.cleanup();
+  }
+  // a fresh file: Enter takes bees, which is the default, so nothing is written for it
+  const f = world(ORIGINAL);
+  try {
+    const r = ask(f, '2\n0\n1\n1\n1\n\n');
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /Agents \[1\]: \n/);
+    assert.deepEqual(JSON.parse(readFileSync(join(f.claude, 'hungerbar.json'), 'utf8')).hud, { fable: 'off', align: 'left', user: 'off', op: 'tag' });
+  } finally {
+    f.cleanup();
+  }
+  // --agents answers for setup: no question asked for it, and the flag is written
+  const g = world(ORIGINAL);
+  try {
+    const r = runDist('', { ...g.env, PATH: join(g.dir, 'no-bin') }, ['setup', '--look', 'hud', '--agents', 'off', '--pickaxe', 'plain']);
+    assert.equal(r.status, 0, r.stderr);
+    assert.doesNotMatch(r.stdout, /Agents \[/);
+    assert.deepEqual(JSON.parse(readFileSync(join(g.claude, 'hungerbar.json'), 'utf8')).hud, { agents: 'off', pickaxe: 'plain' });
+  } finally {
+    g.cleanup();
   }
 });

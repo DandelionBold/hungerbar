@@ -1,7 +1,7 @@
 // `hungerbar setup`: merges ONLY the statusLine key into settings.json, with a backup and a way back (SPEC §13, §14).
 // The look goes to hungerbar.json through look.ts's writer: --look classic|hud [--fable …] [--align …], the 0.7.0 keys
-// (--pr, --user, --op, --bed, --phantoms) and the 1.1.0 keys (--ultra, --poison, --totem: flags only, setup asks no question for
-// them), or questions on a terminal (plan §8). When it asks no questions (no terminal,
+// (--pr, --user, --op, --bed, --phantoms) and the 1.1.0 keys (--ultra, --poison, --totem and --pickaxe: flags only, setup asks
+// no question for them; --agents, which it asks last), or questions on a terminal (plan §8). When it asks no questions (no terminal,
 // or flags) setup prints how to turn on the HUD when no look is named and the look is classic, or, with the HUD, what of
 // it uses the network and still waits for a yes (SPEC §0.10); with no look named and a hungerbar.json it cannot read,
 // the note that the file is left alone instead.
