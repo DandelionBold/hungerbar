@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/media/hero.gif" alt="Hungerbar's Minecraft HUD in Claude Code's status line over a five-hour session: hearts and food drain, the XP bar fills, commits turn the terrain gold, a bed shows during a break, phantoms come late in the session, and a boss bar shows Fable's weekly limit" width="100%">
+  <img src="docs/media/hero.gif" alt="Hungerbar's Minecraft HUD in Claude Code's status line over a five-hour session: hearts and food drain, the XP bar fills, commits turn the terrain gold, a bed shows during a break, phantoms come late in the session, a boss bar shows Fable's weekly limit, and the totem leaves slot 5 for the offhand as the 5-hour window runs low" width="100%">
 </p>
 
 # Hungerbar
@@ -66,7 +66,7 @@ v2.1.306  ◆ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3      ☥          ▅▆▆ ▆�
 
 ![The HUD drawn large, with its 25 parts numbered in reading order](docs/media/anatomy.png)
 
-This is one render. The Claude Code session is about four and a half hours old and the context was compacted twice. Those are two signs of a long session, so two phantoms fly in the sky. Fable is in use, so the boss bar shows. Nobody has written for about 7 minutes, so the bed is out. The branch has changes and an approved pull request. Claude Code runs as Administrator, so the name is gold.
+This is one render. The Claude Code session is about four and a half hours old and the context was compacted twice. Those are two signs of a long session, so two phantoms fly in the sky. Fable is in use, so the boss bar shows and the pickaxe is netherite. Nobody has written for about 7 minutes, so the bed is out. Three agents work in the background, so three bees fly home at the other end of the sky (a second 4). The account has $50 of extra credits and every limit is above 10%, so the totem waits in slot 5 (a second 15). The branch has changes and an approved pull request. Claude Code runs as Administrator, so the name is gold.
 
 | # | Part | What it shows | In Minecraft |
 |---|---|---|---|
@@ -264,7 +264,7 @@ The names come from the system (`os.userInfo`, `os.hostname`). On Windows, the e
 
 ### The hotbar's frame
 
-![The hotbar's frame, then the offhand's frame turning green when the 5-hour limit is used up and the extra credits pay](docs/media/frame.gif)
+![The hotbar's frame; then the 5-hour limit is used up, the totem pops in the offhand between gold sides, and the offhand's frame turns green while the extra credits pay](docs/media/frame.gif)
 
 A thin edge runs under the hotbar: mint under the selected slot (the pickaxe), grey under the rest, like the bottom of Minecraft's hotbar. When your account has extra usage, the offhand ◆ shows the extra credits left, in whole dollars. It is framed too, and its frame turns green while a limit is used up and the extra credits pay. The row's empty cells are U+2800, a blank that Claude Code does not trim, so the edge stays under the hotbar.
 
