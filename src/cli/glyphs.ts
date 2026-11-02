@@ -30,7 +30,8 @@ const GLYPHS: Array<[string, string]> = [
  * and the git state's arrows and the pull request's marks (0.7.0, probed in design round 8: Cascadia Mono, 1 cell, in the
  * HUD's colour; ✗ U+2717 was left out because Windows Terminal takes it from Segoe UI Emoji, so × marks a failure), and
  * (1.1.0, probed in design round 9) Ultra's ∞ (Cascadia Mono) and the totem's ☥ and ✦ (Segoe UI Symbol, which takes the
- * HUD's colour in both icon styles), 1 cell each.
+ * HUD's colour in both icon styles), and (probed in rounds 9 and 9b) the beehive ▤ (Cascadia Mono) and the bees' and
+ * allays' block sextants (Windows Terminal draws them itself), 1 cell each.
  */
 export const HUD_GLYPHS: Array<[string, string]> = [
   ['⛏', 'the pickaxe: the model in your hand'],
@@ -57,7 +58,7 @@ export const HUD_GLYPHS: Array<[string, string]> = [
   ['▋', 'Fable wear bar, 5/8'],
   ['▊', 'Fable wear bar, 6/8'],
   ['▉', 'Fable wear bar, 7/8'],
-  ['▐', 'hotbar selection, left edge'],
+  ['▐', "hotbar selection, left edge; a bee's stripes (hud.agents bees)"],
   ['🮂', 'bottom edge of the hotbar and the offhand; the boss bar (Fable in use)'],
   ['\u2800', 'blank cells of the bottom edge row, and the lead of a centred HUD (a blank that Claude Code does not trim)'],
   ['⬢', 'Fable left'],
@@ -87,7 +88,7 @@ export const HUD_GLYPHS: Array<[string, string]> = [
   ['◌', 'pull request: a draft'],
   ['\u{1FB84}', 'the bed in slot 4: away for 5 minutes (hud.bed)'],
   ['\u{1FB08}', 'a phantom: left wing (hud.phantoms)'],
-  ['\u{1FB0B}', 'a phantom: body, flying high'],
+  ['\u{1FB0B}', "a phantom: body, flying high; a bee's or an allay's wing, level"],
   ['\u{1FB05}', 'a phantom: right wing'],
   ['\u{1FB22}', 'a phantom swooping: left wing'],
   ['\u{1FB2D}', 'a phantom swooping: body'],
@@ -95,6 +96,11 @@ export const HUD_GLYPHS: Array<[string, string]> = [
   ['∞', "Ultra: no 5-hour limit, with the golden apple's hearts (hud.ultra, 1.1.0)"],
   ['☥', 'the Totem of Undying: in hotbar slot 5 while credits are left, in the offhand while a limit is at 1-10% (hud.totem, 1.1.0)'],
   ['✦', "the totem's pop, for 30 s when a limit hits 0 and the credits take over"],
+  ['▤', 'the beehive the bees fly home to while agents are at work (hud.agents bees, 1.1.0)'],
+  ['\u{1FB02}', "a bee's wing, raised"],
+  ['\u{1FB0E}', "an allay's head: an agent at work (hud.agents allays, 1.1.0)"],
+  ['\u{1FB39}', "an allay's body"],
+  ['\u{1FB06}', "an allay's wing, raised"],
   ['·', 'separator'],
   ['…', 'shortened text'],
 ];

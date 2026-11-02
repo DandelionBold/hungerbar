@@ -555,3 +555,14 @@ export function offhandFlags(r: Rng): OffFlags {
   if (chance(r, 0.1)) return { totem: false, pop: false, stale: false };
   return { totem: chance(r, 0.8), pop: chance(r, 0.4), stale: chance(r, 0.4) };
 }
+
+// ---------------- the agents at work (1.1.0): bees or allays in line 1's sky ----------------
+/** How many agents are at work: none, one, the cap and around it, many (the count's digits), the most a look keeps. */
+export const AGENT_LIVE: readonly number[] = [0, 0, 1, 2, 3, 4, 5, 6, 9, 13, 16];
+/** What the agents are handed besides the state: the look (null: hud.agents off), the agents at work, and the phantoms of line 1's sky. */
+export interface AgentFlags { look: 'bees' | 'allays' | null; live: number; phantoms: number }
+/** Seeded flags for the agents; one in ten asks for nothing. */
+export function agentFlags(r: Rng): AgentFlags {
+  if (chance(r, 0.1)) return { look: null, live: 0, phantoms: 0 };
+  return { look: chance(r, 0.15) ? null : chance(r, 0.5) ? 'bees' : 'allays', live: pick(r, AGENT_LIVE), phantoms: chance(r, 0.5) ? 0 : int(r, 1, 4) };
+}

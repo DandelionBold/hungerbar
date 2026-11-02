@@ -13,6 +13,7 @@ import { gitArgs, gitCommand, gitEnv } from './git/refresh.ts';
 import { parseStatus, readOp, statusArgs, type GitStatus } from './git/status.ts';
 import { ASCII, forDepth, UNICODE } from './glyphs.ts';
 import type { HudState } from './hud/adapter.ts';
+import type { AgentMarks, AgentsSeen } from './hud/agents.ts';
 import type { GitMarks } from './hud/gitstate.ts';
 import type { PlayerMarks } from './hud/player.ts';
 import type { OffhandMarks } from './hud/offhand.ts';
@@ -28,7 +29,7 @@ import type { PrInfo } from './pr/gh.ts';
 import { childProcess } from './proc.ts';
 import { collect, type Counts, type GitView, type Sources, type State } from './state.ts';
 import { acctDir, cacheDir, lockLive, writeJson } from './store.ts';
-import { readTranscript, TX_LOCK_STALE_MS, txId, txLockPath, type TxSummary } from './transcript.ts';
+import { agentsDue, readTranscript, TX_LOCK_STALE_MS, txId, txLockPath, type TxSummary } from './transcript.ts';
 import { diskShown } from './shown.ts';
 import { readUsage, usageNeedsRefresh, type UsageFile } from './usage/file.ts';
 import { whoAmI } from './whoami.ts';
@@ -37,7 +38,8 @@ export interface RenderResult {
   text: string;
   /**
    * Refreshers to start after the line is written: ['refresh', 'git', root, edits], ['refresh', 'usage'],
-   * ['refresh', 'transcript', path, id] or ['refresh', 'pr', root, branch].
+   * ['refresh', 'transcript', path, id] (with 'agents' after it when the HUD's agents want a look, 1.1.0) or
+   * ['refresh', 'pr', root, branch].
    */
   spawns: string[][];
   model: string | null;
@@ -48,11 +50,14 @@ export interface RenderResult {
   after: Array<() => void>;
   /**
    * When the HUD drew this render, for the tests: the engine's input (with its hist), the git state's (marks), the pull
-   * request (null: no badge), the player's layers' input, the vitals' and the offhand's inputs (1.1.0), the engine's
-   * lines, the lines with the git state, the badge, the player's layers, the vitals, the offhand and the hotbar's frame,
-   * and the centring's offset (hud.align center; `text` is the framed lines moved right by it).
+   * request (null: no badge), the player's layers' input, the vitals', the offhand's and the agents' inputs (1.1.0),
+   * the engine's lines, the lines with the git state, the badge, the player's layers, the vitals, the offhand, the agents
+   * and the hotbar's frame, and the centring's offset (hud.align center; `text` is the framed lines moved right by it).
    */
-  hud?: { input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; vitals: VitalMarks; offhand: OffhandMarks; lines: Span[][]; framed: Span[][]; offset: number };
+  hud?: {
+    input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; vitals: VitalMarks; offhand: OffhandMarks; agents: AgentMarks;
+    lines: Span[][]; framed: Span[][]; offset: number;
+  };
   /**
    * The State both looks draw from, when a payload was read (not for `no data`): for the tests, and for what the HUD's
    * engine is not handed, such as h5None and extra.at (1.1.0). The layers after the engine read those from the State,
@@ -111,8 +116,11 @@ export function diskSources(p: Payload, env: Env, cfg: Config, now: number, spaw
   let tx: TxSummary | null | undefined;
   let usage: UsageFile | null | undefined;
   let lim: Limits | undefined;
+  let seen: AgentsSeen | null | undefined;
   /** Read once per render: the usage refresher asks how hungry the limits are (1.1.0). */
   const limits = (): Limits => (lim ??= resolveLimits(p, acct, now, persist));
+  /** The transcript worker this render queued, if it did (the agents' look rides on it). */
+  let txSpawn: string[] | null = null;
   /** Read once per render, by whichever asks first; a delta over the budget queues the worker unless it already runs. */
   const transcript = (): TxSummary | null => {
     if (tx !== undefined) return tx;
@@ -121,7 +129,7 @@ export function diskSources(p: Payload, env: Env, cfg: Config, now: number, spaw
     const sid = str(p.session_id);
     tx = readTranscript(path, sid, cd, persist);
     const id = txId(path, sid);
-    if (tx?.needsWorker && !lockLive(txLockPath(cd, id), TX_LOCK_STALE_MS, Date.now())) spawns.push(['refresh', 'transcript', path, id]);
+    if (tx?.needsWorker && !lockLive(txLockPath(cd, id), TX_LOCK_STALE_MS, Date.now())) spawns.push(txSpawn = ['refresh', 'transcript', path, id]);
     return tx;
   };
   return {
@@ -169,6 +177,20 @@ export function diskSources(p: Payload, env: Env, cfg: Config, now: number, spaw
     },
     who: whoAmI(env),
     shown: (cur) => diskShown({ cacheDir: cd, sid: histSid(str(p.session_id), str(p.transcript_path)), now, cur, after, persist }),
+    agents(): AgentsSeen | null {
+      if (seen !== undefined) return seen;
+      const t = transcript();
+      if (!t) return (seen = null);
+      // a look that is due rides on the worker this render queued, else queues one unless it already runs
+      if (agentsDue(t, now)) {
+        if (txSpawn) txSpawn.push('agents');
+        else {
+          const path = str(p.transcript_path)!, id = txId(path, str(p.session_id));
+          if (!lockLive(txLockPath(cd, id), TX_LOCK_STALE_MS, Date.now())) spawns.push(txSpawn = ['refresh', 'transcript', path, id, 'agents']);
+        }
+      }
+      return (seen = { ultra: t.ultra, mtimes: t.agents?.mtimes ?? [] });
+    },
   };
 }
 
@@ -200,7 +222,8 @@ export function renderPayload(raw: string | null, opts: RenderOptions): RenderRe
       const h = renderHudLook(st, p, src, cfg, gate.depth, budget(env, cfg));
       return {
         text: h.text, spawns, model: st.model, after, state: st,
-        hud: { input: h.input, git: h.git, pr: h.pr, player: h.player, vitals: h.vitals, offhand: h.offhand, lines: h.lines, framed: h.framed, offset: h.offset },
+        hud: { input: h.input, git: h.git, pr: h.pr, player: h.player, vitals: h.vitals, offhand: h.offhand, agents: h.agents,
+          lines: h.lines, framed: h.framed, offset: h.offset },
       };
     } catch (e) {
       after.length = 0;                                       // a HUD render that failed writes no history and no shown-file

@@ -486,7 +486,7 @@ test('bytes: every round-9 row at 24-bit and 256 colours is the independent enco
 test('glyphs: ☥ and ✦ are 1 cell and on glyphs --hud, after ∞; every glyph on the rows\' offhand and slot 5 is listed', () => {
   for (const g of [ANKH, SPARK]) assert.equal(cellWidth(g), 1, g);
   const names = HUD_GLYPHS.map(([g]) => g);
-  assert.deepEqual(names.slice(names.indexOf('∞'), names.indexOf('∞') + 4), ['∞', '☥', '✦', '·']);
+  assert.deepEqual(names.slice(names.indexOf('∞'), names.indexOf('∞') + 4), ['∞', '☥', '✦', '▤'], 'then the agents\' glyphs (test/unit/hud-agents.test.ts), before ·');
   assert.match(HUD_GLYPHS.find(([g]) => g === ANKH)![1], /totem.*hud\.totem/i);
   assert.match(HUD_GLYPHS.find(([g]) => g === SPARK)![1], /pop/);
   const drawnGlyphs = new Set(ALL.flatMap(({ lines }) => {

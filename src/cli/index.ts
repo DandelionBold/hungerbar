@@ -13,7 +13,7 @@ const HELP = `hungerbar ${VERSION}: a Claude Code status line (limits drain and 
 
 usage:
   hungerbar                      render from stdin (Claude Code runs this); a terminal shows the demo
-  hungerbar preview [--situation normal|tight|fresh|extra|fable|all] [--payload f.json]
+  hungerbar preview [--situation normal|tight|fresh|extra|fable|agents|all] [--payload f.json]
                     [--look classic|hud] [--fable off|tail|tooltip|boss|beacon] [--align left|center]
                     [--pr on|off] [--user off|user|user@host] [--op off|tag|gold] [--bed on|off] [--phantoms on|off]
                     [--ultra on|off] [--poison on|off] [--totem on|off]

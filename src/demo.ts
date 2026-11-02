@@ -1,8 +1,9 @@
 // The picker's four situations, plus Fable in use, as payloads plus fixed git/usage/counts/history data, for `preview`
 // and a TTY render. Each look draws them from the same data: classic uses what it always did, the HUD also the cost, the
 // book's counts, the git-terrain history and the scoped Fable week (test/reference/hud4-states.json and hud-spec.json),
-// and (0.7.0) the git state's status and, with hud.pr on, the tight day's pull request. Who runs the session (hud.user,
-// hud.op) is not made up: a caller hands demoSources this machine's (whoAmI), or none.
+// and (0.7.0) the git state's status and, with hud.pr on, the tight day's pull request; (1.1.0) a sixth situation, the
+// normal day with three agents at work. Who runs the session (hud.user, hud.op) is not made up: a caller hands
+// demoSources this machine's (whoAmI), or none.
 import { liveLimits, noFiveHour, view } from './limits.ts';
 import { QUARTER, type Bucket, type Hist } from './hud/input.ts';
 import type { Config } from './config.ts';
@@ -25,6 +26,8 @@ export interface Demo {
   hist?: Hist;
   /** The branch's pull request, drawn with hud.pr on (0.7.0); none: no PR. */
   pr?: PrInfo;
+  /** Agents at work with Ultracode on (1.1.0): this many agent files written a few seconds before the render; none: no agents. */
+  agents?: number;
 }
 
 const T = (s: number): number => DEMO_NOW + s;
@@ -126,11 +129,14 @@ export const DEMOS: Record<string, Demo> = {
     payload: { ...normal.payload, model: { id: 'claude-fable-5-1', display_name: 'Fable 5.1' } },
     usage: usage(0, { name: 'Fable', pct: 62, resets_at: T(190800) }),
   },
+  // 1.1.0: the normal day with Ultracode on and three agents at work (a workflow running)
+  agents: { ...normal, label: 'Agents at work', agents: 3 },
 };
 
 /**
  * Fixed sources: nothing is read from or written to disk. The PR is the demo's own while cfg.hud.pr is on (no gh, no
- * network); `who` is who runs the session (none: no name and no operator's mark).
+ * network); the agents at work (1.1.0) are agent files written 3, 10, 17 … seconds before the render's now;
+ * `who` is who runs the session (none: no name and no operator's mark).
  */
 export function demoSources(d: Demo, who?: WhoSource): (p: Payload, cfg: Config, now: number) => Sources {
   return (p, cfg, now) => ({
@@ -145,6 +151,7 @@ export function demoSources(d: Demo, who?: WhoSource): (p: Payload, cfg: Config,
     // as on disk: no history outside a repo
     history: (_repo, branch) => (branch !== null && d.hist ? structuredClone(d.hist) : null),
     pr: () => (cfg.hud.pr === 'on' && d.pr ? { ...d.pr } : null),
+    agents: () => (d.agents ? { ultra: true, mtimes: Array.from({ length: d.agents }, (_, i) => now - 3 - 7 * i) } : null),
     ...(who ? { who } : {}),
   });
 }

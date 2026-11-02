@@ -1,6 +1,6 @@
 // Runs one fixture case through dist/hungerbar.mjs with seeded temp state (SPEC §16.1).
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,6 +11,7 @@ import { str } from '../src/payload.ts';
 import { prPath } from '../src/pr/cache.ts';
 import { shownPath } from '../src/shown.ts';
 import { acctDir } from '../src/store.ts';
+import { refreshTranscript, subagentsDir, txId } from '../src/transcript.ts';
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const DIST = join(ROOT, 'dist', 'hungerbar.mjs');
@@ -53,6 +54,12 @@ export interface Case {
      * what it drew then, at its at (default NOW - 30), and until.pop (pop, default 0: no pop).
      */
     shown?: { h5: number | null; week: number | null; credits: number | null; pop?: number | string; at?: number | string };
+    /**
+     * The agents at work (1.1.0): agent files in the transcript's subagents folder (src/transcript.ts subagentsDir), each
+     * written `age` seconds before NOW, plain subagents in `files` and a workflow's in `workflow`; then the transcript
+     * worker's look at them is taken, in process at NOW (refreshTranscript with agents), as a render's spawn would.
+     */
+    agents?: { files?: number[]; workflow?: number[] };
   };
   config?: unknown;
   /** Written verbatim as hungerbar.json (for the invalid-config case). */
@@ -88,6 +95,17 @@ export interface Case {
    * unless it says off), the pop and the stale count as pinned; it finds the rest from the state.
    */
   hudOffhand?: unknown;
+  /**
+   * hud-* cases: what the agents must be handed (src/hud/agents.ts AgentMarks, 1.1.0), over the case's look (hud.agents:
+   * bees unless the config says allays or off) with none at work and Ultracode off; absent when none is at work. The
+   * tests' layer is handed the look and the agents at work.
+   */
+  hudAgents?: unknown;
+  /**
+   * hud-* cases: what the pickaxe's tiers must be handed (src/hud/tiers.ts TierMarks, 1.1.0), over the tests' own reading
+   * of the model's tier (hud.pickaxe tiers unless the config says plain); absent when that reading is the one.
+   */
+  hudTiers?: unknown;
   /**
    * hud-* cases: the reference state this case reproduces apart from hist, turns and compactions ("states:normal" from
    * hud4-states.json, "round7:fable-in-use" from hud-spec.json); its scoped is [] when it has none.
@@ -250,6 +268,20 @@ export function prepare(c: Case): Prepared {
     const p = shownPath(cache, sid);
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, JSON.stringify({ v: 1, at: fill(shown.at ?? '{{NOW-30}}', transcript), h5: shown.h5, week: shown.week, credits: shown.credits, until: { pop: fill(shown.pop ?? 0, transcript) } }));
+  }
+  const agents = c.state?.agents;
+  if (agents) {
+    const sub = subagentsDir(transcript);
+    const put = (rel: string, age: number): void => {
+      const p = join(sub, rel);
+      mkdirSync(dirname(p), { recursive: true });
+      writeFileSync(p, '');
+      utimesSync(p, NOW - age, NOW - age);
+    };
+    (agents.files ?? []).forEach((age, i) => put(`agent-a${i}.jsonl`, age));
+    (agents.workflow ?? []).forEach((age, i) => put(join('workflows', 'wf_case', `agent-w${i}.jsonl`), age));
+    const pl = payload as { session_id?: unknown } | undefined;
+    if (!refreshTranscript(transcript, txId(transcript, str(pl?.session_id)), cache, true, NOW)) throw new Error('state.agents: the worker could not read the transcript');
   }
   const stdin = c.raw ?? (payload === undefined ? '' : JSON.stringify(payload));
   return { dir, env, stdin, cleanup: () => rmSync(dir, { recursive: true, force: true }) };

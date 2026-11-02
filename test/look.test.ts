@@ -831,8 +831,8 @@ test('glyphs --hud: every glyph the plan lists (and the rest of the HUD probe se
   const PLAN = '⛏ Ⅰ Ⅱ Ⅲ Ⅳ Ⅴ 📖 ▀ ▒ ▁ ▂ ▃ ▄ ▅ ▆ ▇ █ ▐ ▌ 🮂 ⬢ ⬡ ◈ ┃ ╻ ☼ ☾ ☠ ◦ ○ ◉ ⌂ ◆ ♥ 🍗 ↻ ⎇'.split(' ');
   for (const g of PLAN) assert.ok(shown.has(g), `${g} on the ruler`);
   assert.deepEqual([...shown].filter((g) => !PLAN.includes(g)), ['▏', '▎', '▍', '▋', '▊', '▉', '\u2800', '↑', '↓', '●', '✓', '×', '±', '‼', '◌',
-    '\u{1FB84}', '\u{1FB08}', '\u{1FB0B}', '\u{1FB05}', '\u{1FB22}', '\u{1FB2D}', '\u{1FB16}', '∞', '☥', '✦', '·', '…'],
-    'and the wear bar eighths, the bottom edge row\'s blank (U+2800), the git state\'s arrows, the PR\'s marks, the bed and the phantoms (0.7.0), Ultra\'s ∞ and the totem\'s ☥ and ✦ (1.1.0), the separator and the ellipsis');
+    '\u{1FB84}', '\u{1FB08}', '\u{1FB0B}', '\u{1FB05}', '\u{1FB22}', '\u{1FB2D}', '\u{1FB16}', '∞', '☥', '✦', '▤', '\u{1FB02}', '\u{1FB0E}', '\u{1FB39}', '\u{1FB06}', '·', '…'],
+    'and the wear bar eighths, the bottom edge row\'s blank (U+2800), the git state\'s arrows, the PR\'s marks, the bed and the phantoms (0.7.0), Ultra\'s ∞, the totem\'s ☥ and ✦, and the agents\' hive and sextants (1.1.0), the separator and the ellipsis');
   // the hotbar's frame (0.5.1): its edges are two probed glyphs, its blank cells U+2800
   for (const [g, what] of [['\u{1FB82}', /bottom edge/], ['▂', /top edge of the offhand/], ['\u2800', /blank cells of the bottom edge row/]] as const) {
     assert.match(rows.find((r) => r.startsWith(`|${g}|`)) ?? '', what, `U+${g.codePointAt(0)!.toString(16).toUpperCase()}`);
@@ -900,7 +900,7 @@ test('help names look, glyphs --hud and the new setup and preview flags', () => 
   const r = runDist('', { PATH: process.env.PATH ?? '' }, ['--help']);
   assert.equal(r.status, 0);
   for (const s of ['hungerbar look [classic|hud] [--fable off|tail|tooltip|boss|beacon] [--align left|center] [--print]', 'hungerbar glyphs [--hud]',
-    '[--look classic|hud] [--fable off|tail|tooltip|boss|beacon] [--align left|center]', '--situation normal|tight|fresh|extra|fable|all',
+    '[--look classic|hud] [--fable off|tail|tooltip|boss|beacon] [--align left|center]', '--situation normal|tight|fresh|extra|fable|agents|all',
     '[--width N]']) assert.ok(r.stdout.includes(s), s);
 });
 

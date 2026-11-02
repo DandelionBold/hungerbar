@@ -4,6 +4,7 @@ import { slash, type Env } from './env.ts';
 import { ctxPct, hitPct, limitPct } from './format.ts';
 import type { Repo } from './git/head.ts';
 import type { GitOp, GitStatus } from './git/status.ts';
+import type { AgentsSeen } from './hud/agents.ts';
 import type { Hist } from './hud/input.ts';
 import type { LimitView } from './limits.ts';
 import type { PrInfo } from './pr/gh.ts';
@@ -136,6 +137,14 @@ export interface Sources {
    * or persist false (preview), nothing is read or written. A source without it (the demo) never pops.
    */
   shown?(now: ShownNow): number;
+  /**
+   * The agents at work (SPEC §0.12, 1.1.0): from the transcript's summary, Ultracode's last signal and the newest agent
+   * files' mtimes of the transcript worker's last look at the session's subagents folder (none before its first); null
+   * without a transcript. A look that is due (agentsDue) queues the worker (`refresh transcript <path> <id> agents`),
+   * after stdout. No process and no folder read. Only the HUD asks, and only with hud.agents not off; a source without
+   * it shows none.
+   */
+  agents?(): AgentsSeen | null;
 }
 
 const sumUsage = (u: Usage): number =>
