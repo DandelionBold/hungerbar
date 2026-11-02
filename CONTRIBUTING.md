@@ -45,7 +45,7 @@ To keep a copy of your checkout, run `node dist/hungerbar.mjs mirror <dir>` from
 | Folder | What is in it |
 |---|---|
 | `src/` | The TypeScript source. `esbuild` bundles it into one file, `dist/hungerbar.mjs`, with no runtime dependencies. |
-| `src/hud/` | The Minecraft HUD: a port of the design engine, plus the layers added on top (frame, centring, git state, PR badge, the player's name, the bed, the phantoms). |
+| `src/hud/` | The Minecraft HUD: a port of the design engine, plus the layers added on top (frame, centring, git state, PR badge, the player's name, the bed, the phantoms, and since 1.1.0 the hearts, the totem and the emerald, the agents and the pickaxe's tiers). |
 | `src/cli/` | The commands: `setup`, `look`, `preview`, `doctor`, `icons`, `glyphs`, and `mirror` (for a checkout only). |
 | `test/` | The tests, the golden files, the fixtures and the pinned reference files. |
 | `bench/` | The timing bench and the kill-storm. |
@@ -60,7 +60,7 @@ Every pull request needs these three green:
 
 ```bash
 npm run typecheck          # tsc, strict
-npm test                   # builds, then runs every test (about 500, a few minutes)
+npm test                   # builds, then runs every test (about 660, a few minutes)
 npm run test:hud-coverage  # the HUD's modules at 100% lines, branches and functions
 ```
 
