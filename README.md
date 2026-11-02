@@ -127,7 +127,7 @@ The numbers come from the usage API, which uses the network. So every option but
 
 ### Hearts that tell more
 
-Three looks for the hearts line, picked in round 9 of the design picker:
+Three looks for the hearts line, picked in round 9 of the design picker (each round drew a few options for each new part of the HUD side by side, and one was chosen):
 
 - **Ultra** (`hud.ultra`). On a plan with no 5-hour limit, Claude Code sends only the week. Instead of a grey `?` and ten dark hearts, which read as "no health left", the line shows the golden apple: the day's ☼, a bold gold ∞ and ten gold hearts, Minecraft's absorption hearts. Gold shows nowhere else on the line, so it can only mean "no 5-hour limit".
 - **Not live** (no key). When Claude Code sends no limits, Hungerbar shows the last ones it saved. They get a grey `~` before the %, and the red hearts, the drumsticks and the % are drawn dimmer, as the classic lines mark them. The `~` goes as soon as Claude Code sends live limits again.
@@ -158,7 +158,7 @@ v2.1.306  ☥ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3                        ▆ ▀�
 v2.1.306 ▐☥✦45▌ ▐⛏ Ⅲ ▌📖42 ▄▄ 3                        ▆ ▀▀▂▂  +1208 -279  ⎇ main
 ```
 
-The totem is on by default. `hungerbar look hud --totem off` brings back 1.0's slot 5 and offhand (the keyless fixes still apply). To see the pop, Hungerbar keeps what it last drew in a small file per session (see [What it writes](#privacy-and-network)).
+The totem is on by default. `hungerbar look hud --totem off` brings back 1.0's slot 5 and offhand (the three changes above that have no setting still apply). To see the pop, Hungerbar keeps what it last drew in a small file per session (see [What it writes](#privacy-and-network)).
 
 ### Your agents at work
 
