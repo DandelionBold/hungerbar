@@ -6,9 +6,10 @@ import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { defaults } from '../src/config.ts';
 import { diskSources } from '../src/render.ts';
-import { pruneOld } from '../src/store.ts';
+import { pruneOld, statSafe } from '../src/store.ts';
 import {
-  fold, freshTx, readTranscript, refreshTranscript, summarize, TX_BUDGET, txId, txLockPath, txStatePath, WAITS_ON_USER, type TxState, type TxSummary,
+  AGENT_TOOLS, agentMtimes, AGENTS_AWAKE, AGENTS_ENTRIES, AGENTS_FLOWS, AGENTS_KEPT, AGENTS_STATS, AGENTS_TTL, agentsDue, fold, freshTx, readTranscript, refreshTranscript,
+  subagentsDir, summarize, TX_BUDGET, txId, txLockPath, txStatePath, WAITS_ON_USER, type AgentsLook, type TxState, type TxSummary,
 } from '../src/transcript.ts';
 import type { Payload } from '../src/payload.ts';
 import { DIST, ROOT, tempDir } from './harness.ts';
@@ -764,6 +765,209 @@ test('dist: an over-budget render spawns the detached worker, which catches up; 
   } finally {
     await removeWhenFree(dir);
   }
+});
+
+// ---- The agents at work (SPEC §0.12, 1.1.0): Ultracode's signal, the agent calls and the subagents folder ----
+
+/**
+ * An Ultracode reminder as Claude Code writes it: a main-chain attachment row whose attachment is ultra_effort_enter
+ * (on, its reminder full or sparse) or ultra_effort_exit (off). Only the marker strings are real; the rest is made up.
+ */
+const ultraRow = (type: 'ultra_effort_enter' | 'ultra_effort_exit', more: Extra = {}): string => JSON.stringify({
+  parentUuid: 'p1', isSidechain: false, attachment: type === 'ultra_effort_enter' ? { type, reminderType: 'full' } : { type },
+  type: 'attachment', uuid: 'u1', timestamp: '2026-11-01T10:00:00Z', ...more,
+});
+/** A main-chain assistant row that calls one tool. */
+const toolCall = (id: string, name: string, ts: string | null, more: Extra = {}): string => JSON.stringify({
+  type: 'assistant', ...(ts ? { timestamp: ts } : {}),
+  message: { id: `msg_${id}`, model: 'claude-opus-5-5', content: [{ type: 'tool_use', id: `toolu_${id}`, name, input: {} }] }, ...more,
+});
+const secs = (iso: string): number => Date.parse(iso) / 1000;
+
+test('Ultracode: the last ultra_effort_enter or ultra_effort_exit attachment of the main chain says whether it is on', () => {
+  const st = fresh();
+  assert.equal(summarize(st).ultra, false, 'none seen: off');
+  assert.equal('ultra' in st, false, 'and the state has no key until one is seen');
+  fold(st, ultraRow('ultra_effort_enter'));
+  assert.equal(summarize(st).ultra, true);
+  fold(st, ultraRow('ultra_effort_enter', { attachment: { type: 'ultra_effort_enter', reminderType: 'sparse' } }));
+  assert.equal(summarize(st).ultra, true, 'the sparse reminder: still on');
+  fold(st, ultraRow('ultra_effort_exit'));
+  assert.equal(summarize(st).ultra, false);
+  fold(st, ultraRow('ultra_effort_enter', { isSidechain: true }));
+  assert.equal(summarize(st).ultra, false, 'a sidechain\'s is not the session\'s');
+  // the marker as text, or in another row, says nothing
+  for (const l of [
+    prompt('the row {"type":"ultra_effort_enter"}'), JSON.stringify({ type: 'progress', data: { type: 'ultra_effort_enter' } }),
+    JSON.stringify({ type: 'attachment', attachment: 'ultra_effort_enter' }), JSON.stringify({ type: 'attachment', attachment: null }),
+    JSON.stringify({ type: 'attachment', attachment: { type: 'ultra_effort_entered' } }), '{"type":"attachment","attachment":{"type":"ultra_effort_enter"', 'null "ultra_effort_',
+  ]) fold(st, l);
+  assert.equal(summarize(st).ultra, false);
+  assert.equal(st.turns, 1, 'the reminders are no prompts; the typed one is');
+  fold(st, ultraRow('ultra_effort_enter'));
+  assert.deepEqual([summarize(st).ultra, st.lastAt], [true, null], 'on again; a reminder is no message (no lastAt)');
+});
+
+test('agent calls: a main-chain call to Agent, Task or Workflow sets agentAt to its row\'s time; another tool, or a sidechain\'s call, does not', () => {
+  const st = fresh();
+  assert.equal(summarize(st).agentAt, null, 'none');
+  assert.deepEqual([...AGENT_TOOLS].sort(), ['Agent', 'Task', 'Workflow']);
+  fold(st, toolCall('1', 'Bash', '2026-11-01T10:00:00Z'));
+  fold(st, toolCall('2', 'TaskStop', '2026-11-01T10:00:30Z'));
+  assert.equal(summarize(st).agentAt, null, 'other tools');
+  fold(st, toolCall('3', 'Agent', '2026-11-01T10:01:00Z'));
+  assert.equal(summarize(st).agentAt, secs('2026-11-01T10:01:00Z'));
+  fold(st, toolCall('4', 'Workflow', '2026-11-01T10:05:00Z', { isSidechain: true }));
+  fold(st, toolCall('5', 'Agent', '2026-11-01T10:05:00Z', { isApiErrorMessage: true }));
+  assert.equal(summarize(st).agentAt, secs('2026-11-01T10:01:00Z'), 'a subagent\'s own call, and an API error row');
+  fold(st, toolCall('6', 'Task', '2026-11-01T10:07:00Z'));
+  assert.equal(summarize(st).agentAt, secs('2026-11-01T10:07:00Z'), 'Task, the older name');
+  fold(st, prompt('next', { timestamp: '2026-11-01T10:09:00Z' }));
+  fold(st, toolCall('7', 'Workflow', null));
+  assert.equal(summarize(st).agentAt, secs('2026-11-01T10:09:00Z'), 'a call with no time: the newest message\'s');
+  fold(st, JSON.stringify({ type: 'assistant', timestamp: '2026-11-01T10:20:00Z', message: { id: 'msg_t', content: [{ type: 'text', text: 'Agent Workflow' }] } }));
+  assert.equal(summarize(st).agentAt, secs('2026-11-01T10:09:00Z'), 'the names as text');
+  const none = fresh();
+  fold(none, toolCall('8', 'Agent', null));
+  assert.equal(summarize(none).agentAt, 0, 'no time at all: 0, a call long ago');
+});
+
+/** An empty file at `rel` under `dir` whose mtime is `at` (epoch seconds). */
+function touched(dir: string, rel: string, at: number): void {
+  const p = join(dir, rel);
+  mkdirSync(dirname(p), { recursive: true });
+  writeFileSync(p, '');
+  utimesSync(p, at, at);
+}
+const T0 = 1_792_859_460;
+
+test('agentMtimes: the agent files of the subagents folder and of its workflows, newest first; a missing folder is none', () => {
+  const dir = tmp();
+  try {
+    const sub = subagentsDir(join(dir, 'sess-1.jsonl'));
+    assert.equal(sub, join(dir, 'sess-1', 'subagents'), 'the folder named after the transcript, beside it');
+    assert.equal(subagentsDir(join(dir, 'odd.json')), join(dir, 'odd.json', 'subagents'), 'a name without .jsonl is kept whole');
+    assert.deepEqual(agentMtimes(sub), [], 'no folder: no agents');
+    mkdirSync(sub, { recursive: true });
+    assert.deepEqual(agentMtimes(sub), [], 'an empty one');
+    touched(sub, 'agent-a1.jsonl', T0 - 5);
+    touched(sub, 'agent-a1.meta.json', T0);
+    touched(sub, 'agent-a1.prefix.json', T0);
+    touched(sub, 'notes.jsonl', T0);
+    touched(sub, 'agent-.jsonl', T0);
+    touched(sub, 'agent-a2.jsonl', T0 - 300);
+    mkdirSync(join(sub, 'agent-a3.jsonl'));
+    touched(sub, 'workflows/wf_1/agent-w1.jsonl', T0 - 1);
+    touched(sub, 'workflows/wf_1/agent-w2.jsonl', T0 - 30);
+    touched(sub, 'workflows/wf_2/agent-w3.jsonl', T0 - 2);
+    touched(sub, 'workflows/wf_2/scripts/agent-deep.jsonl', T0);
+    touched(sub, 'workflows/other/agent-x.jsonl', T0);
+    touched(sub, 'workflows/wf_3', T0);
+    touched(sub, 'workflows/agent-loose.jsonl', T0);
+    assert.deepEqual(agentMtimes(sub), [T0 - 1, T0 - 2, T0 - 5, T0 - 30, T0 - 300],
+      'agent-<id>.jsonl files only, in subagents and in its wf_ folders: no .meta or .prefix file, no other name, no folder, no third level');
+    // the files are never opened: what is in them does not matter
+    writeFileSync(join(sub, 'agent-a2.jsonl'), '\u0000 not json');
+    utimesSync(join(sub, 'agent-a2.jsonl'), T0 - 300, T0 - 300);
+    assert.deepEqual(agentMtimes(sub).at(-1), T0 - 300);
+    for (let i = 0; i < 20; i++) touched(sub, `agent-b${i}.jsonl`, T0 - 100 - i);
+    const kept = agentMtimes(sub);
+    assert.equal(kept.length, AGENTS_KEPT, 'the newest 16');
+    assert.deepEqual(kept.slice(0, 5), [T0 - 1, T0 - 2, T0 - 5, T0 - 30, T0 - 100]);
+    assert.deepEqual(kept, [...kept].sort((a, b) => b - a));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('agentMtimes is bounded: 256 names a folder, 64 workflow folders (the newest first), 512 stats, each through statSafe', () => {
+  assert.deepEqual([AGENTS_ENTRIES, AGENTS_FLOWS, AGENTS_STATS, AGENTS_KEPT], [256, 64, 512, 16]);
+  const dir = tmp();
+  try {
+    const sub = join(dir, 'subagents');
+    for (let i = 0; i < 300; i++) touched(sub, `agent-p${String(i).padStart(3, '0')}.jsonl`, T0 - i);
+    let asked: string[] = [];
+    const counting = (p: string): ReturnType<typeof statSafe> => { asked.push(p); return statSafe(p); };
+    assert.equal(agentMtimes(sub, counting).length, AGENTS_KEPT);
+    assert.equal(asked.length, AGENTS_ENTRIES, 'a folder of 300 agents: 256 names read, 256 stats');
+    // 70 workflows of one agent each, wf_69 the newest folder: every folder's stat, then the agents of the newest 64
+    const wf = (w: number): string => `wf_${String(w).padStart(2, '0')}`;
+    const flowsOf = (paths: readonly string[]): string[] => [...new Set(paths.filter((p) => p.endsWith('.jsonl')).map((p) => /(wf_\d\d)/.exec(p)![1]!))];
+    rmSync(sub, { recursive: true, force: true });
+    for (let w = 0; w < 70; w++) {
+      touched(sub, `workflows/${wf(w)}/agent-q.jsonl`, T0 - 1000 + w);
+      utimesSync(join(sub, 'workflows', wf(w)), T0 - 69 + w, T0 - 69 + w);
+    }
+    asked = [];
+    let got = agentMtimes(sub, counting);
+    assert.equal(asked.filter((p) => /wf_\d\d$/.test(p)).length, 70, 'each workflow folder is stated');
+    assert.deepEqual(flowsOf(asked), Array.from({ length: AGENTS_FLOWS }, (_, i) => wf(69 - i)), 'the newest 64 folders are read, the newest first');
+    assert.deepEqual(got, Array.from({ length: AGENTS_KEPT }, (_, i) => T0 - 1000 + 69 - i));
+    // 40 workflows of 15 agents each: 40 folder stats, then agents until 512 stats in all
+    rmSync(sub, { recursive: true, force: true });
+    for (let w = 0; w < 40; w++) {
+      for (let a = 0; a < 15; a++) touched(sub, `workflows/${wf(w)}/agent-q${String(a).padStart(2, '0')}.jsonl`, T0 - w * 100 - a);
+      utimesSync(join(sub, 'workflows', wf(w)), T0 - w, T0 - w);
+    }
+    asked = [];
+    got = agentMtimes(sub, counting);
+    assert.equal(asked.length, AGENTS_STATS, 'the budget: no stat past it');
+    assert.equal(asked.filter((p) => p.endsWith('.jsonl')).length, AGENTS_STATS - 40);
+    assert.deepEqual(flowsOf(asked).slice(0, 3), [wf(0), wf(1), wf(2)], 'the newest folder first');
+    assert.deepEqual(got, Array.from({ length: AGENTS_KEPT }, (_, i) => T0 - Math.floor(i / 15) * 100 - (i % 15)), 'the newest agents of the newest folders');
+    // a stat that fails is no agent
+    assert.deepEqual(agentMtimes(sub, () => undefined), []);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('the worker with agents keeps its look at the subagents folder and when it was taken, written though no byte is new; without, the look stays', () => {
+  const dir = tmp();
+  try {
+    const file = join(dir, 'sess.jsonl');
+    writeFileSync(file, [prompt('a'), toolCall('1', 'Workflow', '2026-11-01T10:01:00Z')].join('\n') + '\n');
+    touched(subagentsDir(file), 'agent-a.jsonl', T0 - 4);
+    touched(subagentsDir(file), 'workflows/wf_x/agent-b.jsonl', T0 - 61);
+    const plain = refreshTranscript(file, 'sess', dir);
+    assert.deepEqual([plain?.agents, plain?.agentAt], [null, secs('2026-11-01T10:01:00Z')], 'not asked: no look');
+    const at = refreshTranscript(file, 'sess', dir, true, T0 + 0.7);
+    const look = { at: T0, mtimes: [T0 - 4, T0 - 61] };
+    assert.deepEqual(at?.agents, look);
+    assert.deepEqual((JSON.parse(readFileSync(txStatePath(dir, 'sess'), 'utf8')) as TxState).agents, look, 'saved, though the bytes were folded already');
+    appendFileSync(file, prompt('b') + '\n');
+    assert.deepEqual(readTranscript(file, 'sess', dir, true)?.agents, look, 'a render keeps it as it folds new bytes');
+    assert.deepEqual(refreshTranscript(file, 'sess', dir)?.agents, look, 'and so does a worker run without agents');
+    rmSync(join(dir, 'sess'), { recursive: true, force: true });
+    assert.deepEqual(refreshTranscript(file, 'sess', dir, true, T0 + 100)?.agents, { at: T0 + 100, mtimes: [] }, 'the folder gone: none');
+    // dist: refresh transcript <path> <id> agents, at HUNGERBAR_NOW
+    touched(subagentsDir(file), 'agent-c.jsonl', T0 - 2);
+    const r = spawnSync(process.execPath, [DIST, 'refresh', 'transcript', file, 'sess', 'agents'],
+      { env: { PATH: process.env.PATH ?? '', SystemRoot: process.env.SystemRoot ?? 'C:\\Windows', HUNGERBAR_CACHE_DIR: dir, HUNGERBAR_NOW: String(T0) }, encoding: 'utf8', windowsHide: true, timeout: 15000 });
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual((JSON.parse(readFileSync(txStatePath(dir, 'sess'), 'utf8')) as TxState).agents, { at: T0, mtimes: [T0 - 2] });
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('agentsDue: while the session is at work with agents, once the last look is 10 s old; never for a session that called none', () => {
+  assert.deepEqual([AGENTS_TTL, AGENTS_AWAKE], [10, 600]);
+  const due = (agentAt: number | null, agents: AgentsLook | null, now = T0): boolean => agentsDue({ agentAt, agents }, now);
+  assert.equal(due(null, null), false, 'no agent call, no look');
+  assert.equal(due(T0 - 5, null), true, 'a call just now, no look yet');
+  assert.equal(due(T0 - 600, null), true);
+  assert.equal(due(T0 - 601, null), false, 'the call is 10 minutes old');
+  assert.equal(due(T0 + 30, null), true, 'a call from a clock ahead');
+  assert.equal(due(T0 - 5, { at: T0 - 9, mtimes: [] }), false, 'a look 9 s old');
+  assert.equal(due(T0 - 5, { at: T0 - 10, mtimes: [] }), true, 'a look 10 s old');
+  assert.equal(due(T0 - 5, { at: T0 + 60, mtimes: [] }), true, 'a look from a clock ahead');
+  // the call is old, but the last look found an agent at work in the 10 minutes before it
+  assert.equal(due(T0 - 3600, { at: T0 - 20, mtimes: [T0 - 620] }), true);
+  assert.equal(due(T0 - 3600, { at: T0 - 20, mtimes: [T0 - 621] }), false, 'its newest agent file 10 minutes older than the look');
+  assert.equal(due(null, { at: T0 - 20, mtimes: [T0 - 30, T0 - 900] }), true, 'a look but no call (a state from before the call was read)');
+  assert.equal(due(null, { at: T0 - 20, mtimes: [] }), false);
+  assert.equal(due(T0 - 3600, { at: T0 - 5, mtimes: [T0 - 6] }), false, 'at work, but the look is fresh');
 });
 
 // ---- Prune (SPEC §10) ----

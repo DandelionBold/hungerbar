@@ -1,9 +1,11 @@
 // Lazy, incremental transcript reader, used when a stdin field is missing (SPEC §5) and for the HUD's prompt and
 // compaction counts (plan §7). A render reads at most TX_BUDGET new bytes; a bigger delta keeps the saved summary and
-// asks for the detached `hungerbar refresh transcript` worker, which folds the rest under a lock.
-import { closeSync, fstatSync, openSync, readSync, utimesSync } from 'node:fs';
-import { join } from 'node:path';
-import { fnv1a, readJson, tryLock, unlock, writeJson } from './store.ts';
+// asks for the detached `hungerbar refresh transcript` worker, which folds the rest under a lock. Asked with `agents`
+// (SPEC §0.12, 1.1.0), the worker also looks at the session's subagents folder for the HUD's agents at work: the names
+// and mtimes of its agent files, never what is in them (agentMtimes). The render itself reads no folder.
+import { closeSync, fstatSync, opendirSync, openSync, readSync, utimesSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
+import { fnv1a, readJson, statSafe, tryLock, unlock, writeJson } from './store.ts';
 
 type Ttl = '5m' | '1h';
 
@@ -47,7 +49,25 @@ export interface TxState {
   open?: string[];
   /** That message's id (null without one): a row of the same message adds its calls, any other starts over. */
   openMsg?: string | null;
+  /**
+   * The last Ultracode signal of the main chain (1.1.0): true after an `ultra_effort_enter` attachment row (Claude Code's
+   * "Ultracode is on" reminder), false after an `ultra_effort_exit` one. Absent while none has been seen.
+   */
+  ultra?: boolean;
+  /**
+   * The time, in seconds, of the newest main-chain assistant row that calls a tool which starts agents (AGENT_TOOLS),
+   * or of the newest message before it when that row has no time (1.1.0). Absent (or null) while there is none.
+   */
+  agentAt?: number | null;
+  /**
+   * What the worker last read of the session's subagents folder (1.1.0, agentMtimes): when it looked, in seconds, and
+   * the newest agent files' mtimes, in seconds, newest first, at most AGENTS_KEPT. Absent until it has looked.
+   */
+  agents?: AgentsLook;
 }
+
+/** One look at the subagents folder: when, and the newest agent files' mtimes (seconds, newest first). */
+export interface AgentsLook { at: number; mtimes: number[] }
 
 export interface TxSummary {
   hitRatio: number | null;
@@ -63,6 +83,12 @@ export interface TxSummary {
   running: boolean;
   /** The new bytes were over the render's budget: this is the saved summary, and the worker should fold the rest. */
   needsWorker: boolean;
+  /** The last Ultracode signal was "on" (TxState.ultra; false when none was seen, 1.1.0). */
+  ultra: boolean;
+  /** The newest agent tool call's time in seconds (TxState.agentAt), null when there is none (1.1.0). */
+  agentAt: number | null;
+  /** The worker's last look at the subagents folder (TxState.agents), null until it has looked (1.1.0). */
+  agents: AgentsLook | null;
 }
 
 /** The most new bytes one render folds (SPEC §17's +25 ms envelope); more is left to the worker. */
@@ -79,6 +105,27 @@ const OPEN_MAX = 64;
  * waits, so a call waiting on one reads as running.
  */
 export const WAITS_ON_USER: ReadonlySet<string> = new Set(['AskUserQuestion', 'ExitPlanMode']);
+/**
+ * The tools that start agents (1.1.0): Agent (a subagent; Task in older Claude Codes) and Workflow (a workflow of them).
+ * A main-chain call to one sets agentAt, which tells the HUD that the subagents folder is worth a look.
+ */
+export const AGENT_TOOLS: ReadonlySet<string> = new Set(['Agent', 'Task', 'Workflow']);
+/** The newest agent files' mtimes a look keeps (so the HUD's count of agents at work stops at this many). */
+export const AGENTS_KEPT = 16;
+/** A look reads at most this many entries of a folder (names only), and stats at most AGENTS_STATS paths in all. */
+export const AGENTS_ENTRIES = 256, AGENTS_STATS = 512;
+/** A look reads at most this many workflow folders (subagents/workflows/wf_*), the newest first. */
+export const AGENTS_FLOWS = 64;
+/**
+ * A HUD render asks the worker for a new look at the subagents folder once the last is this many seconds old (so the
+ * agents at work can lag by this much, plus the time to the next render, which Claude Code starts).
+ */
+export const AGENTS_TTL = 10;
+/** The session is at work with agents while its last agent call, or the newest agent file of the last look, is this recent (seconds). */
+export const AGENTS_AWAKE = 600;
+/** An agent's transcript: agent-<id>.jsonl (its .meta.json and .prefix.json beside it are not counted). */
+const AGENT_FILE = /^agent-[\w-]{1,128}\.jsonl$/;
+const FLOW_DIR = /^wf_[\w-]{1,128}$/;
 
 export const freshTx = (path: string): TxState => ({
   v: 2, path, size: 0, offset: 0, sumRead: 0, sumCreate: 0, sumInput: 0, recentIds: [],
@@ -244,11 +291,13 @@ export function fold(st: TxState, line: string): void {
   // somewhere, when it is parsed below; another row with those keys (a progress row quoting a subagent's message) is
   // skipped, as before.
   // `"queued_command"` and `"turn_duration"` likewise only occur unescaped as values: the attachment rows of prompts
-  // sent mid-turn, and the system row Claude Code writes when a turn ends.
+  // sent mid-turn, and the system row Claude Code writes when a turn ends; and `"ultra_effort_` (1.1.0) the attachment
+  // rows of Ultracode's reminders, `ultra_effort_enter` when it is on and `ultra_effort_exit` when it goes off.
   const tool = line.includes('"tool_use_id"');
   const user = line.includes('"type":"user"');
   if (user && tool && FIRST_TYPE.exec(line)?.[1] === 'user' && !line.includes('"assistant"')) return result(st, line);
-  if (!(user && !tool) && !line.includes('"assistant"') && !line.includes('compact_boundary') && !line.includes('"queued_command"') && !line.includes('"turn_duration"')) return;
+  if (!(user && !tool) && !line.includes('"assistant"') && !line.includes('compact_boundary') && !line.includes('"queued_command"') && !line.includes('"turn_duration"')
+    && !line.includes('"ultra_effort_')) return;
   let r: Row;
   try {
     r = JSON.parse(line) as Row;
@@ -282,6 +331,10 @@ export function fold(st: TxState, line: string): void {
     if (queuedPrompt(r)) {
       st.turns++;
       seen(st, r.timestamp);
+    } else if (r.isSidechain !== true && r.attachment !== null && typeof r.attachment === 'object') {
+      // Ultracode's reminders (1.1.0): the last one says whether it is on
+      if (r.attachment.type === 'ultra_effort_enter') st.ultra = true;
+      else if (r.attachment.type === 'ultra_effort_exit') st.ultra = false;
     }
     return;
   }
@@ -289,6 +342,8 @@ export function fold(st: TxState, line: string): void {
   seen(st, r.timestamp);
   const m = r.message;
   calls(st, m.id, m.content);
+  // a call that starts agents (1.1.0), at this row's time (seen() just kept it), or the newest message's without one
+  if (blocks(m.content).some((b) => b.type === 'tool_use' && typeof b.name === 'string' && AGENT_TOOLS.has(b.name))) st.agentAt = st.lastAt ?? 0;
   if (typeof m.model === 'string' && m.model !== '<synthetic>') st.lastModel = m.model;
   const effort = typeof r.effort === 'string' ? r.effort : typeof r.perTurnEffort === 'string' ? r.perTurnEffort : null;
   if (effort) st.lastEffort = { level: effort, model: typeof m.model === 'string' ? m.model : null };
@@ -324,7 +379,68 @@ export function summarize(st: TxState): TxSummary {
     lastAt: st.lastAt ?? null,
     running: (st.open ?? []).length > 0,
     needsWorker: false,
+    ultra: st.ultra === true,
+    agentAt: st.agentAt ?? null,
+    agents: st.agents ?? null,
   };
+}
+
+/**
+ * The subagents folder of a transcript (1.1.0): the folder beside it named after the file without `.jsonl`, which
+ * Claude Code names after the session id, as it names the transcript (`<dir>/<session>.jsonl`, `<dir>/<session>/subagents`).
+ */
+export const subagentsDir = (transcript: string): string => join(dirname(transcript), basename(transcript, '.jsonl'), 'subagents');
+
+/**
+ * Whether a HUD render should ask the worker to look at the subagents folder (1.1.0): while the session is at work with
+ * agents (its last agent call at most AGENTS_AWAKE seconds ago, or the last look found an agent file written at most
+ * AGENTS_AWAKE seconds before it), once that look is AGENTS_TTL seconds old, or there is none, or it is from a clock
+ * ahead of this one. A session that never called an agent tool is never looked at.
+ */
+export function agentsDue(tx: Pick<TxSummary, 'agentAt' | 'agents'>, now: number): boolean {
+  const a = tx.agents, newest = a?.mtimes[0];
+  const busy = (tx.agentAt !== null && now - tx.agentAt <= AGENTS_AWAKE) || (a !== null && newest !== undefined && newest >= a.at - AGENTS_AWAKE);
+  return busy && (a === null || now < a.at || now - a.at >= AGENTS_TTL);
+}
+
+/** At most `max` entry names of a folder, as the folder lists them (none when it cannot be read). */
+function names(dir: string, max: number): string[] {
+  const out: string[] = [];
+  try {
+    const d = opendirSync(dir);
+    try {
+      for (let e = d.readSync(); e !== null && out.length < max; e = d.readSync()) out.push(e.name);
+    } finally {
+      d.closeSync();
+    }
+  } catch { /* no folder (no agent has run), or one that cannot be read: no agents */ }
+  return out;
+}
+
+/**
+ * The newest agent files' mtimes in a subagents folder (1.1.0), in seconds, newest first, at most AGENTS_KEPT: its own
+ * agent-<id>.jsonl files (plain subagents), then those of its workflows/wf_<id> folders (a workflow's agents), the
+ * newest folder first. Bounded: at most AGENTS_ENTRIES names read per folder, AGENTS_FLOWS workflow folders and
+ * AGENTS_STATS stats in all, each through statSafe (`statPath`, which the tests count); only names and mtimes are read,
+ * never a file. A missing folder is no agents, silently.
+ */
+export function agentMtimes(sub: string, statPath: typeof statSafe = statSafe): number[] {
+  const out: number[] = [];
+  let stats = 0;
+  const stat = (p: string): ReturnType<typeof statSafe> => (stats++ < AGENTS_STATS ? statPath(p) : undefined);
+  const files = (dir: string): void => {
+    for (const name of names(dir, AGENTS_ENTRIES)) {
+      if (!AGENT_FILE.test(name)) continue;
+      const s = stat(join(dir, name));
+      if (s?.isFile()) out.push(Math.floor(s.mtimeMs / 1000));
+    }
+  };
+  files(sub);
+  const flows = join(sub, 'workflows');
+  const found = names(flows, AGENTS_ENTRIES).filter((n) => FLOW_DIR.test(n))
+    .flatMap((n) => { const s = stat(join(flows, n)); return s?.isDirectory() ? [{ n, at: s.mtimeMs }] : []; });
+  for (const f of found.sort((a, b) => b.at - a.at).slice(0, AGENTS_FLOWS)) files(join(flows, f.n));
+  return out.sort((a, b) => b - a).slice(0, AGENTS_KEPT);
 }
 
 /** The saved state when it is this transcript's v2 state and the file has not shrunk; else a fresh one (a v1 file is rescanned). */
@@ -390,11 +506,14 @@ export function readTranscript(path: string, sessionId: string | null, cacheDir:
 }
 
 /**
- * `hungerbar refresh transcript <path> <id>`: folds everything the render left, in chunks, under transcript/<id>.lock,
- * and writes the state atomically. A render racing it writes a state that is just as consistent (its offset matches its
- * sums), so the worst case is work done twice. Returns null when the lock is held or the transcript cannot be read.
+ * `hungerbar refresh transcript <path> <id> [agents]`: folds everything the render left, in chunks, under
+ * transcript/<id>.lock, and writes the state atomically. With `agents` (1.1.0) it then looks at the subagents folder
+ * (agentMtimes) and keeps that look with when it was taken (`now`, seconds), and writes the state even when no byte was
+ * new. A render racing it writes a state that is just as consistent (its offset matches its sums; its look is the
+ * previous one, so the next render asks again), so the worst case is work done twice. Returns null when the lock is
+ * held or the transcript cannot be read.
  */
-export function refreshTranscript(path: string, id: string, cacheDir: string): TxSummary | null {
+export function refreshTranscript(path: string, id: string, cacheDir: string, agents = false, now = Date.now() / 1000): TxSummary | null {
   if (!ID.test(id)) return null;
   const lock = txLockPath(cacheDir, id);
   if (!tryLock(lock, TX_LOCK_STALE_MS)) return null;
@@ -413,7 +532,8 @@ export function refreshTranscript(path: string, id: string, cacheDir: string): T
       while (st.offset < size && advance(fd, st, size, CHUNK) > 0) {
         try { const t = new Date(); utimesSync(lock, t, t); } catch { /* the lock just ages */ }
       }
-      if (st.offset !== start) {
+      if (agents) st.agents = { at: Math.floor(now), mtimes: agentMtimes(subagentsDir(path)) };
+      if (st.offset !== start || agents) {
         st.size = size;
         writeJson(statePath, st);
       }

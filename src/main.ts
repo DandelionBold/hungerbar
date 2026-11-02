@@ -96,7 +96,7 @@ async function refreshMain(args: string[], env: Env): Promise<void> {
     await refreshGit(a, b ?? '/', env, cd, loadConfig(env).cfg.git.timeoutMs, () => nowSec(env), c === 'status');
     prune(cd, env);
   } else if (what === 'transcript' && a && b) {
-    refreshTranscript(a, b, cd);
+    refreshTranscript(a, b, cd, c === 'agents', nowSec(env));
     prune(cd, env);
   } else if (what === 'pr' && a && b) {
     await refreshPr(a, b, env, cd, () => nowSec(env));

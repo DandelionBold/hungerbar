@@ -334,7 +334,7 @@ test('phantomHud: a phantom flies only where it and the cell before it are empty
 // ---------------------------------------------------------------------------------------------------------------------
 
 const tx = (lastAt: number | null, needsWorker = false, running = false): TxSummary =>
-  ({ hitRatio: null, lastCached: null, lastUsage: null, lastModel: null, lastEffort: null, turns: 0, compactions: 0, lastAt, running, needsWorker });
+  ({ hitRatio: null, lastCached: null, lastUsage: null, lastModel: null, lastEffort: null, turns: 0, compactions: 0, lastAt, running, needsWorker, ultra: false, agentAt: null, agents: null });
 
 test('lastMessage: the newest of the transcript\'s last message and the prompt cache\'s last write; the TTL never decides', () => {
   const pc = (expires_at: unknown, ttl: unknown = '5m'): Payload => ({ prompt_cache: { warm: true, ttl, expires_at } } as Payload);

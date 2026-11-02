@@ -229,7 +229,7 @@ function sources(tx: TxSummary | null): Sources & { txReads: number } {
   return s;
 }
 
-const tx = (level: string, model: string): TxSummary => ({ hitRatio: null, lastCached: null, lastUsage: null, lastModel: model, lastEffort: { level, model }, turns: 0, compactions: 0, lastAt: null, running: false, needsWorker: false });
+const tx = (level: string, model: string): TxSummary => ({ hitRatio: null, lastCached: null, lastUsage: null, lastModel: model, lastEffort: { level, model }, turns: 0, compactions: 0, lastAt: null, running: false, needsWorker: false, ultra: false, agentAt: null, agents: null });
 
 test('effort chain: stdin, then the transcript for the same model, then the env; settings.json is never read', () => {
   const cfg = defaults();
