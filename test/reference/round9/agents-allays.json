@@ -1,0 +1,2825 @@
+{
+ "note": "Design round 9b, feature agents (Your agents at work: allays or better?), the option chosen: agents-allays. rows are copied from the design's agents-b.json, verbatim (each row is the full HUD of build-9b.cjs: hud4.js MIX.render on the situation's state with the fable-boss option, colour style, left-aligned, with the shipped phantoms of 0.7.0 for ctx.phantoms and the 1.0.0 frame; line 1's sky from col 79 on redrawn by the option). The rows predate the totem and the pickaxe's tiers (the totem's look was picked in the same round, the tiers in round 9c), so they are Hungerbar's with hud.totem off and hud.pickaxe plain; with both on, each row also has the totem in hotbar slot 5 (the credits are held and nothing is low) and the effort numeral in Opus's diamond. situations are the design's inputs: state is the engine's state, ctx.mode whether Ultracode is on, ctx.live how many agents are at work (agent files written in the last 60 s), ctx.phantoms the signs of a long session the phantoms draw. Kamal's picks (picks-r9.json picks9b and orchestrator.rulings.agents): agents-bees, the default of hud.agents, and agents-allays as the calm option; both looks ship. agents-allays was round 9's pick and 9b's baseline: its rows here are round 9's own (agents.json), span for span, as build-9b.cjs checks. The intro and the option's note are reworded where they quoted the design chat as \"Your\" or named its pick as \"Your round-9 pick\" (as the 2026-10-28 renaming did: SOURCES.json renamed).",
+ "source": {
+  "file": "round9/agents-b.json",
+  "sha256": "4abcf35fa73fc080403511d612d5bb6d1ca6e4fcc01c3ce6c10f82ffeab10a96",
+  "option": "agents-allays",
+  "builder": "round9/build-9b.cjs",
+  "base": "test/reference/hud4.js"
+ },
+ "id": "agents-allays",
+ "name": "Allays in the sky",
+ "optionNote": "The round-9 pick, the baseline: one friendly blue allay per live agent in the sky after the cache readout (from col 82), up to four, then +2.",
+ "title": "Your agents at work: allays or better?",
+ "intro": "The note on the agents from the design chat: \"i liked the Allays in the sky but if there better i want to see\". Three challengers, each drawn in the same six situations, against the allays as the baseline. The shared-sky rule still holds: the phantoms keep the sky between the item name and the air bubbles; anything else in the sky flies after the cache readout.",
+ "situations": [
+  {
+   "id": "a-idle",
+   "label": "Ultracode on, no agents running",
+   "note": "The mode is on, nothing is working yet.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "mode": true,
+    "live": 0,
+    "phantoms": 0
+   }
+  },
+  {
+   "id": "a-3",
+   "label": "A workflow running: 3 live agents",
+   "note": "Three agent files written in the last few seconds.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "mode": true,
+    "live": 3,
+    "phantoms": 0
+   }
+  },
+  {
+   "id": "a-6",
+   "label": "6 live agents",
+   "note": "More than four: four are drawn and the rest are a count, +2.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "mode": true,
+    "live": 6,
+    "phantoms": 0
+   }
+  },
+  {
+   "id": "a-plain",
+   "label": "Ultracode off, 2 plain subagents running",
+   "note": "The agents are shown whatever the mode; Ultracode only adds its own mark.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "mode": false,
+    "live": 2,
+    "phantoms": 0
+   }
+  },
+  {
+   "id": "a-sky",
+   "label": "A long session (2 phantoms) and 3 live agents",
+   "note": "128 messages and 2 compactions: two big phantoms in the sky (shipped since 0.7.0), and three agents working at the same time.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 31,
+    "ctxTok": 310000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 128,
+    "compactions": 2
+   },
+   "ctx": {
+    "mode": true,
+    "live": 3,
+    "phantoms": 2
+   }
+  },
+  {
+   "id": "a-none",
+   "label": "Ultracode off, no agents",
+   "note": "Nothing to show, so no option draws anything.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {
+    "mode": false,
+    "live": 0,
+    "phantoms": 0
+   }
+  }
+ ],
+ "rows": [
+  {
+   "label": "Ultracode on, no agents running",
+   "situation": "a-idle",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "A workflow running: 3 live agents",
+   "situation": "a-3",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬆",
+      "fg": "#7FD3FF"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬋",
+      "fg": "#7FD3FF"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬆",
+      "fg": "#7FD3FF"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "6 live agents",
+   "situation": "a-6",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬆",
+      "fg": "#7FD3FF"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬋",
+      "fg": "#7FD3FF"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬆",
+      "fg": "#7FD3FF"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬋",
+      "fg": "#7FD3FF"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+2",
+      "fg": "#7FD3FF",
+      "bold": true
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "Ultracode off, 2 plain subagents running",
+   "situation": "a-plain",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬆",
+      "fg": "#7FD3FF"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬋",
+      "fg": "#7FD3FF"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "A long session (2 phantoms) and 3 live agents",
+   "situation": "a-sky",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "       "
+     },
+     {
+      "t": "🬈",
+      "fg": "#5468B0"
+     },
+     {
+      "t": "🬋",
+      "fg": "#7DFF5A"
+     },
+     {
+      "t": "🬅",
+      "fg": "#5468B0"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "🬢",
+      "fg": "#5468B0"
+     },
+     {
+      "t": "🬭",
+      "fg": "#7DFF5A"
+     },
+     {
+      "t": "🬖",
+      "fg": "#5468B0"
+     },
+     {
+      "t": "    "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬆",
+      "fg": "#7FD3FF"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬋",
+      "fg": "#7FD3FF"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "🬎",
+      "fg": "#D9F4FF"
+     },
+     {
+      "t": "🬹🬆",
+      "fg": "#7FD3FF"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#000000"
+     },
+     {
+      "t": "2",
+      "fg": "#80FF20",
+      "bg": "#000000",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#000000"
+     },
+     {
+      "t": "                  "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "310k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "31%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "99",
+      "fg": "#FFFF55",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "Ultracode off, no agents",
+   "situation": "a-none",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FF55FF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  }
+ ]
+}

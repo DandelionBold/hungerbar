@@ -1,0 +1,2436 @@
+{
+ "note": "Design round 9c, feature pickaxe (The pickaxe's material follows the model), the option chosen: pick-tiers-full. rows are copied from the design's pickaxe.json, verbatim. The first five are the full HUD of build-9c.cjs: hud4.js MIX.render on the situation's state with the fable-boss option, colour style, left-aligned, with the 1.0.0 frame; hotbar cols 17-20 (the pickaxe and the effort numeral) recoloured by the option. They predate the totem (build.cjs's machinery draws 1.0's HUD), so they are Hungerbar's with hud.totem off; with it on, each also has the totem in hotbar slot 5. The sixth row, p-lineup, is no engine state: build-9c.cjs cut hotbar slot 1 (cols 16-21) from each model's own render at effort high (Fable 5.1 with its scoped week, Opus 5.5, Sonnet 4.5, Haiku 4.5, Codex) and set the five side by side, each followed by its family's name in grey, so its situation has no state (null) and ctx.lineup names the models. situations are the design's inputs. Kamal's pick (picks-r9.json picks9c): pick-tiers-full, the default of hud.pickaxe (tiers).",
+ "source": {
+  "file": "round9/pickaxe.json",
+  "sha256": "c4271b5fcb0533fec7fd0c2c3a2fc186a6db9013ed424414d00c74bb26f051b4",
+  "option": "pick-tiers-full",
+  "builder": "round9/build-9c.cjs",
+  "base": "test/reference/hud4.js"
+ },
+ "id": "pick-tiers-full",
+ "name": "Pickaxe and numeral take the tier",
+ "optionNote": "The ⛏ and the effort numeral both take the tier ink, so the change shows with colour icons too (through the numeral). The cost: the numeral loses the enchant pink that says \"enchantment level\", and a netherite Ⅴ is the dimmest text on the line (2.9:1 on its glint). Diamond and stone numerals look like ordinary text, and the purple glint behind them is then the only sign of the effort.",
+ "title": "The pickaxe's material follows the model",
+ "intro": "Minecraft tools come in tiers: stone, iron, gold, diamond, netherite. Here the pickaxe in hotbar slot 1 takes the tier of the model in use: Fable netherite, Opus diamond, Sonnet iron, Haiku gold (the fastest tool and the quickest to wear out), and any other model stone. What 1.0 draws today (src/hud/mix.ts, TIER): Opus #55FFFF, Fable #9D8F8F, Sonnet #D8D8D8, Haiku #8F8F8F and any other model #AAAAAA, with the effort numeral in the enchant pink #FF55FF. So Opus is already diamond and an unknown model already stone; the visible changes are Haiku (grey to gold), Fable (a darker netherite #857579) and Sonnet (#D8D8D8 to iron #C6C6C6, barely). Important: with colour icons ⛏ is a colour emoji that ignores Hungerbar's colours, so the pickaxe looks the same for every model there, today and in these options. Only Plain icons show its tier; the numeral (Yu Gothic UI) takes the colour in both styles.",
+ "situations": [
+  {
+   "id": "p-fable",
+   "label": "Fable in use, effort max (Ⅴ): the boss bar, 6 lines",
+   "note": "Netherite on the deepest glint (#48205C): the hardest case to read.",
+   "state": {
+    "model": "Fable 5.1",
+    "effort": "max",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0,
+    "scoped": [
+     {
+      "name": "Fable",
+      "used": 35,
+      "left": 345600
+     }
+    ]
+   },
+   "ctx": {}
+  },
+  {
+   "id": "p-opus",
+   "label": "Opus 5.5, effort high (Ⅲ)",
+   "note": "Diamond: the same aqua as today.",
+   "state": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {}
+  },
+  {
+   "id": "p-sonnet",
+   "label": "Sonnet 4.5, effort high (Ⅲ)",
+   "note": "Iron.",
+   "state": {
+    "model": "Sonnet 4.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {}
+  },
+  {
+   "id": "p-haiku",
+   "label": "Haiku 4.5, effort high (Ⅲ)",
+   "note": "Gold.",
+   "state": {
+    "model": "Haiku 4.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {}
+  },
+  {
+   "id": "p-codex",
+   "label": "An unknown model, \"Codex\", effort high (Ⅲ)",
+   "note": "Stone: the grey every unknown model gets today.",
+   "state": {
+    "model": "Codex",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+     "used": 2,
+     "left": 17340,
+     "window": 18000
+    },
+    "week": {
+     "used": 82,
+     "left": 345540
+    },
+    "cache": {
+     "hit": 98,
+     "warm": true,
+     "left": 252,
+     "ttl": 300
+    },
+    "extra": {
+     "used": 0,
+     "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 42,
+    "compactions": 0
+   },
+   "ctx": {}
+  },
+  {
+   "id": "p-lineup",
+   "label": "All five side by side (look at the Plain icons view)",
+   "note": "Hotbar slot 1 of each model at effort Ⅲ, cut from its own HUD: Fable, Opus, Sonnet, Haiku, Codex. With colour icons they all look alike; that is the point of this row.",
+   "state": null,
+   "ctx": {
+    "lineup": [
+     "Fable 5.1",
+     "Opus 5.5",
+     "Sonnet 4.5",
+     "Haiku 4.5",
+     "Codex"
+    ]
+   }
+  }
+ ],
+ "rows": [
+  {
+   "label": "Fable in use, effort max (Ⅴ): the boss bar, 6 lines",
+   "situation": "p-fable",
+   "roles": [
+    "boss",
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂",
+      "fg": "#993399"
+     },
+     {
+      "t": "🮂🮂🮂🮂",
+      "fg": "#FF55FF"
+     },
+     {
+      "t": "🮂",
+      "fg": "#993399"
+     },
+     {
+      "t": "🮂🮂🮂🮂",
+      "fg": "#FF55FF"
+     },
+     {
+      "t": "🮂",
+      "fg": "#993399"
+     },
+     {
+      "t": "🮂🮂🮂🮂",
+      "fg": "#FF55FF"
+     },
+     {
+      "t": "🮂",
+      "fg": "#993399"
+     },
+     {
+      "t": "🮂🮂🮂🮂",
+      "fg": "#FF55FF"
+     },
+     {
+      "t": "🮂",
+      "fg": "#993399"
+     },
+     {
+      "t": "🮂🮂🮂🮂",
+      "fg": "#FF55FF"
+     },
+     {
+      "t": "🮂",
+      "fg": "#993399"
+     },
+     {
+      "t": "🮂🮂🮂🮂",
+      "fg": "#FF55FF"
+     },
+     {
+      "t": "🮂",
+      "fg": "#1F0A1F"
+     },
+     {
+      "t": "🮂🮂🮂🮂",
+      "fg": "#401540"
+     },
+     {
+      "t": "🮂",
+      "fg": "#1F0A1F"
+     },
+     {
+      "t": "🮂🮂🮂🮂",
+      "fg": "#401540"
+     },
+     {
+      "t": "🮂",
+      "fg": "#1F0A1F"
+     },
+     {
+      "t": "🮂🮂🮂🮂",
+      "fg": "#401540"
+     },
+     {
+      "t": "🮂",
+      "fg": "#1F0A1F"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "65%",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " ↻ 4d00h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "Fable 5.1",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency V",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                    "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#857579",
+      "bg": "#48205C"
+     },
+     {
+      "t": "Ⅴ ",
+      "fg": "#857579",
+      "bg": "#48205C",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "Opus 5.5, effort high (Ⅲ)",
+   "situation": "p-opus",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                   "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "Sonnet 4.5, effort high (Ⅲ)",
+   "situation": "p-sonnet",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Sonnet 4.5",
+      "fg": "#55FFFF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                 "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#C6C6C6",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#C6C6C6",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "Haiku 4.5, effort high (Ⅲ)",
+   "situation": "p-haiku",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Haiku 4.5",
+      "fg": "#FFFF55",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                  "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#FFAA00",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FFAA00",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "An unknown model, \"Codex\", effort high (Ⅲ)",
+   "situation": "p-codex",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "lines": [
+    [
+     {
+      "t": "Codex",
+      "fg": "#FFFFFF",
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580"
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF"
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF"
+     },
+     {
+      "t": " · ",
+      "fg": "#555555"
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55"
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "     "
+     },
+     {
+      "t": "98%",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#FF5555"
+     },
+     {
+      "t": "                      "
+     },
+     {
+      "t": "🍗🍗",
+      "fg": "#E0A458"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "18%",
+      "fg": "#E0A458",
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▂",
+      "fg": "#436924"
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59"
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C"
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20"
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA"
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07"
+     },
+     {
+      "t": "50",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#AAAAAA",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#AAAAAA",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07"
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07"
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "    ",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "   ",
+      "bg": "#201E07"
+     },
+     {
+      "t": "▆",
+      "fg": "#79C05A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043"
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07"
+     },
+     {
+      "t": " ",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bold": true
+     },
+     {
+      "t": " "
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bold": true
+     },
+     {
+      "t": "  "
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF"
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     },
+     {
+      "t": "⠀"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0"
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D"
+     }
+    ]
+   ]
+  },
+  {
+   "label": "All five side by side (look at the Plain icons view)",
+   "situation": "p-lineup",
+   "roles": [
+    "lineup"
+   ],
+   "lines": [
+    [
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#857579",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#857579",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " Fable   ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " Opus   ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#C6C6C6",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#C6C6C6",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " Sonnet   ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#FFAA00",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#FFAA00",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " Haiku   ",
+      "fg": "#AAAAAA"
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#AAAAAA",
+      "bg": "#2E1A3A"
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#AAAAAA",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D"
+     },
+     {
+      "t": " Codex",
+      "fg": "#AAAAAA"
+     }
+    ]
+   ]
+  }
+ ]
+}

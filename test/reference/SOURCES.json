@@ -196,6 +196,56 @@
       "originDate": "2026-11-01T18:26:50Z",
       "sha256": "a56dc73914b5ff79e80fb5c4b214e0e88274c3992b5856639090122701f60c5d",
       "note": "The builder of design round 9b (totem-mix.json, agents-b.json and their picker) on build.cjs's machinery. Its origin with the design notes that named a person or quoted the design chat as \"Your\" reworded, as the 2026-10-28 renaming did (\"Kamal's mix\" is \"The mix\", \"Your idea.\" is \"The idea from the design chat.\", \"Your note on the totem\" and \"on the agents\" name the design chat, \"Your round-9 pick\" and \"your current pick\" read \"The\" and \"the\"); no other byte changed."
+    },
+    "round9/agents-bees.json": {
+      "kind": "extract",
+      "origin": [
+        "round9/agents-b.json",
+        "round9/build-9b.cjs"
+      ],
+      "originSha256": {
+        "round9/agents-b.json": "4abcf35fa73fc080403511d612d5bb6d1ca6e4fcc01c3ce6c10f82ffeab10a96",
+        "round9/build-9b.cjs": "502291b67dabfb0e29304bf40ae757d32c6c4f740daf97e66d69021550704a99"
+      },
+      "originDate": "2026-11-01T23:37:47Z",
+      "sha256": "4c3fc5a25d7ad836bae632cc7d9654ef4af27af1e94cf4c120c8b934a1dce542",
+      "note": "Design round 9b, the pick for the agents at work: the option agents-bees of agents-b.json (the default of hud.agents), its rows verbatim, with the situations they were drawn from, and the intro reworded where it quoted the design chat as \"Your\" (see its note). test/unit/hud-agents.test.ts renders each through Hungerbar (hud.totem off and hud.pickaxe plain: the rows predate both) and compares span for span."
+    },
+    "round9/agents-allays.json": {
+      "kind": "extract",
+      "origin": [
+        "round9/agents-b.json",
+        "round9/build-9b.cjs"
+      ],
+      "originSha256": {
+        "round9/agents-b.json": "4abcf35fa73fc080403511d612d5bb6d1ca6e4fcc01c3ce6c10f82ffeab10a96",
+        "round9/build-9b.cjs": "502291b67dabfb0e29304bf40ae757d32c6c4f740daf97e66d69021550704a99"
+      },
+      "originDate": "2026-11-01T23:37:47Z",
+      "sha256": "e527140170f03c4574b0620f29674ce1deea10049dd84b1056bc2a870dfedc05",
+      "note": "Design round 9b, the calm option for the agents at work (hud.agents allays): the option agents-allays of agents-b.json, round 9's pick and 9b's baseline, its rows verbatim (round 9's own, span for span), with the situations they were drawn from, and the intro and the option's note reworded where they quoted the design chat as \"Your\" (see its note). test/unit/hud-agents.test.ts renders each through Hungerbar and compares span for span."
+    },
+    "round9/pickaxe.json": {
+      "kind": "extract",
+      "origin": [
+        "round9/pickaxe.json",
+        "round9/build-9c.cjs"
+      ],
+      "originSha256": {
+        "round9/pickaxe.json": "c4271b5fcb0533fec7fd0c2c3a2fc186a6db9013ed424414d00c74bb26f051b4",
+        "round9/build-9c.cjs": "3508746b35513de0f9f08f41d5e436d336529f2e18f65cf5a406ba6f8f63a360"
+      },
+      "originDate": "2026-11-01T23:37:47Z",
+      "sha256": "9a4e4c05e6add396624f6407d87e3988ad8e6091ce1d5e8d2869c669d4d2c47c",
+      "note": "Design round 9c, the pick for the pickaxe's material: the option pick-tiers-full of pickaxe.json (hud.pickaxe tiers, the default), its rows verbatim, with the situations they were drawn from: five engine states and the lineup row, which build-9c.cjs composed from the five models' own hotbar slot 1 and is no engine state (see its note). test/unit/hud-tiers.test.ts renders the five through Hungerbar and checks the lineup against the slots of those renders."
+    },
+    "round9/build-9c.cjs": {
+      "kind": "copy",
+      "origin": "round9/build-9c.cjs",
+      "originSha256": "3508746b35513de0f9f08f41d5e436d336529f2e18f65cf5a406ba6f8f63a360",
+      "originDate": "2026-11-01T23:36:17Z",
+      "sha256": "3508746b35513de0f9f08f41d5e436d336529f2e18f65cf5a406ba6f8f63a360",
+      "note": "The builder of design round 9c (pickaxe.json and its picker) on build.cjs's machinery, a byte copy: it names no person and no private folder, and its line ends are LF. It ran on a later origin of build.cjs (sha256 9aa7b19da5015b285d0ad8f2e4335d70990f9c5a6a9f0fdda78c1fc71f86cf3d), which is the origin of the vendored round9/build.cjs but for two lines of the picker page (a feature's diffStyle and a probed glyph's expected look, passed through to the page), so every rule its rows were checked against is the vendored build.cjs's. Run, it requires build.cjs next to itself, so it is kept here to be read, not run."
     }
   }
 }
