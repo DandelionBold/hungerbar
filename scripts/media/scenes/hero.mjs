@@ -2,7 +2,8 @@
 // Five hours of work in three-minute steps: prompts and replies in the transcript, edits and commits in the repo, the
 // limits, the context and the prompt cache in the payload. Along the way: hearts and drumsticks drain, the bubbles pop
 // between prompts, the XP bar fills and /compact levels up, the terrain grows and commits turn gold, a bed during a
-// break, the moon and phantoms late in the session, and the boss bar after switching to Fable.
+// break, the moon and phantoms late in the session, the boss bar and the netherite pickaxe after switching to Fable, and
+// at the end the totem, which waits in slot 5 all along, swapping into the offhand as the 5-hour window runs low.
 import { T0 } from '../rig.mjs';
 
 const MIN = 60;
@@ -93,7 +94,7 @@ export async function hero(rig) {
   // a note stays for 24 minutes of the session, then the caption says what goes on all along
   const ALONG = 'Hearts and food drain with the limits, the XP bar fills with the context, the terrain grows with the diff';
   const frames = [];
-  let next = 0, note = notes[0], fableTurns = null;
+  let next = 0, note = notes[0], fableTurns = null, swapped = false;
   const hundred = prompts[99];
   if (!(hundred > COMPACTS[1] && hundred < FABLE_AT)) throw new Error(`the 100th prompt comes at minute ${hundred}`);
   notes.push([hundred, 'A hundred prompts: a third phantom', 0.8]);
@@ -117,6 +118,14 @@ export async function hero(rig) {
     if (fable && fableTurns === null) fableTurns = turns;
     rig.setUsage(now, { fable: { pct: 58 + (fable ? (turns - fableTurns) * 0.8 : 0), resets_at: S + 2 * 86400 + 36000 } });
     const status = rig.render(p, { now, cols: 120 });
+    // the totem waits in slot 5 until the 5-hour window is at 10% left or less, then it swaps into the offhand, which
+    // comes before the pickaxe on the hotbar line: a note from the first frame that draws it there
+    const bar = status[status.length - 2], ankh = bar.indexOf('☥');
+    if (!swapped && ankh >= 0 && ankh < bar.indexOf('⛏')) {
+      swapped = true;
+      note = [m, '10% of the 5-hour window left: the totem leaves slot 5 for the offhand, with your credits', 0.9];
+      hold = Math.max(hold, note[2]);
+    }
     frames.push({ status, typed, caption: { at: clock(m), text: m - note[0] < 24 || m >= FABLE_AT ? note[1] : ALONG }, hold: m >= END - 2 ? 1.4 : hold });
   }
   return { frames, opts: { cols: 120, rows: 9 } };

@@ -8,7 +8,7 @@ import { REPO_ROOT } from '../rig.mjs';
 import { lineHTML, parseLine, plain, wrap } from '../term.mjs';
 
 const COLS = 120, ROWS = 27;
-const QUESTION = /^(Look|Fable|Align|Name|Operator) \[\d\]: $|\[(Y\/n|y\/N)\]: $/;
+const QUESTION = /^(Look|Fable|Align|Name|Operator|Agents) \[\d\]: $|\[(Y\/n|y\/N)\]: $/;
 const NPM = 'C:/Users/steve/AppData/Roaming/npm/node_modules/hungerbar';
 const SHELL = 'PS C:\\Users\\steve> ';
 
@@ -21,6 +21,7 @@ const STEPS = [
   ['Your user name before the folder', 1.2],
   ['Your name in gold while Claude Code runs as Administrator', 1.3],
   ['The pull request status, through your own gh; Enter says yes', 1.6],
+  ["Your agents at work in line 1's sky: bees flying home by default, allays as the calm option, or nothing", 1.6],
   ['Done: settings.json runs Hungerbar, and hungerbar setup --restore puts the old status line back', 2.2],
 ];
 

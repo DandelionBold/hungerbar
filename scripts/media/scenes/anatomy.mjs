@@ -1,9 +1,10 @@
 // anatomy.png: one real render with every part of the HUD on screen at once, drawn large, with a numbered marker and a
 // thin arrow for each part (the README's Anatomy table says what each number is). The state: four and a half hours into
 // a session and two compactions (two signs of a long session: two phantoms; the compactions are the level), Fable in use
-// (the boss bar), away for almost 7 minutes (the bed: the cache is a 1-hour one, so the bubbles stay warm), on a feature
-// branch with changes and an approved pull request, in a terminal that runs as Administrator (the name in gold).
-// Left-aligned: the parts, not the centring.
+// (the boss bar, and the pickaxe's netherite), away for almost 7 minutes (the bed: the cache is a 1-hour one, so the
+// bubbles stay warm) while three agents work in the background (three bees), $50 of extra credits with every limit above
+// 10% (the totem waits in slot 5), on a feature branch with changes and an approved pull request, in a terminal that runs
+// as Administrator (the name in gold). Left-aligned: the parts, not the centring.
 // The arrows run in the gaps of the grid wherever they cross other lines (blank cells, the spaces between bubbles).
 import { T0 } from '../rig.mjs';
 import { lineHTML, parseLine, TERM_CSS } from '../term.mjs';
@@ -13,9 +14,9 @@ const lines = (n, tag) => Array.from({ length: n }, (_, i) => `export const ${ta
 const file = (ls) => ls.join('\n') + '\n';
 
 /**
- * The parts in reading order: [line, side, where]. `where` is the column the arrow points at (a fraction is inside a
- * cell; for left and right, the first or last column of the part). Top and bottom arrows end on the line's top or bottom
- * edge; `tip` moves that end into the cell (the frame's edge is the top quarter of its row).
+ * The parts in reading order, one for each row of the table: [line, side, where]. `where` is the column the arrow points
+ * at (a fraction is inside a cell; for left and right, the first or last column of the part). Top and bottom arrows end
+ * on the line's top or bottom edge; `tip` moves that end into the cell (the frame's edge is the top quarter of its row).
  */
 export const PARTS = [
   [0, 'top', 17.5],                     // 1 boss bar
@@ -44,6 +45,14 @@ export const PARTS = [
   [4, 'right', null],                   // 24 the pull request (the line's end)
   [5, 'bottom', 43.5, 0.3],             // 25 the hotbar's frame
 ];
+/**
+ * Parts that a row of the table names but that stand apart from its own part: [number, line, side, where, tip], a second
+ * marker with the row's number.
+ */
+export const ALSO = [
+  [4, 1, 'top', 87],                    // 4 the other end of the sky: the bees, flying home to their hive
+  [15, 4, 'bottom', 37.5],              // 15 the totem, waiting in slot 5
+];
 
 export async function anatomy(rig) {
   normalDay(rig, { clean: true, talk: false, config: { hud: { pr: 'on', align: 'left' } } });
@@ -57,6 +66,7 @@ export async function anatomy(rig) {
   rig.compact(start + 7000);
   rig.compact(start + 13000);
   rig.reply(T0 - 400);
+  rig.agents(T0, [4, 11, 23]);                             // three agent files written in the last minute
   rig.setPr(T0, 'feature/cache', { n: 128, state: 'open', ci: 'passed', review: 'approved', conflict: false });
   rig.seedHistory(T0, 'feature/cache', [[7, 300, 80, 0], [6, 241, 101, 0], [5, 455, 160, 0], [4, 640, 220, 0], [3, 667, 231, 1], [2, 140, 40, 0], [1, 520, 120, 0], [0, 1208, 279, 0]]);
   const p = rig.payload({
@@ -79,7 +89,7 @@ ${TERM_CSS}
 svg{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
 .n{font:700 17px "Segoe UI",sans-serif}
 </style></head><body><div id="shot"><div class="term" id="hud">${rows}</div><svg id="ink"></svg></div><script>
-const PARTS = ${JSON.stringify(PARTS)};
+const PARTS = ${JSON.stringify([...PARTS.map((p, i) => [i + 1, ...p]), ...ALSO])};
 const ENDS = ${JSON.stringify(ends)};
 async function show() {
   await document.fonts.ready;
@@ -95,13 +105,13 @@ async function show() {
   svg.setAttribute('width', s.width); svg.setAttribute('height', s.height);
   const maxEnd = Math.max(...ENDS);
   // where each arrow ends, and where its marker would like to sit
-  const items = PARTS.map(([line, side, where, tip], i) => {
+  const items = PARTS.map(([n, line, side, where, tip]) => {
     const y0 = Y + line * lh, y1 = y0 + lh, ym = y0 + lh / 2;
-    if (side === 'left') return { i, side, tx: X + where * ch - 3, ty: ym, mx: X - 40, my: ym };
-    if (side === 'right') return { i, side, tx: X + ENDS[line] * ch + 3, ty: ym, mx: X + maxEnd * ch + 52, my: ym };
+    if (side === 'left') return { n, side, tx: X + where * ch - 3, ty: ym, mx: X - 40, my: ym };
+    if (side === 'right') return { n, side, tx: X + ENDS[line] * ch + 3, ty: ym, mx: X + maxEnd * ch + 52, my: ym };
     const tx = X + where * ch;
-    if (side === 'top') return { i, side, tx, ty: y0 + (tip ?? 0) * lh, mx: tx, my: Y - 62 };
-    return { i, side, tx, ty: tip !== undefined ? y0 + tip * lh : y1, mx: tx, my: Y + 6 * lh + 62 };
+    if (side === 'top') return { n, side, tx, ty: y0 + (tip ?? 0) * lh, mx: tx, my: Y - 62 };
+    return { n, side, tx, ty: tip !== undefined ? y0 + tip * lh : y1, mx: tx, my: Y + 6 * lh + 62 };
   });
   // a row of markers keeps them GAP apart, as near their arrows as it can
   for (const side of ['top', 'bottom']) {
@@ -123,7 +133,7 @@ async function show() {
   for (const m of items) {
     el('circle', { cx: m.mx, cy: m.my, r: R, fill: '#F2F2F2', stroke: '#0C0C0C', 'stroke-width': 2 });
     const t = el('text', { x: m.mx, y: m.my + 6, 'text-anchor': 'middle', fill: '#111111', class: 'n' });
-    t.textContent = String(m.i + 1);
+    t.textContent = String(m.n);
   }
   await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   return { x: s.left, y: s.top, width: Math.ceil(s.width), height: Math.ceil(s.height) };

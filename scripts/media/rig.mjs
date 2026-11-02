@@ -3,16 +3,18 @@
 // config, and nothing uses the network: the refreshers never start (HUNGERBAR_NO_SPAWN), and the files they would
 // write (the usage file, the PR status) are written here instead, in the cache's own formats.
 //   - a git repo with real commits (Steve Hill <steve@example.com>, fixed dates), shown as D:/webapp (HUNGERBAR_FS_MAP);
-//   - a transcript (prompts, replies, compactions) the render reads for the book, the level and the bed;
+//   - a transcript (prompts, replies, compactions) the render reads for the book, the level and the bed, and beside it
+//     the subagents folder the transcript worker looks at for the agents at work;
 //   - the names: user steve, host DESKTOP; the elevation is HUNGERBAR_ELEVATED.
 import { spawnSync } from 'node:child_process';
-import { appendFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { entryPath, normRoot } from '../../src/git/cache.ts';
 import { histPath } from '../../src/hud/history.ts';
 import { prPath } from '../../src/pr/cache.ts';
 import { acctDir } from '../../src/store.ts';
+import { refreshTranscript, subagentsDir, txId } from '../../src/transcript.ts';
 import { usagePath } from '../../src/usage/file.ts';
 
 export const REPO_ROOT = resolve(fileURLToPath(import.meta.url), '../../..');
@@ -108,6 +110,21 @@ export class Rig {
   }
   compact(at) {
     this.row({ type: 'system', subtype: 'compact_boundary', timestamp: iso(at) });
+  }
+  /**
+   * Agents at work (1.1.0): an agent file in the transcript's subagents folder for each age, written that many seconds
+   * before `now`; then the transcript worker's look at them, in process at `now`, as the render's spawn would take it
+   * (test/harness.ts state.agents does the same). Call it after the transcript's last row: the look folds the rest.
+   */
+  agents(now, ages) {
+    const sub = subagentsDir(this.transcript);
+    mkdirSync(sub, { recursive: true });
+    ages.forEach((age, i) => {
+      const p = join(sub, `agent-a${i}.jsonl`);
+      writeFileSync(p, '');
+      utimesSync(p, now - age, now - age);
+    });
+    if (!refreshTranscript(this.transcript, txId(this.transcript, this.sid), this.cache, true, now)) throw new Error('the agents: the worker could not read the transcript');
   }
 
   // ---------- the files the refreshers would write ----------

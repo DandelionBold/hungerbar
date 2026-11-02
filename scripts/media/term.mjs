@@ -12,7 +12,7 @@ import { clusters } from '../../src/hud/wt.ts';
 /** E: Segoe UI Emoji (colour), S: Segoe UI Symbol, Y: Yu Gothic UI. Every other glyph Hungerbar prints is in Cascadia Mono. */
 export const FALLBACK = {
   '🍗': 'E', '📖': 'E', '💾': 'E', '💳': 'E', '🔥': 'E', '⛏': 'E', '☠': 'E', '❄': 'E', '✗': 'E',
-  '↻': 'S', '⎇': 'S', '☾': 'S', '⏵': 'S',
+  '↻': 'S', '⎇': 'S', '☾': 'S', '⏵': 'S', '☥': 'S', '✦': 'S',
   'Ⅰ': 'Y', 'Ⅱ': 'Y', 'Ⅲ': 'Y', 'Ⅳ': 'Y', 'Ⅴ': 'Y',
 };
 // single quotes: these go inside a style="…" attribute, where a double quote would end it (and drop the colour after it)

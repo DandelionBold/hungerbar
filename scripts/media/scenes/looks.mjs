@@ -215,12 +215,17 @@ export async function idle(rig) {
 }
 
 // ---------- frame.gif ----------
-/** The hotbar's frame, and the offhand's frame turning green while a used-up limit makes the extra credits pay. */
+/**
+ * The hotbar's frame, and the offhand's: the 5-hour limit used up makes the totem pop there between gold sides for 30 s
+ * (the render before saw the limit above 0), then the extra credits pay and the offhand's frame turns green.
+ */
 export async function frame(rig) {
   normalDay(rig);
   const frames = [];
+  const usedUp = (now) => rig.payload({ now, h5: { used: 100, reset: T0 + 2400 - now } });
   frames.push({ status: rig.render(day(rig), { now: T0 }), caption: { at: 'frame', text: 'A thin edge under the hotbar: mint under the selected slot, grey under the rest' }, hold: 2.4 });
-  frames.push({ status: rig.render(day(rig, { h5: { used: 100, reset: 2400 } }), { now: T0 }), caption: { at: 'frame', text: "The 5-hour limit is used up and the extra credits pay: the offhand's frame turns green" }, hold: 2.4 });
+  frames.push({ status: rig.render(usedUp(T0), { now: T0 }), caption: { at: 'frame', text: 'The 5-hour limit is used up: the totem pops in the offhand for 30 seconds, and its frame turns gold' }, hold: 2.4 });
+  frames.push({ status: rig.render(usedUp(T0 + 40), { now: T0 + 40 }), caption: { at: 'frame', text: "Then the extra credits pay: the offhand's frame turns green, and poisoned hearts count the credits left" }, hold: 2.4 });
   return { frames, opts: { rows: 8 } };
 }
 
