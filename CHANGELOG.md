@@ -2,7 +2,9 @@
 
 What changed for users in each version. Versions before 1.0.0 were private builds; 1.0.0 is the first public release.
 
-## 1.1.0 (unreleased)
+## 1.1.0 (2026-11-02)
+
+The HUD learns the Totem of Undying, the pickaxe's tool tiers and the bees, and the hearts tell more.
 
 - **Golden hearts on the Ultra plan.** An account with no 5-hour limit used to get a grey `?` and ten dark hearts, which read as "no health left". Now it gets the golden apple: the day's ☼, a bold gold ∞ where the 5-hour % goes, and ten gold hearts, Minecraft's absorption hearts. `hud.ultra off` brings 1.0's look back.
 - **Limits that are not live are marked `~`.** When Claude Code sends no limits and Hungerbar shows the last ones it saved, the HUD now marks them as the classic lines do: a grey `~` before the %, and the red hearts, the drumsticks and the % drawn dimmer. Before, an hours-old 98% looked current. Live limits look as before, and with nothing saved the `?` stays.
@@ -27,7 +29,7 @@ What changed for users in each version. Versions before 1.0.0 were private build
   | any other | stone | `#AAAAAA` (the same) |
 
 - `hungerbar look hud`, `setup` and `preview` take `--agents off|allays|bees` (bees by default) and `--pickaxe tiers|plain` (tiers by default); `hungerbar look` and `doctor` say what they show, and `hungerbar preview --situation agents` shows a day with three agents at work. The bees were picked in round 9B of the design picker and the pickaxe's tiers in round 9C; the allays were round 9's pick.
-- **The pictures in `docs/media` are remade for 1.1.0.** The release remakes `anatomy.png`, `hero.gif`, `idle.gif`, `center.gif`, `frame.gif`, `fable.gif`, `git.gif`, `pr.gif` and `setup.gif`, which still show 1.0's HUD: they gain the totem in slot 5, the tier numerals, Fable's netherite pickaxe and setup's new seventh question. `classic.png` is untouched.
+- **The README's pictures show 1.1.0.** `anatomy.png`, `hero.gif`, `idle.gif`, `center.gif`, `frame.gif`, `fable.gif`, `git.gif`, `pr.gif` and `setup.gif` are made again from 1.1.0's renders, with the totem in slot 5, the tier numerals and Fable's netherite pickaxe. The anatomy also shows three bees, and points at them and at the totem with their rows' numbers; `hero.gif` ends with the totem swapping into the offhand; `frame.gif` shows the totem's pop and the poisoned hearts before the green frame; and `setup.gif` asks the seventh question. `classic.png` is untouched.
 - **Hearts and drumsticks refill at the reset.** Claude Code draws the status line again when a limit's window resets, and that render now shows the window full: 100%, with no clock. Before, it kept the old window's use until Claude Code sent new numbers.
 - **An account without a 5-hour window (Ultra) shows none.** When Claude Code sends a weekly limit and no 5-hour window, Hungerbar no longer fills the gap with the last 5-hour value it saw, which came from another plan or account. The classic lines leave the Session item out, and the HUD shows the golden hearts (above). Hungerbar remembers it, so a render without any limits does not bring the old value back; a 5-hour window from Claude Code ends it.
 - **Several sessions no longer turn the last-known limits back.** With more than one Claude Code session on an account, the session that rendered last decided the limits shown when Claude Code sends none, even when its numbers were older. Now each window keeps the newest numbers: the later reset, or with the same reset the higher use. Each session still draws its own limits.
