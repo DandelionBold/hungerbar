@@ -880,16 +880,23 @@ test('agentMtimes: the agent files of the subagents folder and of its workflows,
   }
 });
 
-test('agentMtimes is bounded: 256 names a folder, 64 workflow folders (the newest first), 512 stats, each through statSafe', () => {
+test('agentMtimes is bounded: 256 agent files a folder (their .meta and .prefix files not counted), 64 workflow folders (the newest first), 512 stats, each through statSafe', () => {
   assert.deepEqual([AGENTS_ENTRIES, AGENTS_FLOWS, AGENTS_STATS, AGENTS_KEPT], [256, 64, 512, 16]);
   const dir = tmp();
   try {
     const sub = join(dir, 'subagents');
-    for (let i = 0; i < 300; i++) touched(sub, `agent-p${String(i).padStart(3, '0')}.jsonl`, T0 - i);
+    // 300 agents as Claude Code leaves them, each with its .meta.json and .prefix.json: 900 names
+    for (let i = 0; i < 300; i++) {
+      const id = `agent-p${String(i).padStart(3, '0')}`;
+      touched(sub, `${id}.jsonl`, T0 - i);
+      touched(sub, `${id}.meta.json`, T0 + 9);
+      touched(sub, `${id}.prefix.json`, T0 + 9);
+    }
     let asked: string[] = [];
     const counting = (p: string): ReturnType<typeof statSafe> => { asked.push(p); return statSafe(p); };
     assert.equal(agentMtimes(sub, counting).length, AGENTS_KEPT);
-    assert.equal(asked.length, AGENTS_ENTRIES, 'a folder of 300 agents: 256 names read, 256 stats');
+    assert.equal(asked.length, AGENTS_ENTRIES, 'a folder of 300 agents and their 600 other files: 256 agent files counted, 256 stats');
+    assert.ok(asked.every((p) => /agent-p\d{3}\.jsonl$/.test(p)), 'only agent files are stated: the other names take none of the cap');
     // 70 workflows of one agent each, wf_69 the newest folder: every folder's stat, then the agents of the newest 64
     const wf = (w: number): string => `wf_${String(w).padStart(2, '0')}`;
     const flowsOf = (paths: readonly string[]): string[] => [...new Set(paths.filter((p) => p.endsWith('.jsonl')).map((p) => /(wf_\d\d)/.exec(p)![1]!))];
@@ -898,9 +905,12 @@ test('agentMtimes is bounded: 256 names a folder, 64 workflow folders (the newes
       touched(sub, `workflows/${wf(w)}/agent-q.jsonl`, T0 - 1000 + w);
       utimesSync(join(sub, 'workflows', wf(w)), T0 - 69 + w, T0 - 69 + w);
     }
+    touched(sub, 'workflows/notes.json', T0);
+    mkdirSync(join(sub, 'workflows', 'scripts'));
     asked = [];
     let got = agentMtimes(sub, counting);
     assert.equal(asked.filter((p) => /wf_\d\d$/.test(p)).length, 70, 'each workflow folder is stated');
+    assert.equal(asked.length, 70 + AGENTS_FLOWS, 'and nothing else: the other names in workflows/ are skipped, not stated');
     assert.deepEqual(flowsOf(asked), Array.from({ length: AGENTS_FLOWS }, (_, i) => wf(69 - i)), 'the newest 64 folders are read, the newest first');
     assert.deepEqual(got, Array.from({ length: AGENTS_KEPT }, (_, i) => T0 - 1000 + 69 - i));
     // 40 workflows of 15 agents each: 40 folder stats, then agents until 512 stats in all

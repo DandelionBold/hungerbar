@@ -112,7 +112,11 @@ export const WAITS_ON_USER: ReadonlySet<string> = new Set(['AskUserQuestion', 'E
 export const AGENT_TOOLS: ReadonlySet<string> = new Set(['Agent', 'Task', 'Workflow']);
 /** The newest agent files' mtimes a look keeps (so the HUD's count of agents at work stops at this many). */
 export const AGENTS_KEPT = 16;
-/** A look reads at most this many entries of a folder (names only), and stats at most AGENTS_STATS paths in all. */
+/**
+ * A look takes at most this many candidate names of a folder (agent-<id>.jsonl files, or wf_<id> workflow folders: an
+ * agent's .meta.json and .prefix.json and any other name are skipped and do not count), and stats at most AGENTS_STATS
+ * paths in all, the hard bound.
+ */
 export const AGENTS_ENTRIES = 256, AGENTS_STATS = 512;
 /** A look reads at most this many workflow folders (subagents/workflows/wf_*), the newest first. */
 export const AGENTS_FLOWS = 64;
@@ -403,13 +407,16 @@ export function agentsDue(tx: Pick<TxSummary, 'agentAt' | 'agents'>, now: number
   return busy && (a === null || now < a.at || now - a.at >= AGENTS_TTL);
 }
 
-/** At most `max` entry names of a folder, as the folder lists them (none when it cannot be read). */
-function names(dir: string, max: number): string[] {
+/**
+ * The first `max` entry names of a folder that `keep` matches, as the folder lists them (none when it cannot be read): a
+ * name it does not match is skipped and does not count.
+ */
+function names(dir: string, max: number, keep: RegExp): string[] {
   const out: string[] = [];
   try {
     const d = opendirSync(dir);
     try {
-      for (let e = d.readSync(); e !== null && out.length < max; e = d.readSync()) out.push(e.name);
+      for (let e = d.readSync(); e !== null && out.length < max; e = d.readSync()) if (keep.test(e.name)) out.push(e.name);
     } finally {
       d.closeSync();
     }
@@ -420,24 +427,24 @@ function names(dir: string, max: number): string[] {
 /**
  * The newest agent files' mtimes in a subagents folder (1.1.0), in seconds, newest first, at most AGENTS_KEPT: its own
  * agent-<id>.jsonl files (plain subagents), then those of its workflows/wf_<id> folders (a workflow's agents), the
- * newest folder first. Bounded: at most AGENTS_ENTRIES names read per folder, AGENTS_FLOWS workflow folders and
- * AGENTS_STATS stats in all, each through statSafe (`statPath`, which the tests count); only names and mtimes are read,
- * never a file. A missing folder is no agents, silently.
+ * newest folder first. Bounded: at most AGENTS_ENTRIES agent files per folder and AGENTS_ENTRIES workflow folders
+ * listed (each counted after the name filter), the newest AGENTS_FLOWS of those read, and AGENTS_STATS stats in all,
+ * each through statSafe (`statPath`, which the tests count); only names and mtimes are read, never a file. A missing
+ * folder is no agents, silently.
  */
 export function agentMtimes(sub: string, statPath: typeof statSafe = statSafe): number[] {
   const out: number[] = [];
   let stats = 0;
   const stat = (p: string): ReturnType<typeof statSafe> => (stats++ < AGENTS_STATS ? statPath(p) : undefined);
   const files = (dir: string): void => {
-    for (const name of names(dir, AGENTS_ENTRIES)) {
-      if (!AGENT_FILE.test(name)) continue;
+    for (const name of names(dir, AGENTS_ENTRIES, AGENT_FILE)) {
       const s = stat(join(dir, name));
       if (s?.isFile()) out.push(Math.floor(s.mtimeMs / 1000));
     }
   };
   files(sub);
   const flows = join(sub, 'workflows');
-  const found = names(flows, AGENTS_ENTRIES).filter((n) => FLOW_DIR.test(n))
+  const found = names(flows, AGENTS_ENTRIES, FLOW_DIR)
     .flatMap((n) => { const s = stat(join(flows, n)); return s?.isDirectory() ? [{ n, at: s.mtimeMs }] : []; });
   for (const f of found.sort((a, b) => b.at - a.at).slice(0, AGENTS_FLOWS)) files(join(flows, f.n));
   return out.sort((a, b) => b - a).slice(0, AGENTS_KEPT);
