@@ -48,6 +48,7 @@ Claude Code can run a command of your choice to draw a status line under its pro
 - **Air bubbles** are the prompt cache. They pop as it cools.
 - The **hotbar** holds the thinking effort, your prompts, the session's cost and the last two hours of git as terrain.
 - The **branch** shows what git is doing. It can also show the pull request and its checks.
+- **Bees** fly home across the sky while Claude Code's subagents work.
 
 Hungerbar is one JavaScript file with no runtime dependencies. It never uses the network while it draws, and it runs git only in the background (unless you set `git.mode` to `sync`). Its network features stay off until you say yes.
 
@@ -72,7 +73,7 @@ This is one render. The Claude Code session is about four and a half hours old a
 | 1 | Boss bar | Fable's weekly limit while you use Fable (`hud.fable boss`, the default). It shows a pink bar as wide as the hotbar, right over it, that gets shorter as you use Fable, then the % left and ↻ when it is full again. It has no name of its own: the line below already names the model in use. The bar and the % turn red at 10% or less. It needs the usage API. | The boss bar at the top of the screen, showing a boss's health. |
 | 2 | Item in your hand | The model, in its rarity colour: light purple for Opus and Fable, aqua for Sonnet, yellow for Haiku. | The name of the held item, coloured by its rarity: epic is light purple, rare is aqua, uncommon is yellow. |
 | 3 | Enchantment | The thinking effort, from `Efficiency I` (low) to `V` (max). | An enchantment on a tool. Efficiency makes a tool dig faster, from level I to V. |
-| 4 | Phantoms | A long session (`hud.phantoms`). There is one phantom for each sign: 100 or more prompts, 4 hours or more, 2 or more compactions, context at 70% or more. With one sign, a small dim phantom flies far away. With two or more, that many big ones fly with green eyes. They hint that `/clear` would help. | Flying undead mobs with green eyes. They come at night for a player who has not slept for days. |
+| 4 | Phantoms | A long session (`hud.phantoms`). There is one phantom for each sign: 100 or more prompts, 4 hours or more, 2 or more compactions, context at 70% or more. With one sign, a small dim phantom flies far away. With two or more, that many big ones fly with green eyes. They hint that `/clear` would help. The other end of the sky, after the air bubbles and the cache's numbers, is the agents': a bee flying home to its hive ▤ for each agent at work (`hud.agents`; allays with `allays`), up to four and then a count. | Flying undead mobs with green eyes. They come at night for a player who has not slept for days. Bees fly home to their hive; an allay is a friendly spirit that fetches items for you. |
 | 5 | Air bubbles | The prompt cache. There are ten bubbles, all full right after Claude Code writes the cache, and they pop one by one as its time runs out. Then come the time left and the hit ratio. When the cache has expired, the bubbles are empty and `cold` shows. | The breath meter over the hunger bar. Its bubbles pop while you stay underwater. |
 | 6 | Day and night | The 5-hour window as one Minecraft day: ☼ yellow, then orange for dusk after 3 hours, ☾ in the last hour, and ☠ once it is used up. Then come the time to its reset and the % left. | The day: the sun, dusk and the moon, as a clock shows them. The skull stands for dying, and a new window is a respawn. |
 | 7 | Hearts | What is left of the 5-hour window, as ten hearts. A lost heart turns dark, from the right. With no 5-hour limit (Ultra) all ten are gold; while the extra credits pay, poison green shows the credits left. | Health: ten hearts. Gold ones are absorption hearts from a golden apple, green ones are poisoned. |
@@ -84,7 +85,7 @@ This is one render. The Claude Code session is about four and a half hours old a
 | 13 | Operator | Your user name before the folder (`hud.user`). While Claude Code runs as Administrator (root elsewhere), the name turns bold gold (`hud.op gold`, the default). With `tag`, a red `[OP]` shows instead. | An operator: a player with admin rights on a server. Servers often show it as a coloured name or an `[OP]` rank in chat. |
 | 14 | Version | Claude Code's version, in dark grey. | The version in the corner of the title screen. |
 | 15 | Offhand | ◆ The extra credits left, in whole dollars, when the account has extra usage; from $100 the emerald gives up its spare cell for three digits (◆250, then ◆ 1k to ◆99k). The count turns grey when the credits were last read more than 15 minutes ago. Its frame turns green while a limit is used up and the extra credits pay, and stays grey when they are out. While you have credits, the totem ☥ waits in hotbar slot 5 (`hud.totem`); when a limit is at 10% or less it takes the emerald's place with your dollars, and when a limit hits 0 it pops there for 30 seconds, between gold sides. | The offhand slot, holding an emerald, the villagers' money. A Totem of Undying held there saves you from dying once, and pops. |
-| 16 | Pickaxe | The selected slot, in the mint selection frame. The pickaxe takes its colour from the model's family. The effort shows as a numeral (Ⅰ to Ⅴ) on a glint that turns a deeper purple with more effort. | The selected hotbar slot, holding a pickaxe. Enchanted items shimmer with a purple glint. |
+| 16 | Pickaxe | The selected slot, in the mint selection frame. The pickaxe and its effort numeral (Ⅰ to Ⅴ) take the model's tool tier (`hud.pickaxe`): netherite for Fable, diamond for Opus, iron for Sonnet, gold for Haiku, stone for any other. The numeral sits on a glint that turns a deeper purple with more effort. | The selected hotbar slot, holding a pickaxe. Tools come in tiers, from stone to netherite. Enchanted items shimmer with a purple glint. |
 | 17 | Book and quill | 📖 The prompts you sent this session, typed or sent while Claude was working. Slash commands, interrupts and notifications do not count. 100 or more shows 99 in yellow. | The book and quill, a book you write in. |
 | 18 | Gold | The session's cost, in whole dollars. | A gold ingot. |
 | 19 | Bed | After 5 minutes without a message, a bed lies in the empty slot (`hud.bed`). It has a white pillow and a red blanket on oak legs. It goes away with your next message. It never shows while a tool is still running. | A bed, where you sleep through the night. |
@@ -142,7 +143,7 @@ Ultra and poison are on by default. `hungerbar look hud --ultra off --poison off
 
 ### The totem and the emerald
 
-Four changes to the offhand; the totem and the count were picked in round 9 of the design picker:
+Four changes to the offhand; the totem was picked in round 9B of the design picker (round 9's follow-up), the count in round 9:
 
 - **The Totem of Undying** (`hud.totem`). While you have extra credits, a gold ☥ waits in hotbar slot 5, the way a Minecraft player keeps a totem for a bad fight. When the 5-hour window or the week drops to 10% left or less, the totem swaps into the offhand with your dollars, a warning that the credits are about to take over. When a window hits 0 it pops there for 30 seconds: ☥✦ between gold sides, the frame's edges gold with them. Then the green paying emerald is back, and the totem is used until the window resets. No credits, no totem.
 - **Dollars past $99** (no key). The emerald had two cells for its count, so $500 showed a yellow 99. From $100 it gives up its spare cell: ◆250, then ◆ 1k to ◆99k, and a yellow ◆99k from $100,000. The totem counts the same way.
@@ -157,7 +158,39 @@ v2.1.306  ☥ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3                        ▆ ▀�
 v2.1.306 ▐☥✦45▌ ▐⛏ Ⅲ ▌📖42 ▄▄ 3                        ▆ ▀▀▂▂  +1208 -279  ⎇ main
 ```
 
-The totem is on by default. `hungerbar look hud --totem off` brings back 1.0's slot 5 and offhand. To see the pop, Hungerbar keeps what it last drew in a small file per session (see [What it writes](#privacy-and-network)).
+The totem is on by default. `hungerbar look hud --totem off` brings back 1.0's slot 5 and offhand (the keyless fixes still apply). To see the pop, Hungerbar keeps what it last drew in a small file per session (see [What it writes](#privacy-and-network)).
+
+### Your agents at work
+
+When Claude Code runs subagents, or a workflow's agents (as Ultracode does), the HUD shows each one at work in line 1's sky, after the cache readout. `hud.agents` picks the look:
+
+- **bees** (the default, picked in round 9B of the design picker): a beehive ▤ and one striped bee for each agent, flying home to the hive.
+- **allays** (round 9's pick, the calm option): Minecraft's friendly blue allays, one for each agent.
+- **off**: nothing.
+
+Up to four fly, then a count of the rest, such as `+2`. An agent is at work while its file in the session's subagents folder was written in the last minute. With none at work the sky stays clear, whether Ultracode is on or off. The phantoms keep their part of the sky, between the held item and the air bubbles, so the two never meet. Three bees, six bees, and three allays:
+
+```
+◦ ○ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s · hit 98%   ▤ ▐▐🬂 ▐▐🬋 ▐▐🬂
+◦ ○ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s · hit 98%   ▤ ▐▐🬂 ▐▐🬋 ▐▐🬂 ▐▐🬋 +2
+◦ ○ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s · hit 98%     🬎🬹🬆 🬎🬹🬋 🬎🬹🬆
+```
+
+The status line never reads the folder itself. The transcript's background worker looks at it about every 10 seconds while the session uses agents, and reads only the agent files' names and times, never what is in them (see [Privacy and network](#privacy-and-network)). So a new agent shows a few seconds late, and only once Claude Code draws the status line again. `hungerbar setup` asks which look you want, with a preview of each; `hungerbar look hud --agents allays` (or `off`) switches, and `hungerbar preview --situation agents` shows a day with three agents at work.
+
+### The pickaxe's material
+
+The pickaxe in hotbar slot 1 and the effort numeral next to it take the model's tool tier, in Minecraft's materials (`hud.pickaxe tiers`, the default, picked in round 9C of the design picker):
+
+| Model | Tier | Colour | 1.0's pickaxe |
+|---|---|---|---|
+| Fable | netherite | `#857579` | `#9D8F8F` |
+| Opus | diamond | `#55FFFF` | `#55FFFF` |
+| Sonnet | iron | `#C6C6C6` | `#D8D8D8` |
+| Haiku | gold | `#FFAA00` | `#8F8F8F` |
+| any other | stone | `#AAAAAA` | `#AAAAAA` |
+
+In 1.0 the numeral was always the enchant pink. With colour icons, ⛏ is an emoji that keeps its own colours, so there the numeral shows the tier; with plain icons both do. `hungerbar look hud --pickaxe plain` brings back 1.0's colours.
 
 ### Git state
 
@@ -300,10 +333,11 @@ In a terminal, `setup` asks a few questions. Each answer is shown as a preview d
 4. **Your name:** your user name (the default), `user@host`, or none.
 5. **The operator's mark:** your name in gold (the default), a red `[OP]`, or nothing.
 6. **The pull request status**, only when `gh` is found: setup says what it runs and sends, and asks `Show the pull request status? [Y/n]`.
+7. **Your agents at work:** bees (the default), allays, or nothing, each previewed on a sky with three agents at work.
 
 If you already have a `hungerbar.json`, Enter keeps what it has. The two network questions pre-select yes unless the file sets the key they ask about; then Enter keeps the file's value. The pull request question's key is `hud.pr`. The usage API question's key is `network.usageApi`; when the usage API is on already, setup asks about `network.scopedWeekly` (Fable's weekly) instead. Each no is saved, so the next setup keeps it: a no to the pull request status as `"pr": "off"`, a no to the usage API as `"usageApi": false` (or `"scopedWeekly": false`).
 
-Flags answer for setup: `--look classic|hud`, then, for the HUD, `--fable off|tail|tooltip|boss|beacon`, `--align left|center`, `--user off|user|user@host`, `--op off|tag|gold`, `--pr on|off`, `--bed on|off`, `--phantoms on|off`, `--ultra on|off`, `--poison on|off` and `--totem on|off` (setup asks no question for the last three). The HUD's flags go with `--look hud`, for example `hungerbar setup --look hud --fable boss --pr on`. Without a terminal, setup asks nothing. Whenever it asks nothing (no terminal, or flags), it prints what of the HUD still waits for your yes, such as `hungerbar look hud --fable boss --pr on`. The pull request status is named only when `gh` is found, and a no you already gave (such as `"pr": "off"`) is not named again.
+Flags answer for setup: `--look classic|hud`, then, for the HUD, `--fable off|tail|tooltip|boss|beacon`, `--align left|center`, `--user off|user|user@host`, `--op off|tag|gold`, `--pr on|off`, `--bed on|off`, `--phantoms on|off`, `--ultra on|off`, `--poison on|off`, `--totem on|off`, `--agents off|allays|bees` and `--pickaxe tiers|plain` (setup asks no question for `--bed`, `--phantoms`, `--ultra`, `--poison`, `--totem` and `--pickaxe`). The HUD's flags go with `--look hud`, for example `hungerbar setup --look hud --fable boss --pr on`. Without a terminal, setup asks nothing. Whenever it asks nothing (no terminal, or flags), it prints what of the HUD still waits for your yes, such as `hungerbar look hud --fable boss --pr on`. The pull request status is named only when `gh` is found, and a no you already gave (such as `"pr": "off"`) is not named again.
 
 Then setup backs up `~/.claude/settings.json` to `settings.json.bak.<timestamp>`, remembers your old `statusLine`, and changes only that key:
 
@@ -349,6 +383,8 @@ The file is strict JSON. Unknown keys are ignored, and a value that is not allow
 | `hud.ultra` | `on` | `on`, `off` | the [golden hearts](#hearts-that-tell-more) when the account has no 5-hour limit (the Ultra plan) |
 | `hud.poison` | `on` | `on`, `off` | the poisoned hearts while the extra credits pay for a used-up 5-hour window |
 | `hud.totem` | `on` | `on`, `off` | the [totem](#the-totem-and-the-emerald) in hotbar slot 5 while you have credits, in the offhand while a limit is at 10% or less, popping for 30 s when one hits 0 |
+| `hud.agents` | `bees` | `bees`, `allays`, `off` | [your agents at work](#your-agents-at-work) in line 1's sky; `off` never reads the subagents folder |
+| `hud.pickaxe` | `tiers` | `tiers`, `plain` | the [pickaxe and its numeral](#the-pickaxes-material) in the model's tool tier, or 1.0's colours |
 
 **Both looks**
 
@@ -408,8 +444,9 @@ hungerbar                      render from stdin (in a terminal it shows a demo)
 hungerbar setup                switch Claude Code's status line to Hungerbar (a terminal asks for the look)
 hungerbar setup --restore      put the previous status line back
 hungerbar look [classic|hud]   show or switch the look; --fable, --align, --pr, --user, --op, --bed,
-                               --phantoms, --ultra, --poison, --totem; --print shows the change and writes nothing
-hungerbar preview              draw sample situations (normal, tight, fresh, extra, fable); writes nothing
+                               --phantoms, --ultra, --poison, --totem, --agents, --pickaxe; --print shows the
+                               change and writes nothing
+hungerbar preview              draw sample situations (normal, tight, fresh, extra, fable, agents); writes nothing
 hungerbar doctor [--bench]     check the install and time a render
 hungerbar refresh usage        ask the usage API now and print what came back (when network.usageApi is on)
 hungerbar glyphs [--hud]       a width ruler for the icons, to check your terminal's font
@@ -458,7 +495,8 @@ Hungerbar runs on your machine and keeps what it learns there. Two features use 
 **What it reads on your machine**
 
 - The JSON Claude Code passes on stdin for each render.
-- The session's transcript, read incrementally: for the prompt and compaction counts, the bed, and fields an older Claude Code does not pass.
+- The session's transcript, read incrementally: for the prompt and compaction counts, the bed, fields an older Claude Code does not pass, and whether Ultracode is on and when an agent was last started.
+- With `hud.agents` on (`bees`, the default, or `allays`), while the session uses agents: the names and modification times of the agent files in the session's subagents folder, next to the transcript (`<session>/subagents`, and its workflows' folders). The transcript's background worker reads them, never what is in the files, and keeps only the newest times. With `hud.agents off` the folder is never read.
 - Your git repo's files: `.git/HEAD` and its refs, when the index last changed, `.git/logs/HEAD` for the terrain, the files git keeps during a merge, rebase or cherry-pick, and, with the PR status on, `.git/config` to see whether a remote is on GitHub. A background refresher runs `git diff HEAD --shortstat` and, for the HUD, `git status --porcelain=v2 --branch`.
 - Your user name and computer name from the system, and whether Claude Code runs elevated.
 - Environment variables: the ones under [Configuration](#configuration), `CLAUDE_CONFIG_DIR`, `CLAUDE_CODE_EFFORT_LEVEL` (when Claude Code passes no effort), `PATH` (to find git and `gh`), `GIT_CEILING_DIRECTORIES` and `GH_HOST`; the terminal's `COLUMNS`, `TERM`, `COLORTERM`, `WT_SESSION` and `TERM_PROGRAM`; the system's folders and names, such as `LOCALAPPDATA` and `USERNAME`; in `doctor`, `CLAUDE_CODE_GIT_BASH_PATH` and `SHELL`; and the `HUNGERBAR_*` variables the tests use.
@@ -469,7 +507,7 @@ Hungerbar runs on your machine and keeps what it learns there. Two features use 
 
 **What it writes**
 
-- Its cache folder: `%LOCALAPPDATA%\hungerbar` on Windows, `~/Library/Caches/hungerbar` on macOS, `$XDG_CACHE_HOME/hungerbar` or `~/.cache/hungerbar` on Linux. It holds small JSON files: the git answers, the last known limits, the usage API's answer, the PR answers, the HUD's terrain history, the totem's memory (what the HUD last drew, one small file per session, so it sees when a limit hits 0), the transcript counts and, after `setup`, your previous status line (and, with `setup --launcher`, `statusline.cmd`). Terrain histories, the totem's files, transcript counts and PR answers untouched for a week are deleted (checked at most once a day).
+- Its cache folder: `%LOCALAPPDATA%\hungerbar` on Windows, `~/Library/Caches/hungerbar` on macOS, `$XDG_CACHE_HOME/hungerbar` or `~/.cache/hungerbar` on Linux. It holds small JSON files: the git answers, the last known limits, the usage API's answer, the PR answers, the HUD's terrain history, the totem's memory (what the HUD last drew, one small file per session, so it sees when a limit hits 0), the transcript counts (with the times of the newest agent files, while the session uses agents) and, after `setup`, your previous status line (and, with `setup --launcher`, `statusline.cmd`). Terrain histories, the totem's files, transcript counts and PR answers untouched for a week are deleted (checked at most once a day).
 - `settings.json` (only the `statusLine` key, with a backup) when you run `setup` or `setup --restore`.
 - `hungerbar.json` (with a backup) when you run `setup` or `look`.
 - Windows Terminal's `settings.json` (only the font face, with a backup) when you run `icons plain` or `icons colour`, or `setup --icons plain` or `setup --icons colour`.

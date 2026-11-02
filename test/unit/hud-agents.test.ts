@@ -8,7 +8,7 @@
 // flock's places, the sky the phantoms share, the boss bar's line and every sky the layer must leave as it is; what the
 // HUD path asks of the sources, and the disk sources' look that rides on the transcript worker; the bytes at both
 // depths; the glyphs; and against the tests' layer on the reference states, the time-lapse and seeded fuzz states x
-// seeded flags x the 5 fable ids.
+// seeded flags x the 5 fable ids; and the README's sample.
 import assert from 'node:assert/strict';
 import { closeSync, openSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -101,6 +101,14 @@ test('round 9b: the vendored rows are the picks (agents-bees, agents-allays), th
   assert.deepEqual(['a-idle', 'a-3', 'a-6', 'a-plain', 'a-sky', 'a-none'].map((id) => sky('allays', id)), ['', `     ${A} ${L} ${A}`, `     ${A} ${L} ${A} ${L} +2`, `     ${A} ${L}`, `     ${A} ${L} ${A}`, '']);
   // the phantoms of a-sky are where 0.7.0 puts two (cols 30 and 35)
   assert.equal(cols(ALL.find((x) => x.look === 'bees' && x.s.id === 'a-sky')!.lines[0] as Span[], 29, 39), ' \u{1FB08}\u{1FB0B}\u{1FB05}  \u{1FB22}\u{1FB2D}\u{1FB16} ');
+});
+
+test('the README\'s agents sample is line 1 of the rows a-3 and a-6 of the bees and a-3 of the allays, from the cache readout (col 42) on', () => {
+  const readme = readFileSync(join(REF, '..', '..', 'README.md'), 'utf8').replace(/\r\n/g, '\n');
+  const block = /\n### Your agents at work\n[\s\S]*?```\n([\s\S]*?)\n```/.exec(readme);
+  assert.ok(block, 'README has the agents sample');
+  const sky = (look: Look, id: string): string => cols(ALL.find((x) => x.look === look && x.s.id === id)!.lines[0] as Span[], 42, 110);
+  assert.deepEqual(block[1]!.split('\n'), [sky('bees', 'a-3'), sky('bees', 'a-6'), sky('allays', 'a-3')]);
 });
 
 /** The tests' whole drawing of a row: the engine, the phantoms, the agents and the frame. */
