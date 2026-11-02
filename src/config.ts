@@ -40,6 +40,18 @@ export type HudOp = (typeof HUD_OPS)[number];
  */
 export const HUD_SWITCHES = ['on', 'off'] as const;
 export type HudSwitch = (typeof HUD_SWITCHES)[number];
+/**
+ * The agents at work in line 1's sky (SPEC §0.12, 1.1.0): bees flying home to a hive (the default), allays (the calm
+ * option), or nothing, and then the subagents folder is never read.
+ */
+export const HUD_AGENTS = ['off', 'allays', 'bees'] as const;
+export type HudAgents = (typeof HUD_AGENTS)[number];
+/**
+ * The pickaxe in hotbar slot 1 (SPEC §0.12, 1.1.0): the pickaxe and the effort numeral in the model's tool tier (the
+ * default), or plain, 1.0's inks with the numeral in the enchant pink.
+ */
+export const HUD_PICKAXES = ['tiers', 'plain'] as const;
+export type HudPickaxe = (typeof HUD_PICKAXES)[number];
 
 export interface Config {
   icons: Icons;
@@ -66,17 +78,20 @@ export interface Config {
    * slot 4 after 5 minutes without a message, not while a tool runs; phantoms: phantoms in line 1's sky for each sign
    * of a long session; ultra: gold hearts and ∞ for an account with no 5-hour window (1.1.0); poison: poison-green
    * hearts for the credits left while they pay for a used-up 5-hour window (1.1.0); totem: the Totem of Undying while
-   * credits are left, in hotbar slot 5, in the offhand while a window is at 1-10%, popping for 30 s when one hits 0 (1.1.0).
+   * credits are left, in hotbar slot 5, in the offhand while a window is at 1-10%, popping for 30 s when one hits 0 (1.1.0);
+   * agents: a bee (or an allay) in line 1's sky for each agent at work (1.1.0); pickaxe: the pickaxe and its numeral in
+   * the model's tool tier, or 1.0's plain inks (1.1.0).
    */
   hud: {
     fable: HudFable; minWidth: number; align: HudAlign; pr: HudPr; user: HudUser; op: HudOp; bed: HudSwitch; phantoms: HudSwitch; ultra: HudSwitch; poison: HudSwitch;
-    totem: HudSwitch;
+    totem: HudSwitch; agents: HudAgents; pickaxe: HudPickaxe;
   };
 }
 
 /**
  * The defaults (SPEC §0.10): the HUD with Fable's boss bar, centred, the user's name with the gold
- * operator's mark, the bed and the phantoms, and (1.1.0) the Ultra and poison hearts and the totem. What uses the network stays off until the user says yes: the usage API and
+ * operator's mark, the bed and the phantoms, and (1.1.0) the Ultra and poison hearts, the totem, the bees and the
+ * pickaxe's tiers. What uses the network stays off until the user says yes: the usage API and
  * scopedWeekly (which the Fable options need, so the boss bar draws nothing until then) and the PR status. setup asks
  * for both.
  */
@@ -96,7 +111,10 @@ export function defaults(): Config {
     nbsp: true,
     widthReserve: 0,
     look: 'hud',
-    hud: { fable: 'boss', minWidth: 80, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on', ultra: 'on', poison: 'on', totem: 'on' },
+    hud: {
+      fable: 'boss', minWidth: 80, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on', ultra: 'on', poison: 'on', totem: 'on', agents: 'bees',
+      pickaxe: 'tiers',
+    },
   };
 }
 
@@ -163,11 +181,13 @@ export function merge(raw: unknown): Config {
     look: oneOf(raw.look, ['classic', 'hud'] as const, d.look),
     // 62 at least: the hotbar sits at columns 16-61 (plan §9)
     // an absent hud.fable is the default (boss), any other value that is not an option off; for the other keys anything
-    // but a listed value is the default: align center, pr off, user user, op gold, bed, phantoms, ultra, poison and totem on
+    // but a listed value is the default: align center, pr off, user user, op gold, bed, phantoms, ultra, poison and totem
+    // on, agents bees, pickaxe tiers
     hud: {
       fable: hud.fable === undefined ? d.hud.fable : fableId(hud.fable), minWidth: int(hud.minWidth, d.hud.minWidth, 62, 200), align: oneOf(hud.align, HUD_ALIGNS, d.hud.align), pr: oneOf(hud.pr, HUD_PRS, d.hud.pr),
       user: oneOf(hud.user, HUD_USERS, d.hud.user), op: oneOf(hud.op, HUD_OPS, d.hud.op), bed: oneOf(hud.bed, HUD_SWITCHES, d.hud.bed), phantoms: oneOf(hud.phantoms, HUD_SWITCHES, d.hud.phantoms),
       ultra: oneOf(hud.ultra, HUD_SWITCHES, d.hud.ultra), poison: oneOf(hud.poison, HUD_SWITCHES, d.hud.poison), totem: oneOf(hud.totem, HUD_SWITCHES, d.hud.totem),
+      agents: oneOf(hud.agents, HUD_AGENTS, d.hud.agents), pickaxe: oneOf(hud.pickaxe, HUD_PICKAXES, d.hud.pickaxe),
     },
   };
 }

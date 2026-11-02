@@ -137,9 +137,19 @@
           "default": "on"
         },
         "totem": {
-          "description": "on: while extra credits are left (more than $0), the Totem of Undying is in the hotbar: a gold ☥ in slot 5. When the 5-hour window or the week drops to 10% left or less, it swaps into the offhand, ☥ with your dollars where the emerald was, as a warning. When a window hits 0 it pops there for 30 seconds (☥✦ between gold sides, the frame's edges gold too), then the green paying emerald is back and the totem is used until the window resets. No credits, no totem. The pop is remembered in a small per-session file next to the HUD's history (hud/<session>.shown.json). off: no totem anywhere, slot 5 and the offhand as 1.0 drew them. hungerbar look hud --totem on|off sets it.",
+          "description": "on: while extra credits are left (more than $0), the Totem of Undying is in the hotbar: a gold ☥ in slot 5. When the 5-hour window or the week drops to 10% left or less, it swaps into the offhand, ☥ with your dollars where the emerald was, as a warning. When a window hits 0 it pops there for 30 seconds (☥✦ between gold sides, the frame's edges gold too), then the green paying emerald is back and the totem is used until the window resets. No credits, no totem. The pop is remembered in a small per-session file next to the HUD's history (hud/<session>.shown.json). off: no totem anywhere, slot 5 and the offhand as 1.0 drew them (the keyless fixes still apply). hungerbar look hud --totem on|off sets it.",
           "enum": ["on", "off"],
           "default": "on"
+        },
+        "agents": {
+          "description": "Your agents at work: Claude Code's subagents and workflow agents, one for each agent file in the session's subagents folder written in the last 60 seconds, in line 1's sky after the cache readout (up to four, then a count such as +2); nothing while none works, whether Ultracode is on or off. bees: striped bees flying home to a hive ▤ (the default). allays: Minecraft's friendly blue allays, the calm option. off: nothing, and the folder is never read. The transcript's background worker reads only the folder's file names and times, never what is in the files, about every 10 seconds while the session uses agents, so a new agent shows a few seconds late. hungerbar look hud --agents off|allays|bees sets it, and setup asks.",
+          "enum": ["off", "allays", "bees"],
+          "default": "bees"
+        },
+        "pickaxe": {
+          "description": "tiers: the pickaxe in hotbar slot 1 and the effort numeral next to it take the model's tool tier: netherite (#857579) for Fable, diamond (#55FFFF) for Opus, iron (#C6C6C6) for Sonnet, gold (#FFAA00) for Haiku, stone (#AAAAAA) for any other model. With colour icons ⛏ is an emoji that keeps its own colours, so there the numeral shows the tier. plain: 1.0's inks, the numeral in the enchant pink (#FF55FF). hungerbar look hud --pickaxe tiers|plain sets it.",
+          "enum": ["tiers", "plain"],
+          "default": "tiers"
         }
       }
     }
