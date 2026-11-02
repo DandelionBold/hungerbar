@@ -17,6 +17,7 @@ import type { AgentMarks, AgentsSeen } from './hud/agents.ts';
 import type { GitMarks } from './hud/gitstate.ts';
 import type { PlayerMarks } from './hud/player.ts';
 import type { OffhandMarks } from './hud/offhand.ts';
+import type { TierMarks } from './hud/tiers.ts';
 import type { VitalMarks } from './hud/vitals.ts';
 import { diskHistory, histSid } from './hud/history.ts';
 import { hudGate, renderHudLook } from './hud/look.ts';
@@ -50,12 +51,13 @@ export interface RenderResult {
   after: Array<() => void>;
   /**
    * When the HUD drew this render, for the tests: the engine's input (with its hist), the git state's (marks), the pull
-   * request (null: no badge), the player's layers' input, the vitals', the offhand's and the agents' inputs (1.1.0),
-   * the engine's lines, the lines with the git state, the badge, the player's layers, the vitals, the offhand, the agents
-   * and the hotbar's frame, and the centring's offset (hud.align center; `text` is the framed lines moved right by it).
+   * request (null: no badge), the player's layers' input, the vitals', the offhand's, the agents' and the pickaxe
+   * tiers' inputs (1.1.0), the engine's lines, the lines with the git state, the badge, the player's layers, the vitals,
+   * the offhand, the agents, the tiers and the hotbar's frame, and the centring's offset (hud.align center; `text` is
+   * the framed lines moved right by it).
    */
   hud?: {
-    input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; vitals: VitalMarks; offhand: OffhandMarks; agents: AgentMarks;
+    input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; vitals: VitalMarks; offhand: OffhandMarks; agents: AgentMarks; tiers: TierMarks;
     lines: Span[][]; framed: Span[][]; offset: number;
   };
   /**
@@ -222,7 +224,7 @@ export function renderPayload(raw: string | null, opts: RenderOptions): RenderRe
       const h = renderHudLook(st, p, src, cfg, gate.depth, budget(env, cfg));
       return {
         text: h.text, spawns, model: st.model, after, state: st,
-        hud: { input: h.input, git: h.git, pr: h.pr, player: h.player, vitals: h.vitals, offhand: h.offhand, agents: h.agents,
+        hud: { input: h.input, git: h.git, pr: h.pr, player: h.player, vitals: h.vitals, offhand: h.offhand, agents: h.agents, tiers: h.tiers,
           lines: h.lines, framed: h.framed, offset: h.offset },
       };
     } catch (e) {

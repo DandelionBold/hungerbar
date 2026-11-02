@@ -192,8 +192,9 @@ function sources(s: R9Situation, asked: ShownNow[]): (p: Payload, cfg: Config, n
     shown: (c) => { asked.push(c); return stepShown(seeded(s), now, c).next.until.pop; },
   });
 }
+/** The HUD with the boss bar, at the left edge, no name, the usage API on and 1.0's pickaxe (the rows predate the tiers, test/unit/hud-tiers.test.ts). */
 const hudCfg = (hud: Partial<Config['hud']> = {}): Config =>
-  ({ ...plainDefaults(), look: 'hud', hud: { ...plainDefaults().hud, fable: 'boss', ...hud }, network: { ...plainDefaults().network, usageApi: true, scopedWeekly: true } });
+  ({ ...plainDefaults(), look: 'hud', hud: { ...plainDefaults().hud, fable: 'boss', pickaxe: 'plain', ...hud }, network: { ...plainDefaults().network, usageApi: true, scopedWeekly: true } });
 const NORMAL_P = DEMOS.normal!.payload;
 
 test('round 9: through the real HUD path (renderPayload, the adapter, the engine, the layers, the shown-file\'s step, the frame) each row span for span', () => {

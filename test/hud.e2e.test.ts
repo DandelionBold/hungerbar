@@ -50,6 +50,7 @@ import { playerOracle, QUIET, type OraclePlayer } from './hud/player-oracle.ts';
 import { QUIET_VITALS, vitalsOracle, type OracleVitals } from './hud/vitals-oracle.ts';
 import { offhandOracle, offhandSideOracle, QUIET_OFFHAND, type OracleOffhand } from './hud/offhand-oracle.ts';
 import { agentsOracle, QUIET_AGENTS, type OracleAgents } from './hud/agents-oracle.ts';
+import { tierOracle, tiersOracle } from './hud/tiers-oracle.ts';
 import { badgeOracle, type OraclePr } from './hud/prci-oracle.ts';
 import { sgrOracle } from './hud/sgr-oracle.ts';
 import {
@@ -126,9 +127,9 @@ const DEMO_OFFHAND: OracleOffhand = { ...QUIET_OFFHAND, totem: true };
 
 /** The offhand on the tests' render and the frame with its sides. */
 const offhandFramed = (lines: RefLines, state: RefState, o: OracleOffhand): RefLines => frameOracle(offhandOracle(lines, state, o), state, offhandSideOracle(state, o));
-/** The offhand, the agents (1.1.0) and the frame with the offhand's sides. */
-const lastFramed = (lines: RefLines, state: RefState, o: OracleOffhand, a: OracleAgents): RefLines =>
-  frameOracle(agentsOracle(offhandOracle(lines, state, o), a), state, offhandSideOracle(state, o));
+/** The offhand, the agents and the pickaxe's tiers (1.1.0, `tiers`: hud.pickaxe tiers, the default) and the frame with the offhand's sides. */
+const lastFramed = (lines: RefLines, state: RefState, o: OracleOffhand, a: OracleAgents, tiers = true): RefLines =>
+  frameOracle(tiersOracle(agentsOracle(offhandOracle(lines, state, o), a), state, tiers), state, offhandSideOracle(state, o));
 /**
  * The agents of each demo (1.1.0): hud.agents bees (the default), and three agents at work on the agents day (its sources hand
  * three agent files written seconds ago); the other days have none.
@@ -173,6 +174,10 @@ const agentsLookOf = (c: Case): PinnedAgents['look'] => { const a = (c.config as
 const pinnedAgents = (c: Case): PinnedAgents => ({ look: agentsLookOf(c), live: 0, ultra: false, ...(c.hudAgents as Partial<PinnedAgents> | undefined) });
 /** The tests' agents for a case: the look and the agents at work as pinned. */
 const agentsOf = (c: Case): OracleAgents => { const a = pinnedAgents(c); return { look: a.look, live: a.live }; };
+/** A case's hud.pickaxe, re-derived here: tiers unless it says plain (SPEC §0.12). */
+const tiersOf = (c: Case): boolean => (c.config as { hud?: { pickaxe?: unknown } } | undefined)?.hud?.pickaxe !== 'plain';
+/** The tiers' input a case pins, or the tests' own reading of its state (src/hud/tiers.ts TierMarks, restated). */
+const pinnedTiers = (c: Case, want: RefState): unknown => (c.hudTiers !== undefined ? c.hudTiers : tierOracle(want, tiersOf(c)));
 const offhandOf = (c: Case): OracleOffhand => {
   const o = pinnedOffhand(c);
   return { totem: (c.config as { hud?: { totem?: unknown } } | undefined)?.hud?.totem !== 'off', pop: o.totem === 'pop', stale: o.stale };
@@ -303,7 +308,7 @@ for (const name of HUD_CASES) {
     const git = (c.hudGit ?? UNKNOWN) as OracleGit, pr = (c.hudPr ?? null) as OraclePr | null, player = playerOf(c), vitals = vitalsOf(c), offhand = offhandOf(c), agents = agentsOf(c);
     // the engine's lines with the tests' git state and PR badge (0.7.0), player's layers (0.7.0), vitals and offhand
     // (1.1.0) and frame
-    const framed = want && lastFramed(vitalsOracle(playerOracle(gitOracle(lines!, want, git, badgeOracle(pr)), want, player), want, vitals), want, offhand, agents);
+    const framed = want && lastFramed(vitalsOracle(playerOracle(gitOracle(lines!, want, git, badgeOracle(pr)), want, player), want, vitals), want, offhand, agents, tiersOf(c));
 
     // in process: the adapter plus the history step hand the engine exactly the pinned state
     const p = prepare(c);
@@ -321,10 +326,11 @@ for (const name of HUD_CASES) {
         assert.deepEqual(plain(r.hud.vitals), pinnedVitals(c), 'the vitals are handed what the case pins');
         assert.deepEqual(plain(r.hud.offhand), pinnedOffhand(c), 'the offhand is handed what the case pins');
         assert.deepEqual(plain(r.hud.agents), pinnedAgents(c), 'the agents are handed what the case pins');
+        assert.deepEqual(plain(r.hud.tiers), pinnedTiers(c, want), 'the tiers are handed what the case pins');
         assert.deepEqual(tuples(r.hud.framed as RefLines), plain(tuples(framed!)), 'the git state, the PR badge, the player\'s layers, the vitals, the offhand and the frame = the tests\'');
         // every option of the layers off (0.7.0, 1.1.0): the git state, the badge, the stale marks and the offhand's
         // keyless fixes (no key) and the frame alone, whatever the case says
-        const offCfg = { ...(c.config as object | undefined), hud: { ...(c.config as { hud?: object } | undefined)?.hud, user: 'off', op: 'off', bed: 'off', phantoms: 'off', ultra: 'off', poison: 'off', totem: 'off', agents: 'off' } };
+        const offCfg = { ...(c.config as object | undefined), hud: { ...(c.config as { hud?: object } | undefined)?.hud, user: 'off', op: 'off', bed: 'off', phantoms: 'off', ultra: 'off', poison: 'off', totem: 'off', agents: 'off', pickaxe: 'plain' } };
         const q = prepare({ ...c, config: offCfg });
         try {
           const off = renderPayload(q.stdin, { env: { ...q.env, ...env } });
@@ -332,10 +338,11 @@ for (const name of HUD_CASES) {
           assert.deepEqual(plain(off.hud!.vitals), { ...pinnedVitals(c), ultra: false, poison: null }, 'all off: only the stale marks for the vitals');
           assert.deepEqual(plain(off.hud!.offhand), { ...pinnedOffhand(c), totem: null }, 'all off: no totem');
           assert.deepEqual(plain(off.hud!.agents), { look: null, live: 0, ultra: false }, 'all off: no agents');
+          assert.equal(off.hud!.tiers, null, 'all off: 1.0\'s pickaxe');
           const stale: OracleVitals = { ...QUIET_VITALS, stale5: vitals.stale5, staleWk: vitals.staleWk };
           const keyless: OracleOffhand = { ...offhand, totem: false, pop: false };
           assert.deepEqual(tuples(off.hud!.framed as RefLines), plain(tuples(offhandFramed(vitalsOracle(gitOracle(lines!, want, git, badgeOracle(pr)), want, stale), want, keyless))),
-            'all off: no player\'s layer, no Ultra, no poison, no totem, no agents');
+            'all off: no player\'s layer, no Ultra, no poison, no totem, no agents, no tiers');
         } finally {
           q.cleanup();
         }
@@ -421,7 +428,7 @@ test("(f) every hud-* case in colour at a known width: left draws its bytes of a
     if (!modes.length || c.hudState === null || c.hudState === undefined) continue;
     const want = fill(c.hudState, '') as RefState;
     const git = (c.hudGit ?? UNKNOWN) as OracleGit, pr = (c.hudPr ?? null) as OraclePr | null;
-    const framed = lastFramed(vitalsOracle(playerOracle(gitOracle(MIX.render(want, picked(fableOf(c))), want, git, badgeOracle(pr)), want, playerOf(c)), want, vitalsOf(c)), want, offhandOf(c), agentsOf(c));
+    const framed = lastFramed(vitalsOracle(playerOracle(gitOracle(MIX.render(want, picked(fableOf(c))), want, git, badgeOracle(pr)), want, playerOf(c)), want, vitalsOf(c)), want, offhandOf(c), agentsOf(c), tiersOf(c));
     const ansi = sgrOracle(framed, { depth: 'truecolor' });
     const reserve = (c.config as { widthReserve?: number } | undefined)?.widthReserve ?? 0;
     for (const m of modes) {

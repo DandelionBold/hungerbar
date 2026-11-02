@@ -151,11 +151,11 @@ function sources(f: Feature, s: R9Situation): (p: Payload, cfg: Config, now: num
   });
 }
 /**
- * The HUD with the boss bar, at the left edge, no name and the [OP] tag, the usage API on, no totem (the rows predate it,
- * test/unit/hud-offhand.test.ts), and these keys.
+ * The HUD with the boss bar, at the left edge, no name and the [OP] tag, the usage API on, no totem and 1.0's pickaxe
+ * (the rows predate both, test/unit/hud-offhand.test.ts and hud-tiers.test.ts), and these keys.
  */
 const hudCfg = (hud: Partial<Config['hud']> = {}): Config =>
-  ({ ...plainDefaults(), look: 'hud', hud: { ...plainDefaults().hud, fable: 'boss', totem: 'off', ...hud }, network: { ...plainDefaults().network, usageApi: true, scopedWeekly: true } });
+  ({ ...plainDefaults(), look: 'hud', hud: { ...plainDefaults().hud, fable: 'boss', totem: 'off', pickaxe: 'plain', ...hud }, network: { ...plainDefaults().network, usageApi: true, scopedWeekly: true } });
 const NORMAL_P = DEMOS.normal!.payload;
 const payloadOf = (s: R9Situation): Payload => (s.state.model === 'Fable 5.1' ? { ...NORMAL_P, model: { id: 'claude-fable-5-1', display_name: 'Fable 5.1' } } : NORMAL_P);
 

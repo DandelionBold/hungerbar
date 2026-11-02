@@ -13,6 +13,7 @@ import type { Env } from '../../src/env.ts';
 import { adapt, guard, PLACEHOLDER, type HudState } from '../../src/hud/adapter.ts';
 import { renderHud } from '../../src/hud/fable.ts';
 import { frameHud } from '../../src/hud/frame.ts';
+import { tiersHud } from '../../src/hud/tiers.ts';
 import { fromState } from '../../src/hud/input.ts';
 import { encode } from '../../src/hud/look.ts';
 import type { Payload } from '../../src/payload.ts';
@@ -171,7 +172,9 @@ test('look hud with the gate passed: the HUD, its input, lines and framed lines 
     assert.ok(r.hud, JSON.stringify(env));
     assert.equal(r.text, encode(r.hud.framed, depth, plainDefaults()));
     assert.deepEqual(r.hud.lines, renderHud(r.hud.input, 'off'));
-    assert.deepEqual(r.hud.framed, frameHud(r.hud.lines));
+    // the pickaxe's tiers (1.1.0, the default) are the only layer that draws here: Opus's diamond numeral
+    assert.deepEqual(r.hud.tiers, { tier: 'diamond', ink: '#55FFFF' });
+    assert.deepEqual(r.hud.framed, frameHud(tiersHud(r.hud.lines, r.hud.tiers, 'Opus 5.5')));
     assert.deepEqual([r.hud.input.turns, r.hud.input.cost, r.hud.input.branch, r.hud.input.hist], [5, 1.5, 'main', null]);
     assert.equal(r.model, 'Opus 5.5');
     assert.deepEqual(r.after, []);

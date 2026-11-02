@@ -27,6 +27,7 @@ import { encode } from '../../src/hud/look.ts';
 import { offhandHud, offhandMarks, SLOT5_TOTEM } from '../../src/hud/offhand.ts';
 import { phantomHud } from '../../src/hud/phantoms.ts';
 import { merge, S, splitAt, W, type Span } from '../../src/hud/spans.ts';
+import { tierMarks, tiersHud } from '../../src/hud/tiers.ts';
 import { cellWidth } from '../../src/hud/wt.ts';
 import type { Payload } from '../../src/payload.ts';
 import { diskSources, renderPayload } from '../../src/render.ts';
@@ -125,6 +126,18 @@ test('round 9b: the rows with hud.totem on are the same rows with the totem in s
   }
 });
 
+test('round 9b: the rows with hud.pickaxe tiers are the same rows with the effort numeral in Opus\'s diamond (its pickaxe is diamond already)', () => {
+  for (const { look, s, lines } of ALL) {
+    const sit = fromState(s.state);
+    const got = plain(frameHud(tiersHud(agentsHud(phantomHud(renderHud(s.state, 'boss'), s.ctx.phantoms), marksOf(look, s)), tierMarks({ pickaxe: 'tiers' }, sit), sit.model)));
+    const want = plain(lines) as Span[][];
+    const h = want.length - 2;
+    assert.deepEqual(splitAt(splitAt(want[h]!, 17)[1], 4)[0], [S('⛏ ', '#55FFFF', '#2E1A3A'), S('Ⅲ ', '#FF55FF', '#2E1A3A', true)], s.id);
+    want[h] = merge([...splitAt(want[h]!, 19)[0], S('Ⅲ ', '#55FFFF', '#2E1A3A', true), ...splitAt(want[h]!, 21)[1]]);
+    assert.deepEqual(got, want, `${look} ${s.id}`);
+  }
+});
+
 // ---------------------------------------------------------------------------------------------------------------------
 // The real HUD path
 // ---------------------------------------------------------------------------------------------------------------------
@@ -148,8 +161,12 @@ const payloadOf = (s: R9Situation): Payload => ({
   ...DEMOS.normal!.payload,
   context_window: { context_window_size: 1_000_000, used_percentage: s.state.ctxPct as number, current_usage: { input_tokens: 6, cache_creation_input_tokens: 1494, cache_read_input_tokens: (s.state.ctxTok as number) - 1500, output_tokens: 812 } },
 });
-/** The HUD with Fable's boss bar (none on Opus), at the left edge, no name and the [OP] tag, no totem (the rows predate it), and these keys. */
-const hudCfg = (hud: Partial<Config['hud']> = {}): Config => ({ ...plainDefaults(), look: 'hud', hud: { ...plainDefaults().hud, fable: 'boss', totem: 'off', ...hud } });
+/**
+ * The HUD with Fable's boss bar (none on Opus), at the left edge, no name and the [OP] tag, no totem and 1.0's pickaxe
+ * (the rows predate both), and these keys.
+ */
+const hudCfg = (hud: Partial<Config['hud']> = {}): Config =>
+  ({ ...plainDefaults(), look: 'hud', hud: { ...plainDefaults().hud, fable: 'boss', totem: 'off', pickaxe: 'plain', ...hud } });
 
 test('round 9b: through the real HUD path (renderPayload, the adapter, the engine, the phantoms, the agents\' source, the frame) each row span for span', () => {
   for (const { look, s, lines } of ALL) {

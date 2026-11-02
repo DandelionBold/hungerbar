@@ -14,6 +14,7 @@ import type { Payload } from '../../src/payload.ts';
 import type { Sources, State } from '../../src/state.ts';
 import { FABLE_IDS, renderHud } from '../../src/hud/fable.ts';
 import { frameHud } from '../../src/hud/frame.ts';
+import { tiersHud } from '../../src/hud/tiers.ts';
 import { hudOffset, shiftHud } from '../../src/hud/align.ts';
 import { encode, hudGate, renderHudLook } from '../../src/hud/look.ts';
 import { S, type Span } from '../../src/hud/spans.ts';
@@ -202,7 +203,9 @@ test('renderHudLook encodes what the engine drew from its input, framed (and cen
   for (const depth of ['truecolor', '256'] as const) {
     const h = renderHudLook(st, {} as Payload, src, cfgOf('hud'), depth, null);
     assert.deepEqual(h.lines, renderHud(h.input, 'boss'));
-    assert.deepEqual(h.framed, frameHud(h.lines));
+    // with the pickaxe's tiers (1.1.0, the default): Opus's diamond numeral; nothing else on these lines draws
+    assert.deepEqual(h.tiers, { tier: 'diamond', ink: '#55FFFF' });
+    assert.deepEqual(h.framed, frameHud(tiersHud(h.lines, h.tiers, 'Opus 5.5')));
     assert.equal(h.framed.length, h.lines.length + 1, 'the bottom edge row');
     assert.equal(h.text, encode(h.framed, depth, ON));
     assert.deepEqual([h.input.turns, h.input.compactions, h.input.hist], [3, 1, null]);
