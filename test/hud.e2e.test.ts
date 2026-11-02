@@ -4,19 +4,22 @@
 //       fable-in-use. The shifted histories draw what the frozen spec renders draw (their hashes).
 //   (b) dist/hungerbar.mjs's bytes (`preview`, a config file with look hud) equal the independent encoder applied to the
 //       vendored engine's render with the tests' git state (each demo's status, 0.7.0), player's layers, vitals (1.1.0:
-//       the extra day's poisoned hearts), offhand (1.1.0: the totem in slot 5, or in the offhand on the tight day) and own
-//       hotbar frame (test/hud/frame-oracle.ts), for every situation x the 5
-//       fable ids, at FORCE_COLOR=3 and 2; with hud.pr on the tight day also draws its pull request's badge.
+//       the extra day's poisoned hearts), offhand (1.1.0: the totem in slot 5, or in the offhand on the tight day), agents
+//       (1.1.0: the agents day's three bees), pickaxe tiers (1.1.0) and own hotbar frame (test/hud/frame-oracle.ts), for
+//       every situation x the 5 fable ids, at FORCE_COLOR=3 and 2; with hud.pr on the tight day also draws its pull
+//       request's badge.
 //   (c) every golden case test/fixtures/cases/hud-*.json, on disk: the in-process render (adapter plus history step)
 //       hands the engine the case's pinned hudState, the git state its pinned hudGit (none known when absent) and the
 //       badge its pinned hudPr (no PR when absent), and dist's bytes equal the independent encoder applied to the vendored
 //       engine's render of it with the tests' git state and PR badge (test/hud/gitstate-oracle.ts and prci-oracle.ts,
 //       0.7.0), the player's layers as its pinned hudPlayer asks (test/hud/player-oracle.ts, 0.7.0; nothing when absent),
 //       the vitals as its pinned hudVitals asks (test/hud/vitals-oracle.ts, 1.1.0; nothing when absent), the offhand as
-//       its pinned hudOffhand asks (test/hud/offhand-oracle.ts, 1.1.0; none when absent) and frame; each fallback mode is
-//       classic byte for byte, and w100c keeps the HUD. With hud.user, hud.op, hud.bed, hud.phantoms, hud.ultra,
-//       hud.poison and hud.totem all off, every case draws the engine's lines with only the git state, the badge, the
-//       stale marks, the offhand's keyless fixes (they have no key) and the frame.
+//       its pinned hudOffhand asks (test/hud/offhand-oracle.ts, 1.1.0; none when absent), the agents as its pinned
+//       hudAgents asks (test/hud/agents-oracle.ts, 1.1.0; none at work when absent), the pickaxe's tiers from its
+//       hud.pickaxe (test/hud/tiers-oracle.ts, 1.1.0; hudTiers pins the marks where given) and frame; each fallback mode
+//       is classic byte for byte, and w100c keeps the HUD. With hud.user, hud.op, hud.bed, hud.phantoms, hud.ultra,
+//       hud.poison, hud.totem and hud.agents all off and hud.pickaxe plain, every case draws the engine's lines with only
+//       the git state, the badge, the stale marks, the offhand's keyless fixes (they have no key) and the frame.
 //   (d) the README's HUD samples are the engine's normal day and Fable in use with the boss bar (its name left out,
 //       SPEC §0.11), with the totem in slot 5 (1.1.0), framed, ANSI-stripped, and the normal day centred in a 120-column
 //       window.
