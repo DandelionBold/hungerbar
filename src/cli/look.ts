@@ -822,7 +822,7 @@ export async function promptLook(p: Prompter, env: Env, base: Config, file: Obj 
   }
 
   // 1.1.0, the agents at work: line 1 of the agents day (three at work) in each look
-  say("\nYour agents at work: while Claude Code's subagents or a workflow's agents run, the HUD can show each one in line 1's sky.");
+  say("\nYour agents at work: while Claude Code's subagents or a workflow's agents run, the HUD can show each in line 1's sky.");
   const AGENTS: ReadonlyArray<readonly [HudAgents, string]> = [
     ['bees', 'Bees, flying home to their hive'], ['allays', 'Allays, the calm option'], ['off', 'Nothing (the subagents folder is never read)'],
   ];

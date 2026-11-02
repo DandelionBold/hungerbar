@@ -1239,7 +1239,7 @@ test('the setup prompt (1.1.0): the agents at work, asked last, each look previe
     assert.equal(r.status, 0, r.stderr);
     const out = r.stdout;
     assert.ok(out.indexOf('Operator [2]: 1') < out.indexOf('Your agents at work:'), 'after the operator\'s (and the PR\'s, where gh is found)');
-    assert.match(out, /\nYour agents at work: while Claude Code's subagents or a workflow's agents run, the HUD can show each one in line 1's sky\.\n/);
+    assert.match(out, /\nYour agents at work: while Claude Code's subagents or a workflow's agents run, the HUD can show each in line 1's sky\.\n/);
     const part = out.slice(out.indexOf('Your agents at work:'), out.indexOf('Agents [1]: wasps'));
     const lines = part.split('\n');
     const after = (label: string): string => lines[lines.findIndex((l) => l.startsWith(`  ${label}`)) + 1]!;
