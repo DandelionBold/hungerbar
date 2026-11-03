@@ -1289,7 +1289,7 @@ test('the setup prompt (1.1.0): the agents at work, asked last, each look previe
 });
 
 test("setup's closing line (1.2.0): how to declare a limit reset, only when the look is the HUD, hud.totem on and none is declared", () => {
-  const LINE = 'Got a limit reset from Anthropic (Settings → Usage)? hungerbar totem 1 --until <date> puts it in the HUD as the Totem of Undying.\n';
+  const LINE = 'Got a limit reset (Settings → Usage)? hungerbar totem 1 --until <date> puts it in the HUD as the Totem of Undying.\n';
   const w = world(ORIGINAL);
   try {
     const cfg = join(w.claude, 'hungerbar.json');

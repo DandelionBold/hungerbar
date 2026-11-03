@@ -137,7 +137,7 @@ const canAsk = (env: Env): boolean => (isatty(0) && isatty(1)) || flag(env, 'HUN
 
 export const HUD_HINT = 'Minecraft HUD: hungerbar look hud [--fable boss] [--pr on]';
 /** Said after a setup that leaves the HUD with hud.totem on and no limit reset declared (SPEC §0.13, 1.2.0). */
-export const TOTEM_HINT = 'Got a limit reset from Anthropic (Settings → Usage)? hungerbar totem 1 --until <date> puts it in the HUD as the Totem of Undying.';
+export const TOTEM_HINT = 'Got a limit reset (Settings → Usage)? hungerbar totem 1 --until <date> puts it in the HUD as the Totem of Undying.';
 
 // look.ts imports this module, so its option names are read when setup runs, not when this module loads
 const setupValued = (): string[] => ['node', 'icons', 'look', ...HUD_OPTION_NAMES];
