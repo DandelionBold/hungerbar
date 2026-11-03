@@ -145,6 +145,8 @@ Ultra and poison are on by default. `hungerbar look hud --ultra off --poison off
 
 ### The totem: your limit resets
 
+![The totem's day: it waits in hotbar slot 5; at 7% of the 5-hour window it moves to the offhand and the emerald to slot 5; at 0 it pops between gold sides; it stays gold while the credits pay in slot 5; after hungerbar totem use the window is full again and the totem is gone](docs/media/totem.gif)
+
 Anthropic sometimes gives limit resets (Settings → Usage → Resets). Using one sets your usage limits back to full, whenever you choose. Claude Code does not pass them to status lines, so you tell Hungerbar once, with `hungerbar totem 1 --until 2026-12-01` (see [Commands](#commands)), and the HUD carries it as the Totem of Undying (`hud.totem`). The look was picked in round 10 of the design picker:
 
 - **It waits in hotbar slot 5**, a golden idol with raised wings and green eyes, centred in the slot.
@@ -275,7 +277,7 @@ The names come from the system (`os.userInfo`, `os.hostname`). On Windows, the e
 
 ### The hotbar's frame
 
-![The hotbar's frame; then the 5-hour limit is used up, the totem pops in the offhand between gold sides, and the offhand's frame turns green while the extra credits pay](docs/media/frame.gif)
+![The hotbar's frame; then the 5-hour limit is used up, the totem pops in the offhand between gold sides and stays gold, while the emerald in slot 5 gets green sides as the extra credits pay](docs/media/frame.gif)
 
 A thin edge runs under the hotbar: mint under the selected slot (the pickaxe), grey under the rest, like the bottom of Minecraft's hotbar. When your account has extra usage, the offhand ◆ shows the extra credits left, in whole dollars. It is framed too, and its frame turns green while a limit is used up and the extra credits pay. The row's empty cells are U+2800, a blank that Claude Code does not trim, so the edge stays under the hotbar.
 
