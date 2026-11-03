@@ -4,7 +4,11 @@ import { join } from 'node:path';
 import { claudeDir, flag, offline, type Env } from './env.ts';
 import { parseTotems, type TotemGrant } from './totems.ts';
 
-export const ITEM_IDS = ['model', 'effort', 'context', 'git', 'limit5h', 'limitWeek', 'scopedWeek', 'cache', 'extra', 'cwd', 'version'] as const;
+/**
+ * The classic items. `resets` (1.2.0, SPEC §0.13) is opt-in, in no default line: the limit resets you declared
+ * (`totems`), `☥ Limit resets: 1 (use by 2026-12-01)`.
+ */
+export const ITEM_IDS = ['model', 'effort', 'context', 'git', 'limit5h', 'limitWeek', 'scopedWeek', 'cache', 'extra', 'cwd', 'version', 'resets'] as const;
 export type ItemId = (typeof ITEM_IDS)[number];
 
 export type Icons = 'minecraft' | 'unicode' | 'ascii';

@@ -16,6 +16,7 @@ The totem now stands for a limit reset Anthropic gave you, not for your extra cr
 - **`use` lets a refill show at once.** It also makes Hungerbar forget the last limits it saved for the windows the reset refilled, so a render without live limits no longer shows the old use with `~` until the window's own reset. Fable's weekly comes from the usage API and refreshes within 3 minutes.
 - `hungerbar look` and `doctor` say how many resets you hold, of which kinds and until when. `doctor` warns about a reset that expired, an entry it cannot read, a 5-hour reset on an account with no 5-hour window, and a Fable reset while Fable's weekly is off. `hungerbar setup` ends with how to declare one when the HUD has none.
 - `schema.json` describes `totems` for your editor.
+- **The classic lines can show your resets:** add `resets` to `lines` for `☥ Limit resets: 1 (use by 2026-12-01)`. Its count turns yellow while a limit a reset can refill is at 10% left or less, and red once that limit is used up. It is in no line by default, so the classic lines look as before, and it is the first item to go when a line is too wide.
 
 ## 1.1.0 (2026-11-02)
 

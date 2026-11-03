@@ -19,12 +19,12 @@
     },
     "bold": { "description": "Bold values (labels stay regular).", "type": "boolean", "default": true },
     "lines": {
-      "description": "Up to 3 lines of item ids (classic look only).",
+      "description": "Up to 3 lines of item ids (classic look only). resets (1.2.0) is in no line by default: the limit resets you declared (totems), as ☥ Limit resets: 1 (use by 2026-12-01), the first item dropped when a line is too wide.",
       "type": "array",
       "maxItems": 3,
       "items": {
         "type": "array",
-        "items": { "enum": ["model", "effort", "context", "git", "limit5h", "limitWeek", "scopedWeek", "cache", "extra", "cwd", "version"] }
+        "items": { "enum": ["model", "effort", "context", "git", "limit5h", "limitWeek", "scopedWeek", "cache", "extra", "cwd", "version", "resets"] }
       },
       "default": [["model", "effort", "context", "git"], ["limit5h", "limitWeek", "cache"], ["extra", "cwd", "version"]]
     },

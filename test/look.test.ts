@@ -842,10 +842,11 @@ test('glyphs --hud: every glyph the plan lists (and the rest of the HUD probe se
     assert.match(rows.find((r) => r.startsWith(`|${g}|`)) ?? '', what, `U+${g.codePointAt(0)!.toString(16).toUpperCase()}`);
   }
   assert.equal(shown.size, rows.length, 'no glyph twice');
-  // the classic ruler is unchanged
+  // the classic ruler: 1.0's glyphs, and (1.2.0) the resets item's ☥, which the HUD no longer draws
   const classic = runDist('', { PATH: process.env.PATH ?? '' }, ['glyphs']);
   assert.match(classic.stdout, /^\|♥\|  \|\.\|  1  U\+2665  heart \(5-hour session\)$/m);
-  assert.equal(classic.stdout.split('\n').filter((l) => l.startsWith('|')).length, 17);
+  assert.match(classic.stdout, /^\|☥\|  \|\.\|  1  U\+2625  limit resets you hold \(the resets item, 1\.2\.0\)$/m);
+  assert.equal(classic.stdout.split('\n').filter((l) => l.startsWith('|')).length, 18);
 });
 
 test("doctor's Look section: the look, the verdict here and its inputs, the usage API, usage.json's scoped limits, the history files", () => {

@@ -15,6 +15,8 @@ export interface Glyphs {
   pie: readonly [string, string, string, string, string] | null;
   /** Prefixes carry their own trailing space, or are empty. */
   branch: string; reset: string; warm: string; cold: string; disk: string; card: string;
+  /** The classic `resets` item's prefix (1.2.0): 1.1.0's totem ☥, which the HUD no longer draws; empty in ASCII. */
+  totem: string;
   ellipsis: string;
 }
 
@@ -28,6 +30,7 @@ export const UNICODE: Glyphs = {
   heart: '♥', heartSpent: '♥', heartIcon: '♥',
   pie: ['●', '◕', '◑', '◔', '○'],
   branch: '⎇ ', reset: '↻ ', warm: '🔥 ', cold: '❄ ', disk: '💾 ', card: '💳 ',
+  totem: '☥ ',
   ellipsis: '…',
 };
 
@@ -41,6 +44,7 @@ export const ASCII: Glyphs = {
   heart: '#', heartSpent: '-', heartIcon: '',
   pie: null,
   branch: '', reset: '', warm: '', cold: '', disk: '', card: '',
+  totem: '',
   ellipsis: '...',
 };
 

@@ -419,7 +419,7 @@ The file is strict JSON. Unknown keys are ignored, and a value that is not allow
 
 | Key | Default | Values | What it does |
 |---|---|---|---|
-| `lines` | 3 lines | up to 3 lists of item ids | which items each line shows: `model`, `effort`, `context`, `git`, `limit5h`, `limitWeek`, `scopedWeek`, `cache`, `extra`, `cwd`, `version`; the default is `[["model","effort","context","git"],["limit5h","limitWeek","cache"],["extra","cwd","version"]]` |
+| `lines` | 3 lines | up to 3 lists of item ids | which items each line shows: `model`, `effort`, `context`, `git`, `limit5h`, `limitWeek`, `scopedWeek`, `cache`, `extra`, `cwd`, `version`, and `resets` (in no line by default: the [limit resets](#the-totem-your-limit-resets) you hold, `☥ Limit resets: 1 (use by 2026-12-01)`); the default is `[["model","effort","context","git"],["limit5h","limitWeek","cache"],["extra","cwd","version"]]` |
 | `bar.width` | `16` | 4 to 40 | the context bar's cells |
 | `thresholds.warn` / `thresholds.crit` | `75` / `90` | 1 to 100 | the % used at which limits, context and extra turn yellow and red |
 | `limits` | `left` | `left`, `used` | whether the icons and the % count what is left or what is used |
@@ -497,6 +497,8 @@ Session: ♥♥♥♥♥♥♥♥♥♥ 98% (↻ 4h 49m) │ Weekly:            
 ```
 
 The red hearts are what is left of the 5-hour window; a lost heart turns dark, from the right. The ten drumsticks are what is left of the week; an eaten one vanishes from the left. The % counts what is left too; `"limits": "used"` makes the icons and the % both count what is used. Limits turn yellow with 25% left and red with 10% left. The pie (● ◕ ◑ ◔ ○) empties as the cache cools, and the cache shows `○ ❄ COLD` once it expires. When the width is known, the lines are fitted: the version, the extra credits and the git changes go first, then the labels shorten, and so on. The model, the thinking effort, the context % and both limit %s are never dropped.
+
+The classic lines can show the [limit resets](#the-totem-your-limit-resets) you hold: add `resets` to a line of `lines`, for example `[["model","effort","context","git"],["limit5h","limitWeek","cache"],["extra","resets","cwd","version"]]`. It reads `☥ Limit resets: 1 (use by 2026-11-13)`, with the soonest expiry. The count turns yellow while a limit a reset can refill is at 10% left or less, and red once that limit is used up. With no reset held it shows nothing, and when a line is too wide it is the first item to go.
 
 `hungerbar look hud` switches back. For the classic lines in one shell only, set `HUNGERBAR_LOOK` to `classic` there and start Claude Code from that shell: `$env:HUNGERBAR_LOOK = 'classic'` in PowerShell, `export HUNGERBAR_LOOK=classic` in Git Bash.
 

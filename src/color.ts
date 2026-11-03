@@ -6,6 +6,8 @@ export const PALETTE = {
   git: '#55FF55', chg: '#FFFF55', cwd: '#AAAAAA', h5: '#E0A458', week: '#FF5555', time: '#AAAAAA',
   cache: '#55FFFF', warm: '#FFAA00', cold: '#55FFFF', extra: '#17DD62', ver: '#555555', sep: '#555555',
   warn: '#FFFF55', crit: '#FF5555', food: '#E0A458', heart: '#FF5555', label: '#AAAAAA',
+  /** The classic `resets` item's count (1.2.0): Minecraft's gold, the model's, so it has the same 16-colour home. */
+  totem: '#FFAA00',
 } as const;
 
 export type Role = keyof typeof PALETTE;

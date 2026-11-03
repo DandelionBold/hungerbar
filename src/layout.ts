@@ -18,6 +18,7 @@ const drop = (id: ItemId): Step => ({ ids: [id], apply: (o) => (o.drop.has(id) ?
 
 /** Applied in this order, to a line only when one of the step's items is on it, until the line fits. */
 export const STEPS: Step[] = [
+  drop('resets'),
   drop('version'),
   drop('extra'),
   drop('scopedWeek'),

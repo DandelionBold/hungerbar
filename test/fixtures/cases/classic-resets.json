@@ -1,0 +1,120 @@
+{
+  "note": "The classic resets item (1.2.0, opt-in, SPEC §0.13): one full limit reset declared, to use by 2026-11-13 (midday UTC, so the local date is the same in every time zone from UTC-11 to UTC+11), the 5-hour window at 7% left: the count in the warn colour, the date in the clock grey. On line 3 after the extra credits; fitting to width drops it first, before the version.",
+  "payload": {
+    "session_id": "00000000-0000-4000-8000-000000000001",
+    "transcript_path": "{{TRANSCRIPT}}",
+    "cwd": "D:\\webapp",
+    "version": "2.1.306",
+    "model": {
+      "id": "claude-opus-5-5[1m]",
+      "display_name": "Opus 5.5 (1M context)"
+    },
+    "effort": {
+      "level": "high"
+    },
+    "workspace": {
+      "current_dir": "D:\\webapp",
+      "project_dir": "D:\\webapp"
+    },
+    "cost": {
+      "total_lines_added": 412,
+      "total_lines_removed": 97
+    },
+    "context_window": {
+      "context_window_size": 1000000,
+      "used_percentage": 24,
+      "remaining_percentage": 92,
+      "total_input_tokens": 236900,
+      "current_usage": {
+        "input_tokens": 6,
+        "output_tokens": 812,
+        "cache_creation_input_tokens": 1494,
+        "cache_read_input_tokens": 235400
+      }
+    },
+    "rate_limits": {
+      "five_hour": {
+        "used_percentage": 93,
+        "resets_at": "{{NOW+3900}}"
+      },
+      "seven_day": {
+        "used_percentage": 40,
+        "resets_at": "{{NOW+187200}}"
+      }
+    },
+    "prompt_cache": {
+      "warm": true,
+      "caching_observed": true,
+      "ttl": "5m",
+      "expires_at": "{{NOW+175}}",
+      "hit_ratio": 0.96,
+      "requests": 127,
+      "misses": 1
+    }
+  },
+  "fs": {
+    "D:/webapp": {
+      ".git/HEAD": "ref: refs/heads/main\n"
+    }
+  },
+  "transcript": [],
+  "config": {
+    "look": "classic",
+    "lines": [
+      [
+        "model",
+        "effort",
+        "context",
+        "git"
+      ],
+      [
+        "limit5h",
+        "limitWeek",
+        "cache"
+      ],
+      [
+        "extra",
+        "resets",
+        "cwd",
+        "version"
+      ]
+    ],
+    "network": {
+      "usageApi": true
+    },
+    "totems": [
+      {
+        "n": 1,
+        "kind": "full",
+        "until": "2026-11-13T12:00:00Z",
+        "at": "2026-10-24T10:00:00Z",
+        "label": "Opus 5.5 launch"
+      }
+    ]
+  },
+  "modes": [
+    "ansi",
+    "nocolor",
+    "ascii",
+    "w100",
+    "w80",
+    "w60",
+    "w40"
+  ],
+  "state": {
+    "git": {
+      "for": "D:/webapp",
+      "added": 12,
+      "removed": 3,
+      "files": 3
+    },
+    "usage": {
+      "extra": {
+        "enabled": true,
+        "usedCents": 0,
+        "limitCents": 5000,
+        "currency": "USD"
+      }
+    }
+  }
+}

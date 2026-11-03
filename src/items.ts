@@ -3,8 +3,11 @@ import type { Role } from './color.ts';
 import type { Config, ItemId } from './config.ts';
 import { clamp, countdown, limitPct, moneyLimit, moneyUsed, timeLeft, tokens, tokensMax } from './format.ts';
 import type { Glyphs } from './glyphs.ts';
+import { DYING } from './hud/totem.ts';
+import { family } from './hud/py.ts';
 import type { LimitView } from './limits.ts';
 import type { State } from './state.ts';
+import { held, localStamp } from './totems.ts';
 import { truncateWidth } from './width.ts';
 
 export interface Span {
@@ -50,6 +53,8 @@ const FULL: Partial<Record<ItemId, string>> = {
 function label(id: ItemId, cfg: Config, g: Glyphs, o: Opts): string {
   if (id === 'cache') return o.short ? g.disk || 'Cache ' : g.disk + 'Cache Hit: ';
   if (id === 'extra') return o.short ? g.card || 'Extra ' : g.card + 'Extra: ';
+  // "Limit resets" is Anthropic's word; "Resets" alone would read as the ↻ reset clock.
+  if (id === 'resets') return o.short ? g.totem || 'Limit resets ' : g.totem + 'Limit resets: ';
   if (!o.short) return FULL[id] ?? '';
   // Short labels keep naming the window: an empty food bar has no icon, and both windows may use the same bar.
   if (id === 'limit5h') return '5h ';
@@ -147,6 +152,30 @@ function cache(st: State, cfg: Config, g: Glyphs, o: Opts): Span[] {
   return dimmed(spans, c.dim);
 }
 
+/**
+ * The classic `resets` item (SPEC §0.13, 1.2.0; opt-in, in no default line): the limit resets held at now (the
+ * declared `totems`, src/totems.ts held), `☥ Limit resets: 1 (use by 2026-12-01)` with the soonest expiry's local
+ * date, `☥ 1` short; nothing while none is held. The count is in the warn colour while a window a held reset refills
+ * is at 1-10% left, in the crit colour once one is used up, else in the totem's gold. The windows are the HUD totem's
+ * (src/hud/totem.ts): the 5-hour window, the week, and the scoped weekly of the model in use (the engine's scInUse:
+ * the first entry of the model's family), by the values the lines draw.
+ */
+function resets(st: State, cfg: Config, g: Glyphs, o: Opts): Span[] {
+  const h = held(st.totems, st.now);
+  if (h.count === 0) return [];
+  const fam = (name: string): string => String(family(name)).toLowerCase();
+  const inUse = st.scoped.find((s) => fam(s.name) === fam(st.model));
+  const left = [
+    h.refills.h5 && st.h5 ? 100 - st.h5.pct : null,
+    h.refills.week && st.week ? 100 - st.week.pct : null,
+    h.refills.fable && inUse ? 100 - inUse.pct : null,
+  ].filter((v): v is number => v !== null);
+  const role: Role = left.some((v) => v <= 0) ? 'crit' : left.some((v) => v <= DYING) ? 'warn' : 'totem';
+  const spans: Span[] = [...lab(label('resets', cfg, g, o)), { t: String(h.count), role }];
+  if (!o.short && h.soonest !== null) spans.push({ t: ` (use by ${localStamp(h.soonest).slice(0, 10)})`, role: 'time' });
+  return spans;
+}
+
 export function build(id: ItemId, st: State, cfg: Config, g: Glyphs, o: Opts): Piece[] {
   if (o.drop.has(id)) return [];
   const one = (spans: Span[]): Piece[] => (spans.length ? [{ id, spans }] : []);
@@ -195,5 +224,7 @@ export function build(id: ItemId, st: State, cfg: Config, g: Glyphs, o: Opts): P
     }
     case 'version':
       return st.version ? one([{ t: 'v' + st.version, role: 'ver' }]) : [];
+    case 'resets':
+      return one(resets(st, cfg, g, o));
   }
 }

@@ -97,6 +97,11 @@ export interface State {
    * null. The totem's shown-file keeps Fable's weekly only from a usage.json at most 900 s old (src/hud/totem.ts).
    */
   scopedAt: number | null;
+  /**
+   * The limit resets declared (SPEC §0.13, 1.2.0), for the classic `resets` item: Sources.totems, else the config's
+   * `totems`, so a demo draws its own, never the user's. Expired grants are still here; held() drops them at `now`.
+   */
+  totems: TotemGrant[];
   version: string | null;
   cfgError: boolean;
 }
@@ -260,6 +265,7 @@ export function collect(p: Payload, now: number, cfg: Config, env: Env, src: Sou
     extra,
     scoped,
     scopedAt: cfg.network.scopedWeekly ? (src.usage()?.at ?? null) : null,
+    totems: src.totems ? src.totems() : cfg.totems,
     version: ver ? sanitize(ver, CAP.version) : null,
     cfgError,
   };

@@ -19,6 +19,7 @@ const GLYPHS: Array<[string, string]> = [
   ['❄', 'cache cold'],
   ['💾', 'cache hit'],
   ['💳', 'extra credits'],
+  ['☥', 'limit resets you hold (the resets item, 1.2.0)'],
   ['⎇', 'git branch'],
   ['│', 'separator'],
   ['·', 'spent heart without colour'],
