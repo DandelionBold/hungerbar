@@ -1,6 +1,6 @@
 // The agents at work (src/hud/agents.ts, SPEC §0.12, 1.1.0): the picks from design round 9b, span for span against the
 // design's own rows (test/reference/round9/agents-bees.json, hud.agents bees, the default; agents-allays.json, the calm
-// option), with hud.totem off as the rows predate the totem, and with it on the same rows and the totem in slot 5;
+// option), with no limit reset held as the rows predate the totem, and with one held the same rows and the totem waiting in slot 5;
 // through the layer on the engine's render with the shipped phantoms, through the tests' own layer
 // (test/hud/agents-oracle.ts, which draws the flock cluster by cluster and has its own sky rule) and through the real HUD
 // path (renderPayload with sources that hand each situation its counts and the agent files' mtimes); by hand on the
@@ -24,7 +24,8 @@ import { FABLE_IDS, renderHud } from '../../src/hud/fable.ts';
 import { frameHud } from '../../src/hud/frame.ts';
 import { fromState } from '../../src/hud/input.ts';
 import { encode } from '../../src/hud/look.ts';
-import { offhandHud, offhandMarks, SLOT5_TOTEM } from '../../src/hud/offhand.ts';
+import { offhandHud, offhandMarks } from '../../src/hud/offhand.ts';
+import { idol, totemHud } from '../../src/hud/totem.ts';
 import { phantomHud } from '../../src/hud/phantoms.ts';
 import { merge, S, splitAt, W, type Span } from '../../src/hud/spans.ts';
 import { tierMarks, tiersHud } from '../../src/hud/tiers.ts';
@@ -122,14 +123,14 @@ test('round 9b: the layer on the engine\'s render (the boss option, the shipped 
   }
 });
 
-test('round 9b: the rows with hud.totem on are the same rows with the totem in slot 5 (the credits are held and nothing is low)', () => {
+test('round 9b: the rows with a limit reset held (hud.totem on) are the same rows with the totem waiting in slot 5 (nothing is low)', () => {
   for (const { look, s, lines } of ALL) {
-    const totem = offhandMarks({ now: DEMO_NOW, extra: { used: 0, limit: 50, currency: 'USD', pct: 0, at: null } }, { totem: 'on' }, fromState(s.state), 0);
-    assert.equal(totem.totem, 'slot5', s.id);
-    const got = plain(frameHud(agentsHud(offhandHud(phantomHud(renderHud(s.state, 'boss'), s.ctx.phantoms), totem), marksOf(look, s))));
+    const em = offhandMarks({ now: DEMO_NOW, extra: { used: 0, limit: 50, currency: 'USD', pct: 0, at: null } }, fromState(s.state));
+    const held = (l: Span[][]): Span[][] => totemHud(offhandHud(l, em), { at: 'slot5', mark: null }, em, fromState(s.state));
+    const got = plain(frameHud(agentsHud(held(phantomHud(renderHud(s.state, 'boss'), s.ctx.phantoms)), marksOf(look, s))));
     const want = plain(lines) as Span[][];
     const h = want.length - 2;
-    want[h] = merge([...splitAt(want[h]!, 37)[0], ...SLOT5_TOTEM, ...splitAt(want[h]!, 41)[1]]);
+    want[h] = merge([...splitAt(want[h]!, 37)[0], ...idol(null), ...splitAt(want[h]!, 41)[1]]);
     assert.deepEqual(got, want, `${look} ${s.id}`);
   }
 });

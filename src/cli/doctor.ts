@@ -151,8 +151,8 @@ export const median = (xs: number[]): number => {
  * usage API the Fable options need, usage.json's scoped weekly limits, how many history files the HUD keeps, and (0.7.0)
  * where the git state comes from, the PR status here (a warning while it is on but cannot show) with how many answers
  * the PR cache keeps, the name line 3 shows here, whether this terminal runs elevated, the bed and the phantoms, and
- * (1.1.0) the hearts line's looks, the offhand and how many shown-files (the totem's memory) it keeps, the agents at work
- * and the pickaxe.
+ * (1.1.0) the hearts line's looks, the offhand, the agents at work and the pickaxe, and (1.2.0) the totem: the limit
+ * resets held, the warnings about them, and how many shown-files (the totem's memory) the HUD keeps while one is held.
  */
 function lookSection(cfg: Config, error: string | null, env: Env): void {
   say('\nLook');
@@ -175,7 +175,8 @@ function lookSection(cfg: Config, error: string | null, env: Env): void {
     }
   } else if (api) info('usage.json: no data yet');
   info(`${histFiles(env)} HUD history file(s) in ${join(cacheDir(env), 'hud')}`);
-  if (cfg.hud.totem === 'on' || shownFiles(env)) info(`${shownFiles(env)} shown-file(s) there, the totem's memory of its pop (one per session)`);
+  // 1.2.0: the shown-file is asked only while a limit reset is held with hud.totem on; one left over is still counted
+  if ((cfg.hud.totem === 'on' && held(cfg.totems, now).count > 0) || shownFiles(env)) info(`${shownFiles(env)} shown-file(s) there, the totem's memory of its pop (one per session)`);
   info(gitStateNote(cfg));
   (prBlocked(cfg, env) ? warn : info)(prSummary(cfg, env));
   if (cfg.hud.pr === 'on') info(`${prFiles(env)} pull request answer(s) in ${join(cacheDir(env), 'pr')}`);

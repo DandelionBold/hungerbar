@@ -102,10 +102,10 @@ function marksOf(f: Feature, s: R9Situation, hud: Partial<Record<'ultra' | 'pois
 /** The tests' layer's input for a situation. */
 const flagsOf = (f: Feature, s: R9Situation): OracleVitals => ({ ultra: f === 'ultra', poison: true, stale5: !!s.ctx.stale?.h5, staleWk: !!s.ctx.stale?.week });
 /**
- * The offhand's marks for a situation: hud.totem off (the rows predate the totem, test/unit/hud-offhand.test.ts), fresh
+ * The offhand's marks for a situation (the rows predate the totem, test/unit/hud-totem.test.ts), fresh
  * credits; only the credits-out row has anything to draw (its grey sides).
  */
-const offhandOf = (s: R9Situation): ReturnType<typeof offhandMarks> => offhandMarks({ now: DEMO_NOW, extra: null }, { totem: 'off' }, fromState(s.state), 0);
+const offhandOf = (s: R9Situation): ReturnType<typeof offhandMarks> => offhandMarks({ now: DEMO_NOW, extra: null }, fromState(s.state));
 
 test('round 9: the layer on the engine\'s render (the boss option) draws each row span for span; the tests\' own layer does too', () => {
   for (const { f, s, lines } of ALL) {

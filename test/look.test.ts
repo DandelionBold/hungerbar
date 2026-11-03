@@ -31,6 +31,7 @@ import { prBadge } from '../src/hud/prci.ts';
 import { renderHud } from '../src/hud/fable.ts';
 import { S } from '../src/hud/spans.ts';
 import { offhandHud, type OffhandMarks } from '../src/hud/offhand.ts';
+import { totemHud } from '../src/hud/totem.ts';
 import { agentsHud } from '../src/hud/agents.ts';
 import { tiersHud } from '../src/hud/tiers.ts';
 import { heartsHud, type VitalMarks } from '../src/hud/vitals.ts';
@@ -833,8 +834,9 @@ test('glyphs --hud: every glyph the plan lists (and the rest of the HUD probe se
   const PLAN = '⛏ Ⅰ Ⅱ Ⅲ Ⅳ Ⅴ 📖 ▀ ▒ ▁ ▂ ▃ ▄ ▅ ▆ ▇ █ ▐ ▌ 🮂 ⬢ ⬡ ◈ ┃ ╻ ☼ ☾ ☠ ◦ ○ ◉ ⌂ ◆ ♥ 🍗 ↻ ⎇'.split(' ');
   for (const g of PLAN) assert.ok(shown.has(g), `${g} on the ruler`);
   assert.deepEqual([...shown].filter((g) => !PLAN.includes(g)), ['▏', '▎', '▍', '▋', '▊', '▉', '\u2800', '↑', '↓', '●', '✓', '×', '±', '‼', '◌',
-    '\u{1FB84}', '\u{1FB08}', '\u{1FB0B}', '\u{1FB05}', '\u{1FB22}', '\u{1FB2D}', '\u{1FB16}', '∞', '☥', '✦', '▤', '\u{1FB02}', '\u{1FB0E}', '\u{1FB39}', '\u{1FB06}', '·', '…'],
-    'and the wear bar eighths, the bottom edge row\'s blank (U+2800), the git state\'s arrows, the PR\'s marks, the bed and the phantoms (0.7.0), Ultra\'s ∞, the totem\'s ☥ and ✦, and the agents\' hive and sextants (1.1.0), the separator and the ellipsis');
+    '\u{1FB84}', '\u{1FB08}', '\u{1FB0B}', '\u{1FB05}', '\u{1FB22}', '\u{1FB2D}', '\u{1FB16}', '∞', '\u{1FB0C}', '•', '¨', '\u{1FB0D}', '!', '✦', '▤',
+    '\u{1FB02}', '\u{1FB0E}', '\u{1FB39}', '\u{1FB06}', '·', '…'],
+    'and the wear bar eighths, the bottom edge row\'s blank (U+2800), the git state\'s arrows, the PR\'s marks, the bed and the phantoms (0.7.0), Ultra\'s ∞ (1.1.0), the totem\'s idol, its last day\'s ! and its pop\'s ✦ (1.2.0), the agents\' hive and sextants (1.1.0), the separator and the ellipsis');
   // the hotbar's frame (0.5.1): its edges are two probed glyphs, its blank cells U+2800
   for (const [g, what] of [['\u{1FB82}', /bottom edge/], ['▂', /top edge of the offhand/], ['\u2800', /blank cells of the bottom edge row/]] as const) {
     assert.match(rows.find((r) => r.startsWith(`|${g}|`)) ?? '', what, `U+${g.codePointAt(0)!.toString(16).toUpperCase()}`);
@@ -1459,7 +1461,10 @@ test('look hud --totem off: a backup, what it shows, the way back; look with no 
     assert.doesNotMatch(look, /shown-file/, 'the totem off and no shown-file: no count');
     r = w.run(['look', 'hud', '--totem', 'on'], noGh);
     assert.match(r.stdout, /\nhud\.totem on: no limit resets declared; hungerbar totem <n> \[--until <date>\] when Anthropic gives you one\n/);
-    assert.match(w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' }).stdout, / {2}· {5}0 shown-file\(s\) there, /);
+    // 1.2.0: the shown-file is asked only while a reset is held, so doctor counts them only then (or when one is left over)
+    assert.doesNotMatch(w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' }).stdout, /shown-file/, 'on, none held: no count');
+    writeFileSync(w.cfg, JSON.stringify({ look: 'hud', totems: [{ n: 1, kind: 'full', until: new Date((NOW + 86400 * 20) * 1000).toISOString() }] }));
+    assert.match(w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' }).stdout, / {2}· {5}0 shown-file\(s\) there, /, 'on, one held');
   } finally {
     w.cleanup();
   }
@@ -1481,47 +1486,57 @@ test('look hud --totem off: a backup, what it shows, the way back; look with no 
   }
 });
 
-test('preview --totem: the normal day\'s totem in slot 5, the tight day\'s in the offhand, or with off neither; nothing is written', () => {
+test('preview --totem: the demo\'s limit reset waits in slot 5 on the normal day, is in the offhand on the tight day, calls on the extra day, or with off is not drawn; nothing is written', () => {
   const w = world();
   try {
     const hot = (s: string, args: string[]): string => {
       const out = w.run(['preview', '--situation', s, '--look', 'hud', '--align', 'left', ...args], { FORCE_COLOR: '3' }).stdout.split('\n');
       return out[out.length - 3]!.replace(/\x1b\[[\d;]*m/g, '');
     };
-    assert.equal([...hot('normal', [])][36], '☥', 'on (the default): slot 5, col 37 (📖 is one code point for two cells)');
+    const IDOL = '\u{1FB0C}••\u{1FB0D}';
+    assert.equal([...hot('normal', [])].slice(36, 40).join(''), IDOL, 'on (the default): slot 5, cols 37-40, centred (📖 is one code point for two cells)');
     assert.equal([...hot('normal', ['--totem', 'off'])][36], '\u00a0');
-    assert.match(hot('tight', []), /^v2\.1\.306\u00a0\u00a0☥\u00a050/u, 'the tight day: in the offhand');
+    assert.ok(hot('tight', []).startsWith(`v2.1.306\u00a0\u00a0${IDOL}\u00a0\u00a0`), 'the tight day: in the offhand');
+    assert.ok([...hot('tight', [])].slice(35, 41).join('').includes('◆\u00a050'), 'the emerald in slot 5');
     assert.match(hot('tight', ['--totem', 'off']), /^v2\.1\.306\u00a0\u00a0◆\u00a050/u);
-    assert.match(hot('extra', []), /^v2\.1\.306\u00a0▐◆\u00a045▌/u, 'the extra day pays: no pop in a preview');
+    assert.ok(hot('extra', []).startsWith(`v2.1.306\u00a0▐${IDOL}▌`), 'the extra day: the call, no pop in a preview');
+    assert.match(hot('fresh', []), /^v2\.1\.306\u00a0\u00a0◆\u00a050/u, 'the fresh day holds no reset');
     assert.equal(existsSync(join(w.cache, 'hud')), false, 'preview writes no shown-file');
   } finally {
     w.cleanup();
   }
 });
 
-test('the 1.1.0 glyph census for the offhand: over the demos and every mark, the offhand adds only ☥ and ✦, each listed by glyphs --hud at 1 cell', () => {
-  const cps = (lines: readonly (readonly { t: string }[])[]): Set<string> => new Set(lines.flatMap((l) => l.flatMap((s) => [...s.t])).filter((c) => c.codePointAt(0)! > 0x7f));
-  const added = new Set<string>();
+test('the 1.2.0 glyph census: over the demos and every mark, the offhand adds nothing new and the totem only the idol\'s four code points, ! and ✦ (no digits), each listed by glyphs --hud at 1 cell', () => {
+  const cps = (lines: readonly (readonly { t: string }[])[]): Set<string> => new Set(lines.flatMap((l) => l.flatMap((s) => [...s.t])));
+  const added = new Set<string>(), offAdded = new Set<string>();
   for (const s of ['normal', 'tight', 'fresh', 'extra', 'fable']) {
     const d = DEMOS[s]!;
     const r = renderPayload(JSON.stringify(d.payload), { env: { FORCE_COLOR: '3' }, config: { ...defaults(), look: 'hud', hud: { ...defaults().hud, totem: 'off' } }, sources: demoSources(d), now: DEMO_NOW });
-    const base = cps(frameHud(r.hud!.lines));
-    for (const totem of ['slot5', 'offhand', 'pop', null] as const) {
-      for (const [paying, out, stale] of [[false, false, false], [true, false, true], [true, true, false]] as const) {
-        for (const cash of [0, 1, 45, 250, 1234, 123456]) {
-          const m: OffhandMarks = { ...r.hud!.offhand, cash, paying, out, totem, stale };
-          for (const c of cps(frameHud(offhandHud(r.hud!.lines, m)))) if (!base.has(c)) added.add(c);
+    const base = cps(frameHud(r.hud!.lines)), sit = fromState(r.hud!.input);
+    for (const [paying, out, stale] of [[false, false, false], [true, false, true], [true, true, false]] as const) {
+      for (const cash of [null, 0, 1, 45, 250, 1234, 123456]) {
+        const m: OffhandMarks = { ...r.hud!.offhand, cash, paying, out, stale };
+        const em = offhandHud(r.hud!.lines, m);
+        for (const c of cps(frameHud(em))) if (!base.has(c) && c.codePointAt(0)! > 0x7f && !/[\d]/.test(c)) offAdded.add(c);
+        const withEm = cps(frameHud(em));
+        for (const at of ['slot5', 'offhand', 'call'] as const) {
+          for (const mark of [null, 'last', 'pop'] as const) {
+            for (const c of cps(frameHud(totemHud(em, { at, mark }, m, sit)))) if (!withEm.has(c)) added.add(c);
+          }
         }
       }
     }
   }
   const listed = new Map(HUD_GLYPHS.map(([g, what]) => [g, what]));
-  for (const g of added) {
+  for (const g of [...added, ...offAdded]) {
     assert.ok(listed.has(g), `U+${g.codePointAt(0)!.toString(16).toUpperCase()} is listed by glyphs --hud`);
     assert.equal(cellWidth(g), 1, `${g} is 1 cell`);
   }
-  assert.deepEqual([...added].sort(), ['☥', '✦'].sort(), 'the totem and its spark; ◆, ▐ and ▌ are the engine\'s');
-  assert.match(listed.get('☥')!, /Totem of Undying/);
+  assert.deepEqual([...offAdded], [], 'the offhand: ◆, ▐ and ▌ are the engine\'s');
+  assert.deepEqual([...added].sort(), ['\u{1FB0C}', '\u{1FB0D}', '•', '¨', '!', '✦'].sort(), 'the idol, its last day and its pop; no digit: the totem never draws a count');
+  assert.ok(!listed.has('☥'), 'the ankh is no longer drawn by the HUD');
+  assert.match(listed.get('\u{1FB0C}')!, /totem/);
 });
 
 // ---------------------------------------------------------------------------------------------------------------------

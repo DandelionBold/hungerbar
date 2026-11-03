@@ -137,7 +137,7 @@
           "default": "on"
         },
         "totem": {
-          "description": "on: while extra credits are left (more than $0), the Totem of Undying is in the hotbar: a gold ☥ in slot 5. When the 5-hour window or the week drops to 10% left or less, it swaps into the offhand, ☥ with your dollars where the emerald was, as a warning. When a window hits 0 it pops there for 30 seconds (☥✦ between gold sides, the frame's edges gold too), then the green paying emerald is back and the totem is used until the window resets. No credits, no totem. The pop is remembered in a small per-session file next to the HUD's history (hud/<session>.shown.json). off: no totem anywhere, slot 5 and the offhand as 1.0 drew them (the keyless fixes still apply). hungerbar look hud --totem on|off sets it.",
+          "description": "on: the limit resets you hold (the totems key, which hungerbar totem writes) are drawn as the Totem of Undying, a golden idol centred in hotbar slot 5. When the 5-hour window, the week or Fable's weekly while you use Fable drops to 10% left or less (one a reset can refill), it moves to your offhand and the emerald goes to slot 5: a reminder to use the reset before your credits pay. At 0 its sides turn gold, and it pops for 30 seconds when Hungerbar sees the moment (remembered in a small per-session file, hud/<session>.shown.json, only while you hold a reset). In a reset's last 24 hours a yellow ! stands beside it. One totem however many resets you hold. Hungerbar cannot see your resets itself, so it shows what you declare; with none, nothing is drawn. off: no totem. hungerbar look hud --totem on|off sets it.",
           "enum": ["on", "off"],
           "default": "on"
         },

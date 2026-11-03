@@ -50,10 +50,11 @@ export interface Case {
      */
     pr?: { for: string; pr: unknown; why?: string; age?: number; prAge?: number };
     /**
-     * The HUD's shown-file (src/shown.ts, 1.1.0) as an earlier render left it, written under the payload's session key:
-     * what it drew then, at its at (default NOW - 30), and until.pop (pop, default 0: no pop).
+     * The HUD's shown-file (src/shown.ts, version 2 since 1.2.0) as an earlier render left it, written under the
+     * payload's session key: what it drew then (fable null unless given), at its at (default NOW - 30), and until.pop
+     * (pop, default 0: no pop).
      */
-    shown?: { h5: number | null; week: number | null; credits: number | null; pop?: number | string; at?: number | string };
+    shown?: { h5: number | null; week: number | null; fable?: number | null; pop?: number | string; at?: number | string };
     /**
      * The agents at work (1.1.0): agent files in the transcript's subagents folder (src/transcript.ts subagentsDir), each
      * written `age` seconds before NOW, plain subagents in `files` and a workflow's in `workflow`; then the transcript
@@ -91,10 +92,16 @@ export interface Case {
   hudVitals?: unknown;
   /**
    * hud-* cases: what the offhand must be handed (src/hud/offhand.ts OffhandMarks, 1.1.0); absent when there is no
-   * offhand (no extra-usage limit). The tests' layer is handed its own reading of it: hud.totem from the case's config (on
-   * unless it says off), the pop and the stale count as pinned; it finds the rest from the state.
+   * offhand (no extra-usage limit). The tests' layer is handed the stale count as pinned; it finds the rest from the state.
    */
   hudOffhand?: unknown;
+  /**
+   * hud-* cases: what the totem must be handed (src/hud/totem.ts TotemMarks, 1.2.0); absent when none is drawn (no
+   * limit reset held, or hud.totem off). The tests' layer is handed its own reading of the case's config (hud.totem on
+   * unless it says off, and the totems held at NOW: what they refill, the last day) and the pop as pinned; it finds the
+   * rest from the state.
+   */
+  hudTotem?: unknown;
   /**
    * hud-* cases: what the agents must be handed (src/hud/agents.ts AgentMarks, 1.1.0), over the case's look (hud.agents:
    * bees unless the config says allays or off) with none at work and Ultracode off; absent when none is at work. The
@@ -267,7 +274,7 @@ export function prepare(c: Case): Prepared {
     if (!sid) throw new Error('state.shown: the payload has no session key');
     const p = shownPath(cache, sid);
     mkdirSync(dirname(p), { recursive: true });
-    writeFileSync(p, JSON.stringify({ v: 1, at: fill(shown.at ?? '{{NOW-30}}', transcript), h5: shown.h5, week: shown.week, credits: shown.credits, until: { pop: fill(shown.pop ?? 0, transcript) } }));
+    writeFileSync(p, JSON.stringify({ v: 2, at: fill(shown.at ?? '{{NOW-30}}', transcript), h5: shown.h5, week: shown.week, fable: shown.fable ?? null, until: { pop: fill(shown.pop ?? 0, transcript) } }));
   }
   const agents = c.state?.agents;
   if (agents) {

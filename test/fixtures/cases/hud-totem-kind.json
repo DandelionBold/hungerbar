@@ -1,0 +1,151 @@
+{
+  "note": "A 5-hour limit reset (kind 5h) while the week is at 4% left and the 5-hour window at 98% (1.2.0): the reset cannot refill the week, so the totem keeps waiting in slot 5; the emerald keeps the offhand.",
+  "payload": {
+    "cwd": "D:\\webapp",
+    "version": "2.1.306",
+    "model": {
+      "id": "claude-opus-5-5[1m]",
+      "display_name": "Opus 5.5 (1M context)"
+    },
+    "effort": {
+      "level": "high"
+    },
+    "workspace": {
+      "current_dir": "D:\\webapp",
+      "project_dir": "D:\\webapp"
+    },
+    "cost": {
+      "total_lines_added": 412,
+      "total_lines_removed": 97,
+      "total_cost_usd": 3.12
+    },
+    "context_window": {
+      "context_window_size": 1000000,
+      "used_percentage": 8,
+      "remaining_percentage": 92,
+      "total_input_tokens": 81000,
+      "current_usage": {
+        "input_tokens": 6,
+        "output_tokens": 812,
+        "cache_creation_input_tokens": 1494,
+        "cache_read_input_tokens": 79500
+      }
+    },
+    "prompt_cache": {
+      "warm": true,
+      "caching_observed": true,
+      "ttl": "5m",
+      "expires_at": "{{NOW+252}}",
+      "hit_ratio": 0.981,
+      "requests": 127,
+      "misses": 1
+    },
+    "rate_limits": {
+      "five_hour": {
+        "used_percentage": 2,
+        "resets_at": "{{NOW+2280}}"
+      },
+      "seven_day": {
+        "used_percentage": 96,
+        "resets_at": "{{NOW+345540}}"
+      }
+    }
+  },
+  "fs": {
+    "D:/webapp": {
+      ".git/HEAD": "ref: refs/heads/main\n",
+      ".git/refs/heads/main": "cccccccccccccccccccccccccccccccccccccccc\n",
+      ".git/logs/HEAD": "0000000000000000000000000000000000000000 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Steve Hill <steve@example.com> 1792840000 +0200\tcommit (initial): Start the notes\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb Steve Hill <steve@example.com> 1792845000 +0200\tcommit: Add the notes\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccccccccccccccccccccccccccc Steve Hill <steve@example.com> 1792854000 +0200\tcommit: Commit before the break\n"
+    }
+  },
+  "state": {
+    "git": {
+      "for": "D:/webapp",
+      "added": 1208,
+      "removed": 279,
+      "files": 3
+    },
+    "usage": {
+      "extra": {
+        "enabled": true,
+        "usedCents": 0,
+        "limitCents": 5000,
+        "currency": "USD"
+      },
+      "scoped": []
+    }
+  },
+  "config": {
+    "look": "hud",
+    "hud": {
+      "fable": "off",
+      "align": "left",
+      "user": "off",
+      "op": "tag"
+    },
+    "network": {
+      "usageApi": true
+    },
+    "totems": [
+      {
+        "n": 1,
+        "kind": "5h",
+        "until": "2026-11-13T16:31:00Z"
+      }
+    ]
+  },
+  "modes": [
+    "ansi",
+    "nocolor",
+    "ascii",
+    "w60",
+    "w60c",
+    "w100c"
+  ],
+  "hudOffhand": {
+    "cash": 50,
+    "paying": false,
+    "out": false,
+    "stale": false
+  },
+  "hudTotem": {
+    "at": "slot5",
+    "mark": null
+  },
+  "hudState": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+      "used": 2,
+      "left": 2280,
+      "window": 18000
+    },
+    "week": {
+      "used": 96,
+      "left": 345540
+    },
+    "cache": {
+      "hit": 98,
+      "warm": true,
+      "left": 252,
+      "ttl": 300
+    },
+    "extra": {
+      "used": 0,
+      "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 0,
+    "compactions": 0,
+    "scoped": [],
+    "hist": null
+  }
+}

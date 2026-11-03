@@ -4,8 +4,13 @@ What changed for users in each version. Versions before 1.0.0 were private build
 
 ## 1.2.0 (unreleased)
 
-The totem stands for a limit reset Anthropic gave you, not for your extra credits. This part is the data and the command; the HUD's new totem follows.
+The totem now stands for a limit reset Anthropic gave you, not for your extra credits.
 
+- **The totem is your limit reset.** In 1.1.0 the totem followed your extra credits. That was a misreading: the Totem of Undying is meant for the limit resets Anthropic sometimes gives (Settings → Usage → Resets). Now, while you hold one, the totem waits in hotbar slot 5. When a limit it can refill drops to 10% left or less, it moves to your offhand and the emerald, your credits, moves to slot 5: a reminder that you can reset the limit instead of paying. At 0 its frame turns gold, and it pops for 30 seconds when Hungerbar sees that moment. The HUD never uses a reset for you.
+- **A bigger totem.** The ☥ was a speck. The totem is now a golden idol with raised wings and green eyes, centred in its slot, picked in round 10 of the design picker. It does not stack, as in Minecraft: you see one totem however many resets you hold, and `hungerbar totem`, `look` and `doctor` say how many.
+- **The last day.** In a reset's last 24 hours a yellow `!` appears beside the totem, which steps aside to make room.
+- **No totem without a reset.** With none declared, slot 5 and the offhand are as `hud.totem off` drew them in 1.1.0. The emerald keeps its count past $99, its grey old count and its grey frame when the credits are out.
+- The totem's memory file is smaller and exists only while you hold a totem.
 - **`hungerbar totem`** tells Hungerbar about your limit resets (Settings → Usage → Resets), because Claude Code does not pass them to status lines: `hungerbar totem 1 --until 2026-12-01` says you hold one, to use by the end of that day. `--kind full|5h|week|fable` says which limits it refills (`full`, the 5-hour window, the week and Fable's weekly, is the default), `add` adds a grant with its own expiry, `use` takes off the one that expires first, `clear` forgets them all, and `hungerbar totem` alone says what you hold. `--print` shows the change and writes nothing.
 - It writes the new `totems` key in `hungerbar.json` the way `look` writes its keys: after a backup, every other key in its place, and the way back printed. A reset that expires is ignored from that moment and removed at the next write. Nothing about it uses the network.
 - **`use` lets a refill show at once.** It also makes Hungerbar forget the last limits it saved for the windows the reset refilled, so a render without live limits no longer shows the old use with `~` until the window's own reset. Fable's weekly comes from the usage API and refreshes within 3 minutes.

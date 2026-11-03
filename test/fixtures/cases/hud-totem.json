@@ -1,5 +1,5 @@
 {
-  "note": "The 5-hour window at 7% left (one heart) with $50 of extra credits (1.1.0): the window is dying, so the Totem of Undying is swapped into the offhand (hud.totem, on by default; the pick totem-mix from design round 9b): a gold ☥ (#FFC83D) and the dollars where the emerald was, between the grey sides; hotbar slot 5, where the totem waits while nothing is low, stays empty. The week is at 18%, not dying.",
+  "note": "The 5-hour window at 7% left (one heart) with $50 of extra credits and one full limit reset declared (1.2.0: hungerbar.json's totems, until 20 days on): the window is dying and the reset refills it, so the totem moves to the offhand (the suggestion; round 10's golden idol alone, form A, centred, between the grey sides) and the emerald, ◆ 50, moves to hotbar slot 5 with grey sides (nothing pays yet). The week is at 18%, not dying. In 1.1.0 this case drew ☥ with the dollars in the offhand: the totem followed the credits.",
   "payload": {
     "cwd": "D:\\webapp",
     "version": "2.1.306",
@@ -85,7 +85,14 @@
     },
     "network": {
       "usageApi": true
-    }
+    },
+    "totems": [
+      {
+        "n": 1,
+        "kind": "full",
+        "until": "2026-11-13T16:31:00Z"
+      }
+    ]
   },
   "modes": [
     "ansi",
@@ -99,8 +106,11 @@
     "cash": 50,
     "paying": false,
     "out": false,
-    "totem": "offhand",
     "stale": false
+  },
+  "hudTotem": {
+    "at": "offhand",
+    "mark": null
   },
   "hudState": {
     "model": "Opus 5.5",

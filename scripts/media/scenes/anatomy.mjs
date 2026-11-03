@@ -2,9 +2,9 @@
 // thin arrow for each part (the README's Anatomy table says what each number is). The state: four and a half hours into
 // a session and two compactions (two signs of a long session: two phantoms; the compactions are the level), Fable in use
 // (the boss bar, and the pickaxe's netherite), away for almost 7 minutes (the bed: the cache is a 1-hour one, so the
-// bubbles stay warm) while three agents work in the background (three bees), $50 of extra credits with every limit above
-// 10% (the totem waits in slot 5), on a feature branch with changes and an approved pull request, in a terminal that runs
-// as Administrator (the name in gold). Left-aligned: the parts, not the centring.
+// bubbles stay warm) while three agents work in the background (three bees), $50 of extra credits and one declared limit
+// reset with every limit above 10% (the totem waits in slot 5, 1.2.0), on a feature branch with changes and an approved
+// pull request, in a terminal that runs as Administrator (the name in gold). Left-aligned: the parts, not the centring.
 // The arrows run in the gaps of the grid wherever they cross other lines (blank cells, the spaces between bubbles).
 import { T0 } from '../rig.mjs';
 import { lineHTML, parseLine, TERM_CSS } from '../term.mjs';
@@ -38,12 +38,13 @@ export const PARTS = [
   [4, 'bottom', 23],                    // 17 book and quill: prompts
   [4, 'bottom', 28],                    // 18 gold: cost
   [4, 'bottom', 34],                    // 19 the bed
-  [4, 'bottom', 49],                    // 20 terrain: the last two hours of git
-  [4, 'bottom', 58.5],                  // 21 grass block and cobblestone: the diff now
-  [4, 'bottom', 65.5],                  // 22 the exact counts
-  [4, 'bottom', 82],                    // 23 ⎇ and the branch: the git state
-  [4, 'right', null],                   // 24 the pull request (the line's end)
-  [5, 'bottom', 43.5, 0.3],             // 25 the hotbar's frame
+  [4, 'bottom', 39],                    // 20 the totem, waiting in slot 5: a limit reset you hold (1.2.0)
+  [4, 'bottom', 49],                    // 21 terrain: the last two hours of git
+  [4, 'bottom', 58.5],                  // 22 grass block and cobblestone: the diff now
+  [4, 'bottom', 65.5],                  // 23 the exact counts
+  [4, 'bottom', 82],                    // 24 ⎇ and the branch: the git state
+  [4, 'right', null],                   // 25 the pull request (the line's end)
+  [5, 'bottom', 43.5, 0.3],             // 26 the hotbar's frame
 ];
 /**
  * Parts that a row of the table names but that stand apart from its own part: [number, line, side, where, tip], a second
@@ -51,11 +52,10 @@ export const PARTS = [
  */
 export const ALSO = [
   [4, 1, 'top', 87],                    // 4 the other end of the sky: the bees, flying home to their hive
-  [15, 4, 'bottom', 37.5],              // 15 the totem, waiting in slot 5
 ];
 
 export async function anatomy(rig) {
-  normalDay(rig, { clean: true, talk: false, config: { hud: { pr: 'on', align: 'left' } } });
+  normalDay(rig, { clean: true, talk: false, config: { hud: { pr: 'on', align: 'left' }, totems: [{ n: 1, kind: 'full', until: new Date((T0 + 30 * 86400) * 1000).toISOString() }] } });
   rig.mustGit('checkout', '-q', '-b', 'feature/cache');
   rig.write('src/cache.js', file(lines(40, 'cache')));
   rig.mustGit('add', '-A');

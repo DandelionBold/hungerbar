@@ -165,7 +165,7 @@
       },
       "originDate": "2026-11-01T18:26:56Z",
       "sha256": "81cee88ebce799604cf8b231c3b09c104e20659ac8f48ba335d3149929dca1b2",
-      "note": "Design round 9b, the pick for where the totem lives: the option totem-mix of totem-mix.json, its rows verbatim, with the situations they were drawn from, but for the credits-out row (t-out), vendored with the 1.1.0 fix, and the intro and the option's note reworded where they quoted the design chat as \"Your\" (see its note). test/unit/hud-offhand.test.ts renders each through Hungerbar and compares span for span."
+      "note": "Design round 9b, the pick for where the totem lives: the option totem-mix of totem-mix.json, its rows verbatim, with the situations they were drawn from, but for the credits-out row (t-out), vendored with the 1.1.0 fix, and the intro and the option's note reworded where they quoted the design chat as \"Your\" (see its note). test/unit/hud-offhand.test.ts renders each through Hungerbar and compares span for span. Superseded by SPEC §0.13 (1.2.0): the totem is the limit resets you declare, no longer the credits, so these rows stay vendored for the record and are no longer drawn by Hungerbar or tested span for span."
     },
     "round9/emerald.json": {
       "kind": "extract",
@@ -246,6 +246,56 @@
       "originDate": "2026-11-01T23:36:17Z",
       "sha256": "3508746b35513de0f9f08f41d5e436d336529f2e18f65cf5a406ba6f8f63a360",
       "note": "The builder of design round 9c (pickaxe.json and its picker) on build.cjs's machinery, a byte copy: it names no person and no private folder, and its line ends are LF. It ran on a later origin of build.cjs (sha256 9aa7b19da5015b285d0ad8f2e4335d70990f9c5a6a9f0fdda78c1fc71f86cf3d), which is the origin of the vendored round9/build.cjs but for two lines of the picker page (a feature's diffStyle and a probed glyph's expected look, passed through to the page), so every rule its rows were checked against is the vendored build.cjs's. Run, it requires build.cjs next to itself, so it is kept here to be read, not run."
+    },
+    "round10/build-10.mjs": {
+      "kind": "renamed",
+      "origin": "round10/build-10.mjs",
+      "originSha256": "08563ec131c74cbcba0bf1ef277370fea7703821d596e37436dd757f31ed2424",
+      "originDate": "2026-11-03T01:36:00Z",
+      "sha256": "1a34e24879ee2183de6f9c94087a95bfc40de5ab0afbe7a34fb0f19c2792fdd3",
+      "note": "The builder of design round 10 (totem-shape.json, totem-lastday.json, totem-call.json and their picker), as amended after the picks of 2026-11-03 (v12-totem.md 3.0: form A alone, form B beside the mark, the count cells become one mark cell, the count's cap situation dropped, and --rows-only, which writes the three feature files without the pictures and the page). Each row is dist/hungerbar.mjs (1.1.0, hud.totem off) rendering the situation in the media rig's sandbox, then the option painted onto the feature's cells and checked to differ only inside them. Its origin with the repository's private checkout folder replaced by the neutral D:/hungerbar (const REPO), the private names its privacy check searched for dropped from that list, and LF line ends, as the repository keeps text; no other byte changed. Run from the repository's share/design/round10/, from PowerShell (headless Edge dies under Git Bash)."
+    },
+    "round10/totem-shape.json": {
+      "kind": "extract",
+      "origin": [
+        "round10/totem-shape.json",
+        "round10/build-10.mjs"
+      ],
+      "originSha256": {
+        "round10/totem-shape.json": "39031af748a0fedbfe23c75497d8973e5202e5842c4dc97fd2f84fcc217731af",
+        "round10/build-10.mjs": "08563ec131c74cbcba0bf1ef277370fea7703821d596e37436dd757f31ed2424"
+      },
+      "originDate": "2026-11-03T01:36:00Z",
+      "sha256": "d6add9415aedba36c30a61fbde23852b93055b322169ac9d12aca7014a09a2c0",
+      "note": "Design round 10, the pick for the totem's shape (the golden idol): the option totem-idol of totem-shape.json, its rows verbatim as the amended build-10.mjs drew them (the owner's two amendments: the idol centred alone, shifted beside its mark, and never a count), with the situations they were drawn from. test/unit/hud-totem.test.ts renders each through Hungerbar with the situation's totems declared and compares span for span."
+    },
+    "round10/totem-lastday.json": {
+      "kind": "extract",
+      "origin": [
+        "round10/totem-lastday.json",
+        "round10/build-10.mjs"
+      ],
+      "originSha256": {
+        "round10/totem-lastday.json": "4f4ffeeecf0261c80d6b607cb79d61cdaa1794c19c1e20f192c9ba66bbfccff9",
+        "round10/build-10.mjs": "08563ec131c74cbcba0bf1ef277370fea7703821d596e37436dd757f31ed2424"
+      },
+      "originDate": "2026-11-03T01:36:00Z",
+      "sha256": "6d6ac2b1cb19f6ee26752d247db4ca55fbeca1c80b2bc219473c6ca779040d7e",
+      "note": "Design round 10, the pick for a reset's last day (a yellow mark): the option last-mark of totem-lastday.json, its rows verbatim as the amended build-10.mjs drew them (the owner's two amendments: the idol centred alone, shifted beside its mark, and never a count), with the situations they were drawn from. test/unit/hud-totem.test.ts renders each through Hungerbar with the situation's totems declared and compares span for span."
+    },
+    "round10/totem-call.json": {
+      "kind": "extract",
+      "origin": [
+        "round10/totem-call.json",
+        "round10/build-10.mjs"
+      ],
+      "originSha256": {
+        "round10/totem-call.json": "0e5b1ab4ac5f96b9eae937dda139b5765208d43bb28d268f6105ab18ff3057aa",
+        "round10/build-10.mjs": "08563ec131c74cbcba0bf1ef277370fea7703821d596e37436dd757f31ed2424"
+      },
+      "originDate": "2026-11-03T01:36:00Z",
+      "sha256": "f4e0f683b359cb081358762a17e55660d98ce4914da0a37d4fb64f693a06b464",
+      "note": "Design round 10, the pick for the call at 0 (pop, then stay gold): the option call-pop-gold of totem-call.json, its rows verbatim as the amended build-10.mjs drew them (the owner's two amendments: the idol centred alone, shifted beside its mark, and never a count), with the situations they were drawn from. test/unit/hud-totem.test.ts renders each through Hungerbar with the situation's totems declared and compares span for span."
     }
   }
 }

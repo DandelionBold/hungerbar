@@ -29,9 +29,11 @@ const GLYPHS: Array<[string, string]> = [
  * (0.5.1), whose edges are two of them and whose blank cells are U+2800, as is the lead a centred HUD (0.6.0) starts with,
  * and the git state's arrows and the pull request's marks (0.7.0, probed in design round 8: Cascadia Mono, 1 cell, in the
  * HUD's colour; ✗ U+2717 was left out because Windows Terminal takes it from Segoe UI Emoji, so × marks a failure), and
- * (1.1.0, probed in design round 9) Ultra's ∞ (Cascadia Mono) and the totem's ☥ and ✦ (Segoe UI Symbol, which takes the
+ * (1.1.0, probed in design round 9) Ultra's ∞ (Cascadia Mono) and the totem's pop ✦ (Segoe UI Symbol, which takes the
  * HUD's colour in both icon styles), and (probed in rounds 9 and 9b) the beehive ▤ (Cascadia Mono) and the bees' and
- * allays' block sextants (Windows Terminal draws them itself), 1 cell each.
+ * allays' block sextants (Windows Terminal draws them itself), and (1.2.0, round 10) the totem's golden idol: its wings,
+ * two block sextants, its eyes • and ¨ (Cascadia Mono) and its last day's ! (ASCII), 1 cell each. 1.1.0's ☥ is no
+ * longer drawn by the HUD.
  */
 export const HUD_GLYPHS: Array<[string, string]> = [
   ['⛏', 'the pickaxe: the model in your hand'],
@@ -94,8 +96,12 @@ export const HUD_GLYPHS: Array<[string, string]> = [
   ['\u{1FB2D}', 'a phantom swooping: body'],
   ['\u{1FB16}', 'a phantom swooping: right wing'],
   ['∞', "Ultra: no 5-hour limit, with the golden apple's hearts (hud.ultra, 1.1.0)"],
-  ['☥', 'the Totem of Undying: in hotbar slot 5 while credits are left, in the offhand while a limit is at 1-10% (hud.totem, 1.1.0)'],
-  ['✦', "the totem's pop, for 30 s when a limit hits 0 and the credits take over"],
+  ['🬌', 'the totem: a raised wing (a limit reset you hold, hud.totem, 1.2.0)'],
+  ['•', "the totem's eyes, alone in its slot"],
+  ['¨', "the totem's eyes, beside its mark"],
+  ['🬍', 'the totem: the other wing'],
+  ['!', "the totem's last day: the reset expires within 24 h (yellow)"],
+  ['✦', "the totem's pop, for 30 s when a limit it refills hits 0"],
   ['▤', 'the beehive the bees fly home to while agents are at work (hud.agents bees, 1.1.0)'],
   ['\u{1FB02}', "a bee's wing, raised"],
   ['\u{1FB0E}', "an allay's head: an agent at work (hud.agents allays, 1.1.0)"],

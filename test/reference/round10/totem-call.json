@@ -1,0 +1,3929 @@
+{
+ "note": "Design round 10 (v12-totem.md 3.0-3.5), the call at 0, the option picked on 2026-11-03: call-pop-gold. rows are copied from the design's totem-call.json verbatim, as build-10.mjs drew them after the picks with the owner's two amendments (3.0): alone, the idol is centred in its well (form A: the wings around a two-cell face with a • eye in each half); beside its mark it shifts left (form B: the picked cells, the ¨ eyes, and the mark in the well's last cell: the last day's yellow ! or the pop's white ✦); and no count is ever drawn on the totem, as a Totem of Undying does not stack, so r-two and l-two-23h carry exactly the totem cells of r-safe and l-safe-23h. Each row is the full HUD (5 lines, roles top, hearts, xp, hot, edge): dist/hungerbar.mjs rendering the situation's payload in the media rig's sandbox (scripts/media/rig.mjs, the normal day of scripts/media/scenes/looks.mjs with hud.pr on, align left, user off) with hud.totem off, then the option painted onto the feature's cells by the moves of design 2.2; spaces are U+00A0, as Hungerbar prints them. situations are the design's inputs: the 5-hour window's used %, the week (60% left), the credits, the totems declared (n, kind, ends in hours), ctx.pop (the age of the pop in seconds: 0 it fell now, 30 over; null no fall seen) and ctx.until (the reset's end, epoch seconds). test/unit/hud-totem.test.ts renders each through Hungerbar with hud.totem on and the totems declared, and compares span for span.",
+ "source": {
+  "file": "round10/totem-call.json",
+  "sha256": "0e5b1ab4ac5f96b9eae937dda139b5765208d43bb28d268f6105ab18ff3057aa",
+  "option": "call-pop-gold",
+  "builder": "round10/build-10.mjs",
+  "base": "dist/hungerbar.mjs (1.1.0, hud.totem off)"
+ },
+ "feature": "totem-call",
+ "id": "call-pop-gold",
+ "name": "Pop, then stay gold",
+ "optionNote": "For 30 s from a fall seen live, the ✦ (white) in the well's last cell, the idol shifted left (form B), and gold sides; then the gold sides stay while the window is at 0 and a totem is held, and the idol re-centres (form A). The gold says \"use it now\".",
+ "title": "The call at 0",
+ "intro": "When a limit the totem can refill hits 0, the totem is in your offhand and the call begins. These options decide what it looks like at that moment and after. The pop's ✦ takes the well's last cell for its 30 s, the idol shifted left; after it the idol re-centres, or the last-day mark comes back. Drawn with the recommended shape, the golden idol.",
+ "focus": [
+  "xp",
+  "hot",
+  "edge"
+ ],
+ "allowed": [
+  [
+   "hot",
+   0,
+   15
+  ],
+  [
+   "hot",
+   36,
+   42
+  ],
+  [
+   "xp",
+   9,
+   15
+  ],
+  [
+   "edge",
+   9,
+   15
+  ]
+ ],
+ "situations": [
+  {
+   "id": "c-0",
+   "label": "The moment it falls (pop age 0 s)",
+   "note": "The 5-hour window hits 0, seen live; $45.80 of credits.",
+   "extra": false,
+   "inputs": {
+    "fiveHourUsedPct": 100,
+    "weekLeftPct": 60,
+    "credits": "$45.80 of $50",
+    "totems": {
+     "n": 1,
+     "kind": "full",
+     "endsInHours": 480
+    }
+   },
+   "ctx": {
+    "pop": 0,
+    "until": 1794587460
+   }
+  },
+  {
+   "id": "c-29",
+   "label": "29 s later",
+   "note": "The pop's last second.",
+   "extra": false,
+   "inputs": {
+    "fiveHourUsedPct": 100,
+    "weekLeftPct": 60,
+    "credits": "$45.80 of $50",
+    "totems": {
+     "n": 1,
+     "kind": "full",
+     "endsInHours": 480
+    }
+   },
+   "ctx": {
+    "pop": 29,
+    "until": 1794587460
+   }
+  },
+  {
+   "id": "c-30",
+   "label": "30 s later",
+   "note": "The pop is over.",
+   "extra": false,
+   "inputs": {
+    "fiveHourUsedPct": 100,
+    "weekLeftPct": 60,
+    "credits": "$45.80 of $50",
+    "totems": {
+     "n": 1,
+     "kind": "full",
+     "endsInHours": 480
+    }
+   },
+   "ctx": {
+    "pop": 30,
+    "until": 1794587460
+   }
+  },
+  {
+   "id": "c-300",
+   "label": "5 minutes later",
+   "note": "Still at 0; the credits pay.",
+   "extra": false,
+   "inputs": {
+    "fiveHourUsedPct": 100,
+    "weekLeftPct": 60,
+    "credits": "$45.80 of $50",
+    "totems": {
+     "n": 1,
+     "kind": "full",
+     "endsInHours": 480
+    }
+   },
+   "ctx": {
+    "pop": 300,
+    "until": 1794587460
+   }
+  },
+  {
+   "id": "c-out",
+   "label": "Credits out: $0 left, 5 minutes after the fall",
+   "note": "The skull and dark hearts; slot 5 holds the empty well with grey sides (nothing pays).",
+   "extra": false,
+   "inputs": {
+    "fiveHourUsedPct": 100,
+    "weekLeftPct": 60,
+    "credits": "$0.00 of $50",
+    "totems": {
+     "n": 1,
+     "kind": "full",
+     "endsInHours": 480
+    }
+   },
+   "ctx": {
+    "pop": 300,
+    "until": 1794587460
+   }
+  },
+  {
+   "id": "c-none",
+   "label": "No extra usage, 5 minutes after the fall",
+   "note": "The offhand appears for the totem; slot 5 stays empty.",
+   "extra": false,
+   "inputs": {
+    "fiveHourUsedPct": 100,
+    "weekLeftPct": 60,
+    "credits": "no extra usage",
+    "totems": {
+     "n": 1,
+     "kind": "full",
+     "endsInHours": 480
+    }
+   },
+   "ctx": {
+    "pop": 300,
+    "until": 1794587460
+   }
+  }
+ ],
+ "rows": [
+  {
+   "label": "The moment it falls (pop age 0 s)",
+   "situation": "c-0",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "drawn": {
+    "where": "call",
+    "sides": "gold",
+    "pop": true,
+    "mark": false
+   },
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "                   ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "      ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "0%",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#8DB33A",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "♥ ",
+      "fg": "#3F3F3F",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "              ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "Fable",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "38% ↻ 2d05h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#436924",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "🬌",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "¨",
+      "fg": "#3BD16F",
+      "bg": "#FFC83D",
+      "bold": true
+     },
+     {
+      "t": "🬍",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "✦",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▌",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": false
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#17DD62",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "45",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#17DD62",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043",
+      "bold": false
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#FFFF55",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D",
+      "bg": null,
+      "bold": false
+     }
+    ]
+   ]
+  },
+  {
+   "label": "29 s later",
+   "situation": "c-29",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "drawn": {
+    "where": "call",
+    "sides": "gold",
+    "pop": true,
+    "mark": false
+   },
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "                   ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "      ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "0%",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#8DB33A",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "♥ ",
+      "fg": "#3F3F3F",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "              ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "Fable",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "38% ↻ 2d05h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#436924",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "🬌",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "¨",
+      "fg": "#3BD16F",
+      "bg": "#FFC83D",
+      "bold": true
+     },
+     {
+      "t": "🬍",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "✦",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▌",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": false
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#17DD62",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "45",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#17DD62",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043",
+      "bold": false
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#FFFF55",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D",
+      "bg": null,
+      "bold": false
+     }
+    ]
+   ]
+  },
+  {
+   "label": "30 s later",
+   "situation": "c-30",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "drawn": {
+    "where": "call",
+    "sides": "gold",
+    "pop": false,
+    "mark": false
+   },
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "                   ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "      ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "0%",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#8DB33A",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "♥ ",
+      "fg": "#3F3F3F",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "              ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "Fable",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "38% ↻ 2d05h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#436924",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "🬌",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "••",
+      "fg": "#3BD16F",
+      "bg": "#FFC83D",
+      "bold": true
+     },
+     {
+      "t": "🬍",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▌",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": false
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#17DD62",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "45",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#17DD62",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043",
+      "bold": false
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#FFFF55",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D",
+      "bg": null,
+      "bold": false
+     }
+    ]
+   ]
+  },
+  {
+   "label": "5 minutes later",
+   "situation": "c-300",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "drawn": {
+    "where": "call",
+    "sides": "gold",
+    "pop": false,
+    "mark": false
+   },
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "                   ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "☼ ",
+      "fg": "#FFFF55",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "      ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "0%",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#8DB33A",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "♥ ",
+      "fg": "#3F3F3F",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "              ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "Fable",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "38% ↻ 2d05h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#436924",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "🬌",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "••",
+      "fg": "#3BD16F",
+      "bg": "#FFC83D",
+      "bold": true
+     },
+     {
+      "t": "🬍",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▌",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": false
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#17DD62",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "◆ ",
+      "fg": "#17DD62",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "45",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#17DD62",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043",
+      "bold": false
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#FFFF55",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D",
+      "bg": null,
+      "bold": false
+     }
+    ]
+   ]
+  },
+  {
+   "label": "Credits out: $0 left, 5 minutes after the fall",
+   "situation": "c-out",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "drawn": {
+    "where": "call",
+    "sides": "gold",
+    "pop": false,
+    "mark": false
+   },
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "                   ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "☠  ",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "     ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "0%",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#3F3F3F",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "              ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "Fable",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "38% ↻ 2d05h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#436924",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "🬌",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "••",
+      "fg": "#3BD16F",
+      "bg": "#FFC83D",
+      "bold": true
+     },
+     {
+      "t": "🬍",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▌",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": false
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043",
+      "bold": false
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#FFFF55",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D",
+      "bg": null,
+      "bold": false
+     }
+    ]
+   ]
+  },
+  {
+   "label": "No extra usage, 5 minutes after the fall",
+   "situation": "c-none",
+   "roles": [
+    "top",
+    "hearts",
+    "xp",
+    "hot",
+    "edge"
+   ],
+   "drawn": {
+    "where": "call",
+    "sides": "gold",
+    "pop": false,
+    "mark": false
+   },
+   "lines": [
+    [
+     {
+      "t": "Opus 5.5",
+      "fg": "#FF55FF",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " Efficiency III",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "                   ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◦ ",
+      "fg": "#406580",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "○ ",
+      "fg": "#0094FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s",
+      "fg": "#56B8FF",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "hit 98%",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "☠  ",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "4h49m",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "     ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "0%",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ",
+      "fg": "#3F3F3F",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "              ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🍗🍗🍗🍗🍗🍗",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "60%",
+      "fg": "#E0A458",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ↻ 3d23h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " · ",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "Fable",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "38% ↻ 2d05h",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "81k",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "/1.0M",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂▂▂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#436924",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂",
+      "fg": "#8BCA59",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂▂▂▂",
+      "fg": "#36433C",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▂",
+      "fg": "#141F19",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "8%",
+      "fg": "#80FF20",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⌂ D:/webapp",
+      "fg": "#AAAAAA",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "v2.1.306",
+      "fg": "#555555",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "🬌",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "••",
+      "fg": "#3BD16F",
+      "bg": "#FFC83D",
+      "bold": true
+     },
+     {
+      "t": "🬍",
+      "fg": "#FFC83D",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▌",
+      "fg": "#FFC83D",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "▐",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "⛏ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": false
+     },
+     {
+      "t": "Ⅲ ",
+      "fg": "#55FFFF",
+      "bg": "#2E1A3A",
+      "bold": true
+     },
+     {
+      "t": "▌",
+      "fg": "#D5E8D0",
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "📖",
+      "fg": "#C8A27C",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "42",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▄▄",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " 3",
+      "fg": "#FFFFFF",
+      "bg": "#201E07",
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "    ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▅▆",
+      "fg": "#79C05A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": "▆",
+      "fg": "#FCEE4B",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": "▀▀",
+      "fg": "#79C05A",
+      "bg": "#866043",
+      "bold": false
+     },
+     {
+      "t": "▂▂",
+      "fg": "#9A9A9A",
+      "bg": "#201E07",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": "#5D5D5D",
+      "bold": false
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "+1208",
+      "fg": "#55FF55",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": " ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "-279",
+      "fg": "#FF5555",
+      "bg": null,
+      "bold": true
+     },
+     {
+      "t": "  ",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⎇ ",
+      "fg": "#FFFF55",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "main",
+      "fg": "#FFFFFF",
+      "bg": null,
+      "bold": false
+     }
+    ],
+    [
+     {
+      "t": "⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#FFC83D",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "⠀",
+      "fg": null,
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂",
+      "fg": "#D5E8D0",
+      "bg": null,
+      "bold": false
+     },
+     {
+      "t": "🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂",
+      "fg": "#5D5D5D",
+      "bg": null,
+      "bold": false
+     }
+    ]
+   ]
+  }
+ ]
+}

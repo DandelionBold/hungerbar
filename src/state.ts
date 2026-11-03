@@ -9,6 +9,7 @@ import type { Hist } from './hud/input.ts';
 import type { LimitView } from './limits.ts';
 import type { PrInfo } from './pr/gh.ts';
 import type { ShownNow } from './shown.ts';
+import type { TotemGrant } from './totems.ts';
 import { baseModelId, cleanModelName, num, obj, str, type Payload, type Usage } from './payload.ts';
 import { CAP, sanitize, sanitizeTail } from './sanitize.ts';
 import type { TxSummary } from './transcript.ts';
@@ -91,6 +92,11 @@ export interface State {
   cache: CacheView | null;
   extra: ExtraView | null;
   scoped: ScopedView[];
+  /**
+   * When the scoped limits were fetched (1.2.0): usage.json's `at` while they are read (network.scopedWeekly), else
+   * null. The totem's shown-file keeps Fable's weekly only from a usage.json at most 900 s old (src/hud/totem.ts).
+   */
+  scopedAt: number | null;
   version: string | null;
   cfgError: boolean;
 }
@@ -131,9 +137,15 @@ export interface Sources {
    */
   who?: WhoSource;
   /**
-   * The totem's memory (SPEC §0.12, 1.1.0): this render's step of the per-session shown-file (src/shown.ts) with what the
+   * The limit resets declared (SPEC §0.13, 1.2.0): the HUD's totem reads them here; a source without it reads the
+   * config's `totems` (hungerbar.json, the render's default), and the demo hands its own (src/demo.ts), never the
+   * user's. A later source (a documented stdin field, 1.8 of the design) plugs in here.
+   */
+  totems?(): TotemGrant[];
+  /**
+   * The totem's memory (SPEC §0.13, 1.2.0): this render's step of the per-session shown-file (src/shown.ts) with what the
    * HUD draws now, answered with the second the totem's pop ends (0: no pop). Only the HUD asks, and only with
-   * hud.totem on. A changed file is written by a hook on the render's `after` list, after stdout; with no session key,
+   * hud.totem on and a limit reset held. A changed file is written by a hook on the render's `after` list, after stdout; with no session key,
    * or persist false (preview), nothing is read or written. A source without it (the demo) never pops.
    */
   shown?(now: ShownNow): number;
@@ -247,6 +259,7 @@ export function collect(p: Payload, now: number, cfg: Config, env: Env, src: Sou
     cache,
     extra,
     scoped,
+    scopedAt: cfg.network.scopedWeekly ? (src.usage()?.at ?? null) : null,
     version: ver ? sanitize(ver, CAP.version) : null,
     cfgError,
   };

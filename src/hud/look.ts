@@ -1,8 +1,8 @@
 // The HUD look's edge (plan §2, §9): the gate that picks it over classic, the HUD path of one render (renderHudLook:
 // adapt, the history step, the engine, the git state and the PR's badge (gitstate.ts, prci.ts, 0.7.0), the player's
 // layers (player.ts: the name and the operator's mark, the idle bed, the phantoms, 0.7.0), the vitals (vitals.ts: the
-// hearts line's Ultra, stale and poison looks, 1.1.0), the offhand (offhand.ts: the totem, the count from $100, the stale
-// count and the credits-out sides, 1.1.0), the agents at work (agents.ts: bees or allays in line 1's sky, 1.1.0), the
+// hearts line's Ultra, stale and poison looks, 1.1.0), the offhand (offhand.ts: the count from $100, the stale count and
+// the credits-out sides, 1.1.0), the totem (totem.ts: the limit resets you declared, 1.2.0), the agents at work (agents.ts: bees or allays in line 1's sky, 1.1.0), the
 // pickaxe's tiers (tiers.ts, 1.1.0), the hotbar's frame
 // (frame.ts, 0.5.1), the centring (align.ts, 0.6.0), the writer), and the writer that turns the HUD's spans into the
 // bytes Claude Code shows.
@@ -27,7 +27,9 @@ import { signs } from './phantoms.ts';
 import { away, playerHud, sessionSecs, type PlayerMarks } from './player.ts';
 import { prBadge } from './prci.ts';
 import type { Span } from './spans.ts';
-import { offhandHud, offhandMarks, shownNow, type OffhandMarks } from './offhand.ts';
+import { offhandHud, offhandMarks, type OffhandMarks } from './offhand.ts';
+import { NO_TOTEM, shownNow, totemHud, totemMarks, type TotemMarks } from './totem.ts';
+import { held } from '../totems.ts';
 import { agentMarks, agentsHud, NO_AGENTS, type AgentMarks } from './agents.ts';
 import { tierMarks, tiersHud, type TierMarks } from './tiers.ts';
 import { heartsHud, vitalMarks, type VitalMarks } from './vitals.ts';
@@ -75,14 +77,15 @@ export function hudGate(cfg: Config, cfgError: string | null, depth: Depth, env:
 /**
  * What the HUD path drew (RenderResult.hud, for the tests): the bytes, the engine's input, the git state's input (marks),
  * the pull request (null: none drawn), the player's layers' input, the vitals', the offhand's, the agents' and the
- * tiers' inputs (1.1.0), the engine's lines (the oracle's, span for span), the lines with the git state, the PR's badge,
- * the player's layers, the vitals, the offhand, the agents, the tiers and the hotbar's frame (gitHud, playerHud,
- * heartsHud, offhandHud, agentsHud, tiersHud, then frameHud: one more line, the bottom edge, and the boss line without
+ * tiers' inputs (1.1.0), the totem's (1.2.0), the engine's lines (the oracle's, span for span), the lines with the git
+ * state, the PR's badge, the player's layers, the vitals, the offhand, the totem, the agents, the tiers and the hotbar's
+ * frame (gitHud, playerHud, heartsHud, offhandHud, totemHud, agentsHud, tiersHud, then frameHud: one more line, the bottom edge, and the boss line without
  * its name), and the centring's offset (0 unless hud.align is center and the budget leaves room): the bytes are
  * encode(shiftHud(framed, offset)).
  */
 export interface HudRender {
-  text: string; input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; vitals: VitalMarks; offhand: OffhandMarks; agents: AgentMarks; tiers: TierMarks;
+  text: string; input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; vitals: VitalMarks; offhand: OffhandMarks; totem: TotemMarks; agents: AgentMarks;
+  tiers: TierMarks;
   lines: Span[][]; framed: Span[][]; offset: number;
 }
 
@@ -109,9 +112,10 @@ export function playerMarks(st: State, p: Payload, sources: Sources, cfg: Config
  * changed, waits on the render's `after` list until the line is out. The git state and the PR's badge (0.7.0) are drawn
  * on the engine's finished hotbar line, from the readout's ⎇ on, then the player's layers (0.7.0) in their own cells,
  * the vitals (1.1.0) on the hearts line, from State's h5None and dim flags, hud.ultra, hud.poison and the port's own
- * reading, the offhand (1.1.0) on the hotbar line, from the port's reading, hud.totem, State.extra.at and, with
- * hud.totem on, this render's step of the shown-file (Sources.shown: the totem's pop; its write, when anything changed,
- * waits on `after` too), the agents (1.1.0) in line 1's sky, from hud.agents and, unless it is off, Sources.agents (the
+ * reading, the offhand (1.1.0) on the hotbar line, from the port's reading and State.extra.at, the totem (1.2.0) on the
+ * hotbar line, from hud.totem, the limit resets held at now (Sources.totems, else the config's), the port's reading and,
+ * with hud.totem on and a reset held, this render's step of the shown-file (Sources.shown: the totem's pop; its write,
+ * when anything changed, waits on `after` too), the agents (1.1.0) in line 1's sky, from hud.agents and, unless it is off, Sources.agents (the
  * transcript worker's last look at the subagents folder, read against now; a look that is due queues the worker), the
  * pickaxe's tiers (1.1.0) on the hotbar line, from hud.pickaxe and the port's reading of the model, and the frame on the
  * result, which takes the offhand's side colour for its edges; with hud.align center every framed line then moves right
@@ -125,13 +129,15 @@ export function renderHudLook(st: State, p: Payload, sources: Sources, cfg: Conf
   const git = gitMarks(st.git, str(p.worktree?.branch) !== null);
   const pr = g && sources.pr ? sources.pr(st.git.repo) : null;
   const player = playerMarks(st, p, sources, cfg, full), vitals = vitalMarks(st, cfg.hud, sit);
-  const pop = cfg.hud.totem === 'on' && sources.shown ? sources.shown(shownNow(st, sit)) : 0;
-  const offhand = offhandMarks(st, cfg.hud, sit, pop);
+  const offhand = offhandMarks(st, sit);
+  const h = held(sources.totems ? sources.totems() : cfg.totems, st.now), holding = cfg.hud.totem === 'on' && h.count > 0;
+  const pop = holding && sources.shown ? sources.shown(shownNow(st, sit, h.refills)) : 0;
+  const totem = holding ? totemMarks(st.now, cfg.hud, h, sit, pop) : NO_TOTEM;
   const agents = cfg.hud.agents === 'off' ? NO_AGENTS : agentMarks(st.now, cfg.hud, sources.agents ? sources.agents() : null);
   const tiers = tierMarks(cfg.hud, sit);
   const lines = renderHud(full, cfg.hud.fable);
-  const layered = offhandHud(heartsHud(playerHud(g ? gitHud(lines, git, g.branch, prBadge(pr)) : lines, player, sit.cwd), vitals), offhand);
+  const layered = totemHud(offhandHud(heartsHud(playerHud(g ? gitHud(lines, git, g.branch, prBadge(pr)) : lines, player, sit.cwd), vitals), offhand), totem, offhand, sit);
   const framed = frameHud(tiersHud(agentsHud(layered, agents), tiers, sit.model));
   const offset = hudOffset(cfg.hud.align, budget, framed);
-  return { text: encode(offset ? shiftHud(framed, offset) : framed, depth, cfg), input: full, git, pr, player, vitals, offhand, agents, tiers, lines, framed, offset };
+  return { text: encode(offset ? shiftHud(framed, offset) : framed, depth, cfg), input: full, git, pr, player, vitals, offhand, totem, agents, tiers, lines, framed, offset };
 }

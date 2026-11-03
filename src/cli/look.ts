@@ -51,7 +51,7 @@ export interface LookChoice {
   op?: HudOp;
   bed?: HudSwitch;
   phantoms?: HudSwitch;
-  /** The hearts line's looks, the offhand's totem, the agents at work and the pickaxe's tiers (1.1.0, SPEC §0.12). */
+  /** The hearts line's looks, the totem (SPEC §0.13 since 1.2.0), the agents at work and the pickaxe's tiers (1.1.0, SPEC §0.12). */
   ultra?: HudSwitch;
   poison?: HudSwitch;
   totem?: HudSwitch;
@@ -91,7 +91,7 @@ type HudKey = 'pr' | 'user' | 'op' | 'bed' | 'phantoms' | 'ultra' | 'poison' | '
 /** The 0.7.0 keys, in the order help names them. */
 export const HUD_FLAG_KEYS: readonly HudKey[] = ['pr', 'user', 'op', 'bed', 'phantoms'];
 /**
- * The 1.1.0 keys, the hearts line's looks, the offhand's totem, the agents at work and the pickaxe's tiers (SPEC §0.12):
+ * The 1.1.0 keys, the hearts line's looks, the totem (SPEC §0.13 since 1.2.0), the agents at work and the pickaxe's tiers (SPEC §0.12):
  * after the 0.7.0 ones in help, the writer and the checks.
  */
 export const V11_FLAG_KEYS: readonly HudKey[] = ['ultra', 'poison', 'totem', 'agents', 'pickaxe'];

@@ -99,7 +99,6 @@
     "cash": 250,
     "paying": false,
     "out": false,
-    "totem": "slot5",
     "stale": false
   },
   "hudState": {

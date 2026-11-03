@@ -120,7 +120,6 @@
     "cash": 45,
     "paying": true,
     "out": false,
-    "totem": null,
     "stale": false
   },
   "hudState": {

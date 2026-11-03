@@ -2,13 +2,16 @@
 // and a TTY render. Each look draws them from the same data: classic uses what it always did, the HUD also the cost, the
 // book's counts, the git-terrain history and the scoped Fable week (test/reference/hud4-states.json and hud-spec.json),
 // and (0.7.0) the git state's status and, with hud.pr on, the tight day's pull request; (1.1.0) a sixth situation, the
-// normal day with three agents at work. Who runs the session (hud.user, hud.op) is not made up: a caller hands
+// normal day with three agents at work; (1.2.0) every day but the fresh one holds one full limit reset, ending 20 days
+// after DEMO_NOW, so the totem waits in slot 5 on the normal day, is in the offhand on the tight day and calls on the
+// extra day (no pop: the demo has no shown-file). Who runs the session (hud.user, hud.op) is not made up: a caller hands
 // demoSources this machine's (whoAmI), or none.
 import { liveLimits, noFiveHour, view } from './limits.ts';
 import { QUARTER, type Bucket, type Hist } from './hud/input.ts';
 import type { Config } from './config.ts';
 import type { Payload } from './payload.ts';
 import type { PrInfo } from './pr/gh.ts';
+import type { TotemGrant } from './totems.ts';
 import type { Counts, GitView, Sources } from './state.ts';
 import type { UsageFile, UsageScoped } from './usage/file.ts';
 import type { WhoSource } from './whoami.ts';
@@ -28,6 +31,8 @@ export interface Demo {
   pr?: PrInfo;
   /** Agents at work with Ultracode on (1.1.0): this many agent files written a few seconds before the render; none: no agents. */
   agents?: number;
+  /** The limit resets held (1.2.0): the HUD draws these, never the user's hungerbar.json's; none: no totem. */
+  totems?: TotemGrant[];
 }
 
 const T = (s: number): number => DEMO_NOW + s;
@@ -57,6 +62,9 @@ const base = (effort: string, used: number, pct: number | null, cwd: string, cos
   },
 });
 
+/** The demo's limit reset (1.2.0): one full reset, ending 20 days after DEMO_NOW. */
+export const DEMO_TOTEMS: readonly TotemGrant[] = [{ n: 1, kind: 'full', until: T(20 * 86400), at: null, label: null }];
+
 /** The scoped weekly limit the situations share (round 7's normal day): Fable 35% used, full again in 4 days. */
 const FABLE: UsageScoped = { name: 'Fable', pct: 35, resets_at: T(4 * 86400) };
 
@@ -79,6 +87,7 @@ const normal: Demo = {
   usage: usage(0),
   counts: { turns: 42, compactions: 0 },
   hist: NORMAL_HIST,
+  totems: [...DEMO_TOTEMS],
 };
 
 export const DEMOS: Record<string, Demo> = {
@@ -95,6 +104,7 @@ export const DEMOS: Record<string, Demo> = {
     pr: { n: 128, state: 'open', ci: 'passed', review: 'approved', conflict: false },
     usage: usage(0),
     counts: { turns: 42, compactions: 2 },
+    totems: [...DEMO_TOTEMS],
     hist: shifted(12000, [[6, 210, 160, 50, 0], [7, 540, 400, 140, 0], [8, 120, 90, 30, 1], [9, 460, 300, 160, 0], [10, 72, 30, 42, 0],
       [11, 480, 350, 130, 0], [12, 528, 388, 140, 1], [13, 49, 42, 7, 0]]),
   },
@@ -119,6 +129,7 @@ export const DEMOS: Record<string, Demo> = {
     git: { isRepo: true, branch: 'main', added: 12, removed: 3, status: { changed: 1, untracked: 0, conflicts: 0, ahead: 0, behind: 1 }, op: null },
     usage: usage(420),
     counts: { turns: 42, compactions: 1 },
+    totems: [...DEMO_TOTEMS],
     hist: shifted(15000, [[9, 96, 70, 26, 0], [10, 310, 240, 70, 1], [11, 140, 100, 40, 0], [12, 520, 400, 120, 0], [13, 1180, 900, 280, 0],
       [14, 1540, 1200, 340, 0], [15, 2210, 1730, 480, 0], [16, 2390, 1880, 510, 1]]),
   },
@@ -135,7 +146,8 @@ export const DEMOS: Record<string, Demo> = {
 
 /**
  * Fixed sources: nothing is read from or written to disk. The PR is the demo's own while cfg.hud.pr is on (no gh, no
- * network); the agents at work (1.1.0) are agent files written 3, 10, 17 … seconds before the render's now;
+ * network); the agents at work (1.1.0) are agent files written 3, 10, 17 … seconds before the render's now; the limit
+ * resets (1.2.0) are the day's own;
  * `who` is who runs the session (none: no name and no operator's mark).
  */
 export function demoSources(d: Demo, who?: WhoSource): (p: Payload, cfg: Config, now: number) => Sources {
@@ -151,6 +163,7 @@ export function demoSources(d: Demo, who?: WhoSource): (p: Payload, cfg: Config,
     // as on disk: no history outside a repo
     history: (_repo, branch) => (branch !== null && d.hist ? structuredClone(d.hist) : null),
     pr: () => (cfg.hud.pr === 'on' && d.pr ? { ...d.pr } : null),
+    totems: () => structuredClone(d.totems ?? []),
     agents: () => (d.agents ? { ultra: true, mtimes: Array.from({ length: d.agents }, (_, i) => now - 3 - 7 * i) } : null),
     ...(who ? { who } : {}),
   });

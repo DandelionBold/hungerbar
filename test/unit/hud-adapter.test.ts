@@ -27,7 +27,7 @@ const ST = (o: Partial<State> = {}): State => ({
   git: { isRepo: true, branch: 'main', added: 1208, removed: 279 }, branchFull: 'main', cwd: 'D:/webapp', cwdFull: 'D:/webapp',
   h5: { pct: 2, left: 17340, dim: false }, week: { pct: 82, left: 345540, dim: false }, h5None: false,
   cache: { hit: 98, state: 'warm', left: 252, ttl: '5m', dim: false }, extra: { used: 0, limit: 50, currency: 'USD', pct: 0, at: null },
-  scoped: [], version: '2.1.306', cfgError: false, ...o,
+  scoped: [], scopedAt: null, version: '2.1.306', cfgError: false, ...o,
 });
 const P: Payload = { cost: { total_cost_usd: 3.12 } };
 const C42 = { turns: 42, compactions: 0 };

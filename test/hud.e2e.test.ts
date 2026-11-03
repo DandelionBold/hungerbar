@@ -4,8 +4,9 @@
 //       fable-in-use. The shifted histories draw what the frozen spec renders draw (their hashes).
 //   (b) dist/hungerbar.mjs's bytes (`preview`, a config file with look hud) equal the independent encoder applied to the
 //       vendored engine's render with the tests' git state (each demo's status, 0.7.0), player's layers, vitals (1.1.0:
-//       the extra day's poisoned hearts), offhand (1.1.0: the totem in slot 5, or in the offhand on the tight day), agents
-//       (1.1.0: the agents day's three bees), pickaxe tiers (1.1.0) and own hotbar frame (test/hud/frame-oracle.ts), for
+//       the extra day's poisoned hearts), offhand (1.1.0), totem (1.2.0: each day but the fresh one holds one limit reset:
+//       waiting in slot 5, in the offhand on the tight day, the call on the extra day), agents (1.1.0: the agents day's
+//       three bees), pickaxe tiers (1.1.0) and own hotbar frame (test/hud/frame-oracle.ts), for
 //       every situation x the 5 fable ids, at FORCE_COLOR=3 and 2; with hud.pr on the tight day also draws its pull
 //       request's badge.
 //   (c) every golden case test/fixtures/cases/hud-*.json, on disk: the in-process render (adapter plus history step)
@@ -14,14 +15,15 @@
 //       engine's render of it with the tests' git state and PR badge (test/hud/gitstate-oracle.ts and prci-oracle.ts,
 //       0.7.0), the player's layers as its pinned hudPlayer asks (test/hud/player-oracle.ts, 0.7.0; nothing when absent),
 //       the vitals as its pinned hudVitals asks (test/hud/vitals-oracle.ts, 1.1.0; nothing when absent), the offhand as
-//       its pinned hudOffhand asks (test/hud/offhand-oracle.ts, 1.1.0; none when absent), the agents as its pinned
+//       its pinned hudOffhand asks (test/hud/offhand-oracle.ts, 1.1.0; none when absent), the totem from the case's
+//       config and its pinned hudTotem's pop (test/hud/totem-oracle.ts, 1.2.0; none drawn when absent), the agents as its pinned
 //       hudAgents asks (test/hud/agents-oracle.ts, 1.1.0; none at work when absent), the pickaxe's tiers from its
 //       hud.pickaxe (test/hud/tiers-oracle.ts, 1.1.0; hudTiers pins the marks where given) and frame; each fallback mode
 //       is classic byte for byte, and w100c keeps the HUD. With hud.user, hud.op, hud.bed, hud.phantoms, hud.ultra,
 //       hud.poison, hud.totem and hud.agents all off and hud.pickaxe plain, every case draws the engine's lines with only
 //       the git state, the badge, the stale marks, the offhand's keyless fixes (they have no key) and the frame.
 //   (d) the README's HUD samples are the engine's normal day and Fable in use with the boss bar (its name left out,
-//       SPEC §0.11), with the totem in slot 5 (1.1.0), framed, ANSI-stripped, and the normal day centred in a 120-column
+//       SPEC §0.11), with the demo's limit reset as the totem waiting in slot 5 (1.2.0), framed, ANSI-stripped, and the normal day centred in a 120-column
 //       window.
 //   (e) SPEC §0.9 says what ships: its *Output* list is whole, the frame, centring, git state and PR status sections hold
 //       only their own bullets (the PR's with the gh command and TTLs that ship), its sentence on the gutter's backgrounds matches the goldens, its bundle size is this version's dist,
@@ -45,13 +47,15 @@ import { DEMOS, DEMO_NOW, demoSources } from '../src/demo.ts';
 import { PR_TTL, PR_TTL_LONG } from '../src/pr/cache.ts';
 import { PR_ARGS } from '../src/pr/gh.ts';
 import { renderPayload } from '../src/render.ts';
-import { caseNames, DIST, fill, GOLDEN, loadCase, MODES, prepare, ROOT, runDist, stripAnsi, tempDir, type Case } from './harness.ts';
+import { caseNames, DIST, fill, GOLDEN, loadCase, MODES, NOW, prepare, ROOT, runDist, stripAnsi, tempDir, type Case } from './harness.ts';
 import { budgetOf, centredText, centreOracle, widestOf } from './hud/align-oracle.ts';
 import { frameOracle } from './hud/frame-oracle.ts';
 import { gitOracle, UNKNOWN, type OracleGit } from './hud/gitstate-oracle.ts';
 import { playerOracle, QUIET, type OraclePlayer } from './hud/player-oracle.ts';
 import { QUIET_VITALS, vitalsOracle, type OracleVitals } from './hud/vitals-oracle.ts';
-import { offhandOracle, offhandSideOracle, QUIET_OFFHAND, type OracleOffhand } from './hud/offhand-oracle.ts';
+import { offhandOracle, QUIET_OFFHAND, type OracleOffhand } from './hud/offhand-oracle.ts';
+import { NO_TOTEM_ORACLE, totemOracle, totemSideOracle, type OracleTotem } from './hud/totem-oracle.ts';
+import { held, parseTotems } from '../src/totems.ts';
 import { agentsOracle, QUIET_AGENTS, type OracleAgents } from './hud/agents-oracle.ts';
 import { tierOracle, tiersOracle } from './hud/tiers-oracle.ts';
 import { badgeOracle, type OraclePr } from './hud/prci-oracle.ts';
@@ -121,18 +125,23 @@ const DEMO_PR: Partial<Record<Situation, OraclePr>> = { tight: { n: 128, state: 
  */
 const DEMO_VITALS: OracleVitals = { ...QUIET_VITALS, poison: true };
 
+/** What the offhand is handed on every demo (1.1.0): the demos' credits were fetched 30 s ago. */
+const DEMO_OFFHAND: OracleOffhand = QUIET_OFFHAND;
 /**
- * What the offhand is handed on every demo (1.1.0): hud.totem on (the default); the demos never pop (their sources have no
- * shown-file) and their credits were fetched 30 s ago. The totem waits in slot 5 on the normal, fresh and Fable days, is
- * in the offhand on the tight day (5-hour 7%, week 3%) and is gone on the extra day (both used up, no pop).
+ * What the totem is handed on each demo (1.2.0): hud.totem on (the default) and one full reset ending 20 days on
+ * (src/demo.ts DEMO_TOTEMS) on every day but the fresh one, which holds none; the demos never pop (their sources have no
+ * shown-file). It waits in slot 5 on the normal, Fable and agents days, is in the offhand on the tight day (5-hour 7%,
+ * week 3%) and calls on the extra day (both used up).
  */
-const DEMO_OFFHAND: OracleOffhand = { ...QUIET_OFFHAND, totem: true };
+const HELD_ORACLE: OracleTotem = { held: true, refills: { h5: true, week: true, fable: true }, lastDay: false, pop: false };
+const DEMO_TOTEM = (s: Situation): OracleTotem => (s === 'fresh' ? NO_TOTEM_ORACLE : HELD_ORACLE);
 
-/** The offhand on the tests' render and the frame with its sides. */
-const offhandFramed = (lines: RefLines, state: RefState, o: OracleOffhand): RefLines => frameOracle(offhandOracle(lines, state, o), state, offhandSideOracle(state, o));
-/** The offhand, the agents and the pickaxe's tiers (1.1.0, `tiers`: hud.pickaxe tiers, the default) and the frame with the offhand's sides. */
-const lastFramed = (lines: RefLines, state: RefState, o: OracleOffhand, a: OracleAgents, tiers = true): RefLines =>
-  frameOracle(tiersOracle(agentsOracle(offhandOracle(lines, state, o), a), state, tiers), state, offhandSideOracle(state, o));
+/** The offhand and the totem on the tests' render and the frame with their sides. */
+const offhandFramed = (lines: RefLines, state: RefState, o: OracleOffhand, t: OracleTotem = NO_TOTEM_ORACLE): RefLines =>
+  frameOracle(totemOracle(offhandOracle(lines, state, o), state, t), state, totemSideOracle(state, t));
+/** The offhand, the totem (1.2.0), the agents and the pickaxe's tiers (1.1.0, `tiers`: hud.pickaxe tiers, the default) and the frame with the sides. */
+const lastFramed = (lines: RefLines, state: RefState, o: OracleOffhand, a: OracleAgents, tiers = true, t: OracleTotem = NO_TOTEM_ORACLE): RefLines =>
+  frameOracle(tiersOracle(agentsOracle(totemOracle(offhandOracle(lines, state, o), state, t), a), state, tiers), state, totemSideOracle(state, t));
 /**
  * The agents of each demo (1.1.0): hud.agents bees (the default), and three agents at work on the agents day (its sources hand
  * three agent files written seconds ago); the other days have none.
@@ -142,7 +151,7 @@ const DEMO_AGENTS: Record<Situation, OracleAgents> = { normal: QUIET_AGENTS, tig
 /** A demo situation as the tests draw it: the engine's render with the git state, the badge, the player, the vitals, the offhand, the agents and the frame. */
 const demoOracle = (s: Situation, id: FableId, pr = false): RefLines =>
   lastFramed(vitalsOracle(playerOracle(gitOracle(MIX.render(expected(s), picked(id)), expected(s), DEMO_GIT[s], badgeOracle(pr ? DEMO_PR[s] ?? null : null)),
-    expected(s), DEMO_PLAYER[s]), expected(s), DEMO_VITALS), expected(s), DEMO_OFFHAND, DEMO_AGENTS[s]);
+    expected(s), DEMO_PLAYER[s]), expected(s), DEMO_VITALS), expected(s), DEMO_OFFHAND, DEMO_AGENTS[s], true, DEMO_TOTEM(s));
 
 /** A case's pinned hudPlayer over QUIET. */
 const playerOf = (c: Case): OraclePlayer => ({ ...QUIET, ...(c.hudPlayer as Partial<OraclePlayer> | undefined) });
@@ -162,14 +171,23 @@ const vitalsOf = (c: Case): OracleVitals => {
 };
 
 /** The offhand's input as src/hud/offhand.ts OffhandMarks has it (restated here): a case's pin, or none (no offhand). */
-interface PinnedOffhand { cash: number | null; paying: boolean; out: boolean; totem: 'slot5' | 'offhand' | 'pop' | null; stale: boolean }
-const NO_OFF: PinnedOffhand = { cash: null, paying: false, out: false, totem: null, stale: false };
+interface PinnedOffhand { cash: number | null; paying: boolean; out: boolean; stale: boolean }
+const NO_OFF: PinnedOffhand = { cash: null, paying: false, out: false, stale: false };
 const pinnedOffhand = (c: Case): PinnedOffhand => ({ ...NO_OFF, ...(c.hudOffhand as Partial<PinnedOffhand> | undefined) });
+/** The totem's input as src/hud/totem.ts TotemMarks has it (restated here): a case's pin, or none drawn. */
+interface PinnedTotem { at: 'slot5' | 'offhand' | 'call' | null; mark: 'pop' | 'last' | null }
+const pinnedTotem = (c: Case): PinnedTotem => ({ at: null, mark: null, ...(c.hudTotem as Partial<PinnedTotem> | undefined) });
 /**
- * The tests' offhand for a case: hud.totem from the case's config, re-derived here (on unless it says off, SPEC §0.12),
- * the pop and the stale count as pinned (the shown-file and the credits' age); the tests' layer finds the rest (where the
- * totem is, the count, the credits out) from the state.
+ * The tests' totem for a case: hud.totem from the case's config, re-derived here (on unless it says off, SPEC §0.13),
+ * and the config's totems held at the harness's NOW (src/totems.ts reads the data: what they refill, the last day);
+ * the pop as pinned (the shown-file). The tests' layer finds the rest (where the totem is, the idol's form) from the state.
  */
+const totemOf = (c: Case): OracleTotem => {
+  const cfg = c.config as { hud?: { totem?: unknown }; totems?: unknown } | undefined;
+  const h = held(parseTotems(cfg?.totems).grants, NOW);
+  if (cfg?.hud?.totem === 'off' || h.count === 0) return NO_TOTEM_ORACLE;
+  return { held: true, refills: h.refills, lastDay: h.lastDay, pop: pinnedTotem(c).mark === 'pop' };
+};
 /** The agents' input as src/hud/agents.ts AgentMarks has it (restated here): a case's pin over the case's look, nothing at work. */
 interface PinnedAgents { look: 'bees' | 'allays' | null; live: number; ultra: boolean }
 /** A case's hud.agents, re-derived here: off (null) or allays, else bees (the default, SPEC §0.12). */
@@ -181,10 +199,7 @@ const agentsOf = (c: Case): OracleAgents => { const a = pinnedAgents(c); return 
 const tiersOf = (c: Case): boolean => (c.config as { hud?: { pickaxe?: unknown } } | undefined)?.hud?.pickaxe !== 'plain';
 /** The tiers' input a case pins, or the tests' own reading of its state (src/hud/tiers.ts TierMarks, restated). */
 const pinnedTiers = (c: Case, want: RefState): unknown => (c.hudTiers !== undefined ? c.hudTiers : tierOracle(want, tiersOf(c)));
-const offhandOf = (c: Case): OracleOffhand => {
-  const o = pinnedOffhand(c);
-  return { totem: (c.config as { hud?: { totem?: unknown } } | undefined)?.hud?.totem !== 'off', pop: o.totem === 'pop', stale: o.stale };
-};
+const offhandOf = (c: Case): OracleOffhand => ({ stale: pinnedOffhand(c).stale });
 
 // ---------------------------------------------------------------------------------------------------------------------
 // (a) adapt(DEMOS[s])
@@ -295,7 +310,8 @@ test('(c) the hud-* golden cases cover the plan list', () => {
     'injection', 'huge', 'fable-unknown', 'cfg-invalid', 'no-offhand', 'wide-label', 'center', 'center-boss', 'center-branch',
     'git-merge', 'git-ahead', 'git-rebase', 'pr', 'pr-branch', 'who', 'who-gold', 'idle', 'phantoms', 'defaults', 'ultra', 'ultra-boss', 'ultra-stale',
     'poison', 'totem', 'totem-pop', 'credits-out', 'emerald-100', 'usage-stale', 'bees', 'bees-swarm', 'allays', 'phantom-bees', 'tiers-fable-v',
-    'tiers-haiku']) assert.ok(HUD_CASES.includes(`hud-${n}`), `hud-${n}`);
+    'tiers-haiku', 'totem-safe', 'totem-two', 'totem-none', 'totem-call', 'totem-out', 'totem-kind', 'totem-fable', 'totem-ultra', 'totem-expired',
+    'totem-lastday']) assert.ok(HUD_CASES.includes(`hud-${n}`), `hud-${n}`);
 });
 
 for (const name of HUD_CASES) {
@@ -309,10 +325,10 @@ for (const name of HUD_CASES) {
     const force = env.FORCE_COLOR ?? c.env?.FORCE_COLOR;
     const id = fableOf(c);
     const lines = want && MIX.render(want, picked(id));
-    const git = (c.hudGit ?? UNKNOWN) as OracleGit, pr = (c.hudPr ?? null) as OraclePr | null, player = playerOf(c), vitals = vitalsOf(c), offhand = offhandOf(c), agents = agentsOf(c);
+    const git = (c.hudGit ?? UNKNOWN) as OracleGit, pr = (c.hudPr ?? null) as OraclePr | null, player = playerOf(c), vitals = vitalsOf(c), offhand = offhandOf(c), agents = agentsOf(c), totem = totemOf(c);
     // the engine's lines with the tests' git state and PR badge (0.7.0), player's layers (0.7.0), vitals and offhand
-    // (1.1.0) and frame
-    const framed = want && lastFramed(vitalsOracle(playerOracle(gitOracle(lines!, want, git, badgeOracle(pr)), want, player), want, vitals), want, offhand, agents, tiersOf(c));
+    // (1.1.0), totem (1.2.0) and frame
+    const framed = want && lastFramed(vitalsOracle(playerOracle(gitOracle(lines!, want, git, badgeOracle(pr)), want, player), want, vitals), want, offhand, agents, tiersOf(c), totem);
 
     // in process: the adapter plus the history step hand the engine exactly the pinned state
     const p = prepare(c);
@@ -329,9 +345,10 @@ for (const name of HUD_CASES) {
         assert.deepEqual(plain(r.hud.player), player, 'the player\'s layers are handed what the case pins');
         assert.deepEqual(plain(r.hud.vitals), pinnedVitals(c), 'the vitals are handed what the case pins');
         assert.deepEqual(plain(r.hud.offhand), pinnedOffhand(c), 'the offhand is handed what the case pins');
+        assert.deepEqual(plain(r.hud.totem), pinnedTotem(c), 'the totem is handed what the case pins');
         assert.deepEqual(plain(r.hud.agents), pinnedAgents(c), 'the agents are handed what the case pins');
         assert.deepEqual(plain(r.hud.tiers), pinnedTiers(c, want), 'the tiers are handed what the case pins');
-        assert.deepEqual(tuples(r.hud.framed as RefLines), plain(tuples(framed!)), 'the git state, the PR badge, the player\'s layers, the vitals, the offhand and the frame = the tests\'');
+        assert.deepEqual(tuples(r.hud.framed as RefLines), plain(tuples(framed!)), 'the git state, the PR badge, the player\'s layers, the vitals, the offhand, the totem and the frame = the tests\'');
         // every option of the layers off (0.7.0, 1.1.0): the git state, the badge, the stale marks and the offhand's
         // keyless fixes (no key) and the frame alone, whatever the case says
         const offCfg = { ...(c.config as object | undefined), hud: { ...(c.config as { hud?: object } | undefined)?.hud, user: 'off', op: 'off', bed: 'off', phantoms: 'off', ultra: 'off', poison: 'off', totem: 'off', agents: 'off', pickaxe: 'plain' } };
@@ -340,12 +357,12 @@ for (const name of HUD_CASES) {
           const off = renderPayload(q.stdin, { env: { ...q.env, ...env } });
           assert.deepEqual(plain(off.hud!.player), QUIET, 'all off: nothing for the player\'s layers');
           assert.deepEqual(plain(off.hud!.vitals), { ...pinnedVitals(c), ultra: false, poison: null }, 'all off: only the stale marks for the vitals');
-          assert.deepEqual(plain(off.hud!.offhand), { ...pinnedOffhand(c), totem: null }, 'all off: no totem');
+          assert.deepEqual(plain(off.hud!.offhand), pinnedOffhand(c), 'all off: the offhand\'s keyless fixes');
+          assert.deepEqual(plain(off.hud!.totem), { at: null, mark: null }, 'all off: no totem');
           assert.deepEqual(plain(off.hud!.agents), { look: null, live: 0, ultra: false }, 'all off: no agents');
           assert.equal(off.hud!.tiers, null, 'all off: 1.0\'s pickaxe');
           const stale: OracleVitals = { ...QUIET_VITALS, stale5: vitals.stale5, staleWk: vitals.staleWk };
-          const keyless: OracleOffhand = { ...offhand, totem: false, pop: false };
-          assert.deepEqual(tuples(off.hud!.framed as RefLines), plain(tuples(offhandFramed(vitalsOracle(gitOracle(lines!, want, git, badgeOracle(pr)), want, stale), want, keyless))),
+          assert.deepEqual(tuples(off.hud!.framed as RefLines), plain(tuples(offhandFramed(vitalsOracle(gitOracle(lines!, want, git, badgeOracle(pr)), want, stale), want, offhand))),
             'all off: no player\'s layer, no Ultra, no poison, no totem, no agents, no tiers');
         } finally {
           q.cleanup();
@@ -397,12 +414,12 @@ for (const name of HUD_CASES) {
 // (d) the README sample
 // ---------------------------------------------------------------------------------------------------------------------
 
-test("(d) the README's HUD samples are the engine's normal day (fable off) and Fable in use (boss), with the totem, framed, ANSI-stripped", () => {
+test("(d) the README's HUD samples are the engine's normal day (fable off) and Fable in use (boss), with the demo's totem in slot 5, framed, ANSI-stripped", () => {
   const readme = readFileSync(join(ROOT, 'README.md'), 'utf8');
   // and the normal day centred in a 120-column window: the budget is 116, the widest line 81 cells, so 19 U+2800 lead each line
   const centred = [...readme.matchAll(/```\n(\u2800+Opus 5\.5 Efficiency [\s\S]*?)\n```/gu)].map((m) => m[1]!);
   assert.equal(centred.length, 1, 'README has one centred HUD sample block');
-  const normal = offhandFramed(MIX.render(expected('normal'), picked('fable-off')), expected('normal'), DEMO_OFFHAND);
+  const normal = offhandFramed(MIX.render(expected('normal'), picked('fable-off')), expected('normal'), DEMO_OFFHAND, DEMO_TOTEM('normal'));
   assert.equal(centreOracle(116, widestOf(normal)), 19);
   assert.equal(centred[0], centredText(text(normal), normal, 116), 'the oracle, framed, centred in a budget of 116');
   assert.match(readme, /centred in a 120-column window/);
@@ -410,7 +427,7 @@ test("(d) the README's HUD samples are the engine's normal day (fable off) and F
   for (const [s, id, block] of samples) {
     const found = [...readme.matchAll(block)].map((m) => m[1]!);
     assert.equal(found.length, 1, `README has one ${s} HUD sample block`);
-    assert.equal(found[0], text(offhandFramed(MIX.render(expected(s), picked(id)), expected(s), DEMO_OFFHAND)), `${s} ${id}: the oracle, framed`);
+    assert.equal(found[0], text(offhandFramed(MIX.render(expected(s), picked(id)), expected(s), DEMO_OFFHAND, DEMO_TOTEM(s))), `${s} ${id}: the oracle, framed`);
     const d = DEMOS[s]!;
     assert.equal(found[0], text(renderPayload(JSON.stringify(d.payload), { env: { FORCE_COLOR: '3' }, config: hudConfig(short(id)), sources: demoSources(d), now: DEMO_NOW }).hud!.framed), `${s} ${id}: the port`);
   }
@@ -432,7 +449,7 @@ test("(f) every hud-* case in colour at a known width: left draws its bytes of a
     if (!modes.length || c.hudState === null || c.hudState === undefined) continue;
     const want = fill(c.hudState, '') as RefState;
     const git = (c.hudGit ?? UNKNOWN) as OracleGit, pr = (c.hudPr ?? null) as OraclePr | null;
-    const framed = lastFramed(vitalsOracle(playerOracle(gitOracle(MIX.render(want, picked(fableOf(c))), want, git, badgeOracle(pr)), want, playerOf(c)), want, vitalsOf(c)), want, offhandOf(c), agentsOf(c), tiersOf(c));
+    const framed = lastFramed(vitalsOracle(playerOracle(gitOracle(MIX.render(want, picked(fableOf(c))), want, git, badgeOracle(pr)), want, playerOf(c)), want, vitalsOf(c)), want, offhandOf(c), agentsOf(c), tiersOf(c), totemOf(c));
     const ansi = sgrOracle(framed, { depth: 'truecolor' });
     const reserve = (c.config as { widthReserve?: number } | undefined)?.widthReserve ?? 0;
     for (const m of modes) {

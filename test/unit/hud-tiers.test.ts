@@ -1,6 +1,6 @@
 // The pickaxe's tiers (src/hud/tiers.ts, SPEC §0.12, 1.1.0): the pick from design round 9c, span for span against the
 // design's own rows (test/reference/round9/pickaxe.json: pick-tiers-full, hud.pickaxe tiers, the default), with
-// hud.totem off as the rows predate the totem, and with it on the same rows and the totem in slot 5; the five engine
+// no limit reset held as the rows predate the totem, and with one held the same rows and the totem waiting in slot 5; the five engine
 // rows through the layer on the engine's render, through the tests' own layer (test/hud/tiers-oracle.ts, which finds
 // the ink and the numeral from the state) and through the real HUD path (renderPayload with each situation's model and
 // effort), and the lineup row, which the design's builder composed from the five models' own slot 1 and is no engine
@@ -19,7 +19,8 @@ import { frameHud } from '../../src/hud/frame.ts';
 import { fromState } from '../../src/hud/input.ts';
 import { encode } from '../../src/hud/look.ts';
 import { ENCH, F2SEL_L, F2SEL_R, GLINT, GREY, TIER } from '../../src/hud/mix.ts';
-import { offhandHud, offhandMarks, SLOT5_TOTEM } from '../../src/hud/offhand.ts';
+import { offhandHud, offhandMarks } from '../../src/hud/offhand.ts';
+import { idol, totemHud } from '../../src/hud/totem.ts';
 import { merge, S, splitAt, type Span } from '../../src/hud/spans.ts';
 import { SLOT1, STONE, tierMarks, tierOf, TIERS, tiersHud, type TierMarks } from '../../src/hud/tiers.ts';
 import { cellWidth } from '../../src/hud/wt.ts';
@@ -111,13 +112,14 @@ test('round 9c: the lineup row, composed as its builder did: slot 1 of each mode
   assert.deepEqual(plain(merge(parts)), LINEUP.lines[0]);
 });
 
-test('round 9c: the rows with hud.totem on are the same rows with the totem in slot 5', () => {
+test('round 9c: the rows with a limit reset held (hud.totem on) are the same rows with the totem waiting in slot 5', () => {
   for (const { s, lines } of ENGINE) {
-    const totem = offhandMarks({ now: DEMO_NOW, extra: { used: 0, limit: 50, currency: 'USD', pct: 0, at: null } }, { totem: 'on' }, fromState(s.state), 0);
-    const got = plain(frameHud(tiersHud(offhandHud(renderHud(s.state, 'boss'), totem), marksFor(s.state), modelOf(s.state))));
+    const em = offhandMarks({ now: DEMO_NOW, extra: { used: 0, limit: 50, currency: 'USD', pct: 0, at: null } }, fromState(s.state));
+    const held = (l: Span[][]): Span[][] => totemHud(offhandHud(l, em), { at: 'slot5', mark: null }, em, fromState(s.state));
+    const got = plain(frameHud(tiersHud(held(renderHud(s.state, 'boss')), marksFor(s.state), modelOf(s.state))));
     const want = plain(lines) as Span[][];
     const h = want.length - 2;
-    want[h] = merge([...splitAt(want[h]!, 37)[0], ...SLOT5_TOTEM, ...splitAt(want[h]!, 41)[1]]);
+    want[h] = merge([...splitAt(want[h]!, 37)[0], ...idol(null), ...splitAt(want[h]!, 41)[1]]);
     assert.deepEqual(got, want, s.id);
   }
 });

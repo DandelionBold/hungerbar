@@ -37,7 +37,7 @@ export const HUD_OPS = ['off', 'tag', 'gold'] as const;
 export type HudOp = (typeof HUD_OPS)[number];
 /**
  * The idle bed in hotbar slot 4 and the phantoms of a long session (SPEC §0.9, 0.7.0), the hearts line's Ultra and
- * poison looks and the totem (SPEC §0.12, 1.1.0): on (the default) or off.
+ * poison looks (SPEC §0.12, 1.1.0) and the totem (SPEC §0.13, 1.2.0): on (the default) or off.
  */
 export const HUD_SWITCHES = ['on', 'off'] as const;
 export type HudSwitch = (typeof HUD_SWITCHES)[number];
@@ -78,8 +78,9 @@ export interface Config {
    * user: your name before the folder; op: the operator's mark while Claude Code runs elevated; bed: a bed in hotbar
    * slot 4 after 5 minutes without a message, not while a tool runs; phantoms: phantoms in line 1's sky for each sign
    * of a long session; ultra: gold hearts and ∞ for an account with no 5-hour window (1.1.0); poison: poison-green
-   * hearts for the credits left while they pay for a used-up 5-hour window (1.1.0); totem: the Totem of Undying while
-   * credits are left, in hotbar slot 5, in the offhand while a window is at 1-10%, popping for 30 s when one hits 0 (1.1.0);
+   * hearts for the credits left while they pay for a used-up 5-hour window (1.1.0); totem: the limit resets you declared
+   * (`totems`) as the Totem of Undying, in hotbar slot 5, in the offhand while a window one refills is at 1-10%, gold at
+   * 0 (1.2.0; 1.1.0 drew it from the credits);
    * agents: a bee (or an allay) in line 1's sky for each agent at work (1.1.0); pickaxe: the pickaxe and its numeral in
    * the model's tool tier, or 1.0's plain inks (1.1.0).
    */

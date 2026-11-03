@@ -524,7 +524,7 @@ export function vitalFlags(r: Rng): VitalFlags {
   return { h5None: chance(r, 0.4), ultra: chance(r, 0.85), poison: chance(r, 0.8), stale5: chance(r, 0.4), staleWk: chance(r, 0.4) };
 }
 
-// ---------------- the offhand (1.1.0): the totem, the count from $100, the stale count, the credits out ----------------
+// ---------------- the offhand (1.1.0): the count from $100, the stale count, the credits out ----------------
 /**
  * Credits for the offhand: under a dollar ($0.40, $0.999), the count's edges ($1, $1.99, $2, $99, $99.99, $100, $999,
  * $1,000, $9,999, $12,345, $99,999, $100,000 and far past it), exactly $0, past the limit, no limit, none.
@@ -539,8 +539,8 @@ export const OFF_H5: readonly unknown[] = [{ used: 2, left: 17340, window: 18000
 /** Weeks around the same edges. */
 export const OFF_WEEK: readonly unknown[] = [{ used: 40, left: 345540 }, { used: 89, left: 9000 }, { used: 90, left: 9000 }, { used: 97, left: 33120 },
   { used: 99.5 }, { used: 100, left: 187200 }, null, DEL];
-/** What the offhand is handed besides the state: hud.totem, the shown-file's pop showing, the credits more than 900 s old. */
-export interface OffFlags { totem: boolean; pop: boolean; stale: boolean }
+/** What the offhand is handed besides the state: the credits more than 900 s old. */
+export interface OffFlags { stale: boolean }
 /** A state for the offhand: a seeded state that, two times in three, has its credits and windows from the offhand's domains. */
 export function offhandState(r: Rng, bases: readonly object[]): unknown {
   const s = state(r, bases);
@@ -550,10 +550,9 @@ export function offhandState(r: Rng, bases: readonly object[]): unknown {
   if (chance(r, 0.8)) put(s as State, 'week', pick(r, OFF_WEEK));
   return s;
 }
-/** Seeded flags for the offhand; one in ten asks for nothing. */
+/** Seeded flags for the offhand. */
 export function offhandFlags(r: Rng): OffFlags {
-  if (chance(r, 0.1)) return { totem: false, pop: false, stale: false };
-  return { totem: chance(r, 0.8), pop: chance(r, 0.4), stale: chance(r, 0.4) };
+  return { stale: chance(r, 0.4) };
 }
 
 // ---------------- the agents at work (1.1.0): bees or allays in line 1's sky ----------------
@@ -565,4 +564,44 @@ export interface AgentFlags { look: 'bees' | 'allays' | null; live: number; phan
 export function agentFlags(r: Rng): AgentFlags {
   if (chance(r, 0.1)) return { look: null, live: 0, phantoms: 0 };
   return { look: chance(r, 0.15) ? null : chance(r, 0.5) ? 'bees' : 'allays', live: pick(r, AGENT_LIVE), phantoms: chance(r, 0.5) ? 0 : int(r, 1, 4) };
+}
+
+// ---------------- the totem (1.2.0): the limit resets you declare ----------------
+/** 5-hour windows around the totem's edges: healthy, 11%, 10%, 1%, used up, past it, none. */
+export const TOTEM_H5: readonly unknown[] = [{ used: 2, left: 17340, window: 18000 }, { used: 89, left: 3000 }, { used: 90, left: 2400 }, { used: 99, left: 60 },
+  { used: 99.5, left: 30 }, { used: 100, left: 3900 }, { used: 105 }, null, DEL];
+/** Weeks around the same edges. */
+export const TOTEM_WEEK: readonly unknown[] = [{ used: 40, left: 345540 }, { used: 89, left: 9000 }, { used: 90, left: 9000 }, { used: 99, left: 33120 },
+  { used: 100, left: 187200 }, null, DEL];
+/** Credits around $0, $1 and $100: none, $0, under a dollar, a dollar, $45, $100, $250, past the limit. */
+export const TOTEM_EXTRA: readonly unknown[] = [{ used: 0, limit: 50 }, { used: 4.2, limit: 50 }, { used: 49.6, limit: 50 }, { used: 49, limit: 50 }, { used: 50, limit: 50 },
+  { used: 75, limit: 50 }, { used: 0, limit: 100 }, { used: 0, limit: 250 }, { used: 0, limit: 0 }, null, DEL];
+/** Fable's weekly around the edges, in use (the model is Fable) or not. */
+export const TOTEM_SCOPED: readonly unknown[] = [[], [{ name: 'Fable', used: 40, left: 190800 }], [{ name: 'Fable', used: 89, left: 9000 }], [{ name: 'Fable', used: 90, left: 9000 }],
+  [{ name: 'Fable', used: 99, left: 9000 }], [{ name: 'Fable', used: 100, left: 9000 }], [{ name: 'Fable', used: 95, left: null }]];
+/** The kinds a grant may be. */
+export const TOTEM_KINDS_FUZZ = ['full', '5h', 'week', 'fable'] as const;
+/** A grant as hungerbar.json's `totems` holds it after parseTotems (src/totems.ts TotemGrant). */
+export interface FuzzGrant { n: number; kind: (typeof TOTEM_KINDS_FUZZ)[number]; until: number | null; at: number | null; label: string | null }
+/** Ends around now and now + 24 h: none, expired, at now, just after, the last day's edges, far ahead. */
+export const UNTIL_OFFSETS: readonly (number | null)[] = [null, -3600, -1, 0, 1, 3600, 86399, 86400, 86401, 20 * 86400];
+/** 0 to 3 grants of any kind, n from 1 to 99, ending around now and now + 24 h. */
+export function totemGrants(r: Rng, now: number): FuzzGrant[] {
+  return Array.from({ length: int(r, 0, 3) }, () => {
+    const off = pick(r, UNTIL_OFFSETS);
+    return { n: pick(r, [1, 1, 2, 5, 99]), kind: pick(r, TOTEM_KINDS_FUZZ), until: off === null ? null : now + off, at: null, label: null };
+  });
+}
+/** A state for the totem: a seeded state that, four times in five, has its windows, credits, model and Fable's weekly from the totem's domains. */
+export function totemState(r: Rng, bases: readonly object[]): unknown {
+  const s = state(r, bases);
+  if (s === null || typeof s !== 'object' || Array.isArray(s) || !chance(r, 0.8)) return s;
+  put(s as State, 'h5', pick(r, TOTEM_H5));
+  put(s as State, 'week', pick(r, TOTEM_WEEK));
+  if (chance(r, 0.85)) put(s as State, 'extra', pick(r, TOTEM_EXTRA));
+  if (chance(r, 0.5)) {
+    put(s as State, 'model', pick(r, ['Fable 5.1', 'Opus 5.5']));
+    put(s as State, 'scoped', pick(r, TOTEM_SCOPED));
+  }
+  return s;
 }

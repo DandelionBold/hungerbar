@@ -1,0 +1,151 @@
+{
+  "note": "One full limit reset ending in 23 hours, the normal day's limits (1.2.0, round 10's last-mark): in a reset's last 24 hours a bold yellow ! stands in the well's last cell and the idol shifts left to make room (form B: the wing, the gold face with ¨ eyes, the other wing); it stays in slot 5, as the last day moves nothing.",
+  "payload": {
+    "cwd": "D:\\webapp",
+    "version": "2.1.306",
+    "model": {
+      "id": "claude-opus-5-5[1m]",
+      "display_name": "Opus 5.5 (1M context)"
+    },
+    "effort": {
+      "level": "high"
+    },
+    "workspace": {
+      "current_dir": "D:\\webapp",
+      "project_dir": "D:\\webapp"
+    },
+    "cost": {
+      "total_lines_added": 412,
+      "total_lines_removed": 97,
+      "total_cost_usd": 3.12
+    },
+    "context_window": {
+      "context_window_size": 1000000,
+      "used_percentage": 8,
+      "remaining_percentage": 92,
+      "total_input_tokens": 81000,
+      "current_usage": {
+        "input_tokens": 6,
+        "output_tokens": 812,
+        "cache_creation_input_tokens": 1494,
+        "cache_read_input_tokens": 79500
+      }
+    },
+    "prompt_cache": {
+      "warm": true,
+      "caching_observed": true,
+      "ttl": "5m",
+      "expires_at": "{{NOW+252}}",
+      "hit_ratio": 0.981,
+      "requests": 127,
+      "misses": 1
+    },
+    "rate_limits": {
+      "five_hour": {
+        "used_percentage": 2,
+        "resets_at": "{{NOW+2280}}"
+      },
+      "seven_day": {
+        "used_percentage": 82,
+        "resets_at": "{{NOW+345540}}"
+      }
+    }
+  },
+  "fs": {
+    "D:/webapp": {
+      ".git/HEAD": "ref: refs/heads/main\n",
+      ".git/refs/heads/main": "cccccccccccccccccccccccccccccccccccccccc\n",
+      ".git/logs/HEAD": "0000000000000000000000000000000000000000 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Steve Hill <steve@example.com> 1792840000 +0200\tcommit (initial): Start the notes\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb Steve Hill <steve@example.com> 1792845000 +0200\tcommit: Add the notes\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb cccccccccccccccccccccccccccccccccccccccc Steve Hill <steve@example.com> 1792854000 +0200\tcommit: Commit before the break\n"
+    }
+  },
+  "state": {
+    "git": {
+      "for": "D:/webapp",
+      "added": 1208,
+      "removed": 279,
+      "files": 3
+    },
+    "usage": {
+      "extra": {
+        "enabled": true,
+        "usedCents": 0,
+        "limitCents": 5000,
+        "currency": "USD"
+      },
+      "scoped": []
+    }
+  },
+  "config": {
+    "look": "hud",
+    "hud": {
+      "fable": "off",
+      "align": "left",
+      "user": "off",
+      "op": "tag"
+    },
+    "network": {
+      "usageApi": true
+    },
+    "totems": [
+      {
+        "n": 1,
+        "kind": "full",
+        "until": "2026-10-25T15:31:00Z"
+      }
+    ]
+  },
+  "modes": [
+    "ansi",
+    "nocolor",
+    "ascii",
+    "w60",
+    "w60c",
+    "w100c"
+  ],
+  "hudOffhand": {
+    "cash": 50,
+    "paying": false,
+    "out": false,
+    "stale": false
+  },
+  "hudTotem": {
+    "at": "slot5",
+    "mark": "last"
+  },
+  "hudState": {
+    "model": "Opus 5.5",
+    "effort": "high",
+    "ctxPct": 8,
+    "ctxTok": 81000,
+    "ctxMax": 1000000,
+    "branch": "main",
+    "add": 1208,
+    "del": 279,
+    "cwd": "D:/webapp",
+    "ver": "2.1.306",
+    "h5": {
+      "used": 2,
+      "left": 2280,
+      "window": 18000
+    },
+    "week": {
+      "used": 82,
+      "left": 345540
+    },
+    "cache": {
+      "hit": 98,
+      "warm": true,
+      "left": 252,
+      "ttl": 300
+    },
+    "extra": {
+      "used": 0,
+      "limit": 50
+    },
+    "cost": 3.12,
+    "turns": 0,
+    "compactions": 0,
+    "scoped": [],
+    "hist": null
+  }
+}

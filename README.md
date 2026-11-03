@@ -49,6 +49,7 @@ Claude Code can run a command of your choice to draw a status line under its pro
 - The **hotbar** holds the thinking effort, your prompts, the session's cost and the last two hours of git as terrain.
 - The **branch** shows what git is doing. It can also show the pull request and its checks.
 - **Bees** fly home across the sky while Claude Code's subagents work.
+- The **totem** is a limit reset Anthropic gave you, once you tell Hungerbar about it.
 
 Hungerbar is one JavaScript file with no runtime dependencies. It never uses the network while it draws, and it runs git only in the background (unless you set `git.mode` to `sync`). Its network features stay off until you say yes.
 
@@ -58,15 +59,15 @@ In plain text, a normal day looks like this (at the left edge, without your name
 Opus 5.5 Efficiency III                   ◦ ○ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s · hit 98%
 ☼ 4h49m     98% ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥                       🍗🍗 18% ↻ 3d23h
 81k/1.0M ▂▂▂▂▂▂ ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂ 8%  ⌂ D:/webapp
-v2.1.306  ◆ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3      ☥          ▅▆▆ ▆▅▆▆ ▀▀▂▂  +1208 -279  ⎇ main
+v2.1.306  ◆ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3      🬌••🬍       ▅▆▆ ▆▅▆▆ ▀▀▂▂  +1208 -279  ⎇ main
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀🮂🮂🮂🮂🮂🮂⠀🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂
 ```
 
 ## Anatomy
 
-![The HUD drawn large, with its 25 parts numbered in reading order](docs/media/anatomy.png)
+![The HUD drawn large, with its 26 parts numbered in reading order](docs/media/anatomy.png)
 
-This is one render. The Claude Code session is about four and a half hours old and the context was compacted twice. Those are two signs of a long session, so two phantoms fly in the sky. Fable is in use, so the boss bar shows and the pickaxe is netherite. Nobody has written for about 7 minutes, so the bed is out. Three agents work in the background, so three bees fly home at the other end of the sky (a second 4). The account has $50 of extra credits and every limit is above 10%, so the totem waits in slot 5 (a second 15). The branch has changes and an approved pull request. Claude Code runs as Administrator, so the name is gold.
+This is one render. The Claude Code session is about four and a half hours old and the context was compacted twice. Those are two signs of a long session, so two phantoms fly in the sky. Fable is in use, so the boss bar shows and the pickaxe is netherite. Nobody has written for about 7 minutes, so the bed is out. Three agents work in the background, so three bees fly home at the other end of the sky (a second 4). A limit reset is declared and every limit is above 10%, so the totem waits in slot 5. The branch has changes and an approved pull request. Claude Code runs as Administrator, so the name is gold.
 
 | # | Part | What it shows | In Minecraft |
 |---|---|---|---|
@@ -84,17 +85,18 @@ This is one render. The Claude Code session is about four and a half hours old a
 | 12 | Spawn point | ⌂ and the folder Claude Code runs in. A long path is cut from the front. | Your spawn point: home, where you come back to. |
 | 13 | Operator | Your user name before the folder (`hud.user`). While Claude Code runs as Administrator (root elsewhere), the name turns bold gold (`hud.op gold`, the default). With `tag`, a red `[OP]` shows instead. | An operator: a player with admin rights on a server. Servers often show it as a coloured name or an `[OP]` rank in chat. |
 | 14 | Version | Claude Code's version, in dark grey. | The version in the corner of the title screen. |
-| 15 | Offhand | ◆ The extra credits left, in whole dollars, when the account has extra usage; from $100 the emerald gives up its spare cell for three digits (◆250, then ◆ 1k to ◆99k). The count turns grey when the credits were last read more than 15 minutes ago. Its frame turns green while a limit is used up and the extra credits pay, and stays grey when they are out. While you have credits, the totem ☥ waits in hotbar slot 5 (`hud.totem`); when a limit is at 10% or less it takes the emerald's place with your dollars, and when a limit hits 0 it pops there for 30 seconds, between gold sides. | The offhand slot, holding an emerald, the villagers' money. A Totem of Undying held there saves you from dying once, and pops. |
+| 15 | Offhand | ◆ The extra credits left, in whole dollars, when the account has extra usage; from $100 the emerald gives up its spare cell for three digits (◆250, then ◆ 1k to ◆99k). The count turns grey when the credits were last read more than 15 minutes ago. Its frame turns green while a limit is used up and the extra credits pay, and stays grey when they are out. While the totem takes the offhand, the emerald moves to slot 5 as it is. | The offhand slot, holding an emerald, the villagers' money. |
 | 16 | Pickaxe | The selected slot, in the mint selection frame. The pickaxe and its effort numeral (Ⅰ to Ⅴ) take the model's tool tier (`hud.pickaxe`): netherite for Fable, diamond for Opus, iron for Sonnet, gold for Haiku, stone for any other. The numeral sits on a glint that turns a deeper purple with more effort. | The selected hotbar slot, holding a pickaxe. Tools come in tiers, from stone to netherite. Enchanted items shimmer with a purple glint. |
 | 17 | Book and quill | 📖 The prompts you sent this session, typed or sent while Claude was working. Slash commands, interrupts and notifications do not count. 100 or more shows 99 in yellow. | The book and quill, a book you write in. |
 | 18 | Gold | The session's cost, in whole dollars. | A gold ingot. |
 | 19 | Bed | After 5 minutes without a message, a bed lies in the empty slot (`hud.bed`). It has a white pillow and a red blanket on oak legs. It goes away with your next message. It never shows while a tool is still running. | A bed, where you sleep through the night. |
-| 20 | Terrain | The last two hours of git, one column per quarter hour. Each column is as high as the diff got then. It is green when at least as many lines were added as removed, grey when more were removed, and gold where you committed. A quarter hour with no diff is flat brown ground. | The land: hills of grass and stone, with gold. |
-| 21 | Grass and cobblestone | The lines added (grass) and removed (cobblestone) now. The smaller count is a slab, sized by its share. | A grass block and a cobblestone block. A slab is a part of a block. |
-| 22 | Counts | The exact `+added -removed`, in green and red. | Like the count on a stack of items. |
-| 23 | Branch | ⎇ is coloured by your files: green when clean, yellow when changed, aqua when only new untracked files exist, red with a conflict. The branch is coloured by its commits: white, purple during a merge, rebase or cherry-pick, gold when ahead of or behind its upstream, grey `@sha` on a detached HEAD. Short marks follow it, such as `merge`, `!2`, `?3` and `↑2↓1`. | The chat colours: green, yellow, aqua, red, purple and gold. |
-| 24 | Pull request | The branch's pull request (`hud.pr`, with your own `gh`). It shows `#128`, then the checks: gold ● still running, green ✓ passed, red × failed. At most one more mark follows: ✓ approved, ± changes requested, ‼ a conflict, ◌ a draft. A merged PR shows in purple and a closed one in dark grey. | No counterpart. It uses the chat colours too. |
-| 25 | Hotbar frame | A thin edge under the hotbar: mint under the selected slot, grey under the rest. The offhand gets an edge under and over it, green while the extra credits pay, gold while the totem pops. | The frame of the hotbar, and the box around the selected slot. |
+| 20 | Totem | A limit reset you hold (`hungerbar totem`, `hud.totem`): a golden idol with raised wings and green eyes, centred in hotbar slot 5. When a limit it refills is at 10% or less, it moves to the offhand and the emerald to slot 5; at 0 its frame turns gold, and it pops for 30 seconds (✦) when Hungerbar sees that moment. In its last 24 hours a yellow `!` stands beside it. One totem however many resets you hold. | The Totem of Undying. Held in the offhand, it saves you from dying once. Totems do not stack. |
+| 21 | Terrain | The last two hours of git, one column per quarter hour. Each column is as high as the diff got then. It is green when at least as many lines were added as removed, grey when more were removed, and gold where you committed. A quarter hour with no diff is flat brown ground. | The land: hills of grass and stone, with gold. |
+| 22 | Grass and cobblestone | The lines added (grass) and removed (cobblestone) now. The smaller count is a slab, sized by its share. | A grass block and a cobblestone block. A slab is a part of a block. |
+| 23 | Counts | The exact `+added -removed`, in green and red. | Like the count on a stack of items. |
+| 24 | Branch | ⎇ is coloured by your files: green when clean, yellow when changed, aqua when only new untracked files exist, red with a conflict. The branch is coloured by its commits: white, purple during a merge, rebase or cherry-pick, gold when ahead of or behind its upstream, grey `@sha` on a detached HEAD. Short marks follow it, such as `merge`, `!2`, `?3` and `↑2↓1`. | The chat colours: green, yellow, aqua, red, purple and gold. |
+| 25 | Pull request | The branch's pull request (`hud.pr`, with your own `gh`). It shows `#128`, then the checks: gold ● still running, green ✓ passed, red × failed. At most one more mark follows: ✓ approved, ± changes requested, ‼ a conflict, ◌ a draft. A merged PR shows in purple and a closed one in dark grey. | No counterpart. It uses the chat colours too. |
+| 26 | Hotbar frame | A thin edge under the hotbar: mint under the selected slot, grey under the rest. The offhand gets an edge under and over it, green while the extra credits pay, gold while the totem calls (a limit it refills is used up). | The frame of the hotbar, and the box around the selected slot. |
 
 ## Features
 
@@ -119,7 +121,7 @@ The % turns red at 10% left or less. A used-up Fable says when it is back: `Fabl
 Fable 5.1 Efficiency III                  ◦ ○ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s · hit 98%
 ☼ 4h49m     98% ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥                       🍗🍗 18% ↻ 3d23h
 81k/1.0M ▂▂▂▂▂▂ ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂ 8%  ⌂ D:/webapp
-v2.1.306  ◆ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3      ☥          ▅▆▆ ▆▅▆▆ ▀▀▂▂  +1208 -279  ⎇ main
+v2.1.306  ◆ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3      🬌••🬍       ▅▆▆ ▆▅▆▆ ▀▀▂▂  +1208 -279  ⎇ main
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀🮂🮂🮂🮂🮂🮂⠀🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂
 ```
 
@@ -141,24 +143,33 @@ Three looks for the hearts line, picked in round 9 of the design picker (each ro
 
 Ultra and poison are on by default. `hungerbar look hud --ultra off --poison off` brings back 1.0's `?`, skull and dark hearts.
 
-### The totem and the emerald
+### The totem: your limit resets
 
-Four changes to the offhand; the totem was picked in round 9B of the design picker (round 9's follow-up), the count in round 9:
+Anthropic sometimes gives limit resets (Settings → Usage → Resets). Using one sets your usage limits back to full, whenever you choose. Claude Code does not pass them to status lines, so you tell Hungerbar once, with `hungerbar totem 1 --until 2026-12-01` (see [Commands](#commands)), and the HUD carries it as the Totem of Undying (`hud.totem`). The look was picked in round 10 of the design picker:
 
-- **The Totem of Undying** (`hud.totem`). While you have extra credits, a gold ☥ waits in hotbar slot 5, the way a Minecraft player keeps a totem for a bad fight. When the 5-hour window or the week drops to 10% left or less, the totem swaps into the offhand with your dollars, a warning that the credits are about to take over. When a window hits 0 it pops there for 30 seconds: ☥✦ between gold sides, the frame's edges gold with them. Then the green paying emerald is back, and the totem is used until the window resets. No credits, no totem.
-- **Dollars past $99** (no key). The emerald had two cells for its count, so $500 showed a yellow 99. From $100 it gives up its spare cell: ◆250, then ◆ 1k to ◆99k, and a yellow ◆99k from $100,000. The totem counts the same way.
-- **An old count** (no key). Credits the usage API read more than 15 minutes ago are counted in grey, not white.
-- **No green frame without credits** (no key). When a limit is used up and no credits are left, the offhand's frame stays grey; 1.0 lit it green, as if the credits paid.
+- **It waits in hotbar slot 5**, a golden idol with raised wings and green eyes, centred in the slot.
+- **When a limit it refills drops to 10% left or less** (the 5-hour window, the week, or Fable's weekly while you use Fable), it moves to your offhand and the emerald, your credits, moves to slot 5: a reminder that you can use the reset instead of paying.
+- **When that limit hits 0**, its frame turns gold and stays gold while the limit is at 0. When Hungerbar sees the moment, it pops for 30 seconds: a ✦ beside it. Slot 5's emerald gets green sides while the credits pay.
+- **In a reset's last 24 hours** a yellow `!` stands beside the totem, which steps aside to make room.
+- **It does not stack**, as in Minecraft: you see one totem however many resets you hold. `hungerbar totem`, `hungerbar look` and `hungerbar doctor` say how many.
 
-Safe and a limit at 7%, with $50 of credits, then the pop with $45.80 left:
+Waiting, a limit at 7%, then the moment the 5-hour window hits 0 with $45.80 of credits left:
 
 ```
-v2.1.306  ◆ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3      ☥                 ▆ ▀▀▂▂  +1208 -279  ⎇ main
-v2.1.306  ☥ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3                        ▆ ▀▀▂▂  +1208 -279  ⎇ main
-v2.1.306 ▐☥✦45▌ ▐⛏ Ⅲ ▌📖42 ▄▄ 3                        ▆ ▀▀▂▂  +1208 -279  ⎇ main
+v2.1.306  ◆ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3      🬌••🬍       ▅▆▆ ▆▅▆▆ ▀▀▂▂  +1208 -279  ⎇ main
+v2.1.306  🬌••🬍  ▐⛏ Ⅲ ▌📖42 ▄▄ 3      ◆ 50       ▅▆▆ ▆▅▆▆ ▀▀▂▂  +1208 -279  ⎇ main
+v2.1.306 ▐🬌¨🬍✦▌ ▐⛏ Ⅲ ▌📖42 ▄▄ 3     ▐◆ 45▌      ▅▆▆ ▆▅▆▆ ▀▀▂▂  +1208 -279  ⎇ main
 ```
 
-The totem is on by default. `hungerbar look hud --totem off` brings back 1.0's slot 5 and offhand (the three changes above that have no setting still apply). To see the pop, Hungerbar keeps what it last drew in a small file per session (see [What it writes](#privacy-and-network)).
+The HUD never uses a reset for you: you do, in Settings → Usage → "Reset for free" (claude.ai or Claude Desktop), or with `/limit-reset` where your Claude Code has it; then `hungerbar totem use`. A reset leaves the HUD by itself when it expires. With none declared, nothing about the totem is drawn. `hungerbar look hud --totem off` hides it. To see the pop, Hungerbar keeps what it last drew in a small file per session, only while you hold a reset (see [What it writes](#privacy-and-network)).
+
+### The emerald
+
+Three changes to the offhand's emerald, your extra credits in whole dollars, picked in round 9 of the design picker. They have no setting:
+
+- **Dollars past $99.** The emerald had two cells for its count, so $500 showed a yellow 99. From $100 it gives up its spare cell: ◆250, then ◆ 1k to ◆99k, and a yellow ◆99k from $100,000.
+- **An old count.** Credits the usage API read more than 15 minutes ago are counted in grey, not white.
+- **No green frame without credits.** When a limit is used up and no credits are left, the offhand's frame stays grey; 1.0 lit it green, as if the credits paid.
 
 ### Your agents at work
 
@@ -234,7 +245,7 @@ By default (`hud.align: center`) the whole HUD moves right as one block, so the 
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Opus 5.5 Efficiency III                   ◦ ○ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ 4m12s · hit 98%
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀☼ 4h49m     98% ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥                       🍗🍗 18% ↻ 3d23h
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀81k/1.0M ▂▂▂▂▂▂ ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂ 8%  ⌂ D:/webapp
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀v2.1.306  ◆ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3      ☥          ▅▆▆ ▆▅▆▆ ▀▀▂▂  +1208 -279  ⎇ main
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀v2.1.306  ◆ 50  ▐⛏ Ⅲ ▌📖42 ▄▄ 3      🬌••🬍       ▅▆▆ ▆▅▆▆ ▀▀▂▂  +1208 -279  ⎇ main
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀🮂🮂🮂🮂🮂🮂⠀🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂🮂
 ```
 
@@ -382,7 +393,7 @@ The file is strict JSON. Unknown keys are ignored, and a value that is not allow
 | `hud.phantoms` | `on` | `on`, `off` | the phantoms of a long session |
 | `hud.ultra` | `on` | `on`, `off` | the [golden hearts](#hearts-that-tell-more) when the account has no 5-hour limit (the Ultra plan) |
 | `hud.poison` | `on` | `on`, `off` | the poisoned hearts while the extra credits pay for a used-up 5-hour window |
-| `hud.totem` | `on` | `on`, `off` | the [totem](#the-totem-and-the-emerald) in hotbar slot 5 while you have credits, in the offhand while a limit is at 10% or less, popping for 30 s when one hits 0 |
+| `hud.totem` | `on` | `on`, `off` | the [totem](#the-totem-your-limit-resets): the limit resets you declared (`totems`), in hotbar slot 5, in the offhand while a limit one refills is at 10% or less, gold at 0; with none declared, nothing is drawn |
 | `hud.agents` | `bees` | `bees`, `allays`, `off` | [your agents at work](#your-agents-at-work) in line 1's sky; `off` never reads the subagents folder |
 | `hud.pickaxe` | `tiers` | `tiers`, `plain` | the [pickaxe and its numeral](#the-pickaxes-material) in the model's tool tier, or 1.0's colours |
 | `totems` | none | a list of `{n, kind, until, at, label}` | the [limit resets](#commands) Anthropic gave you, written by `hungerbar totem`: `n` 1 to 99, `kind` `full` (the default), `5h`, `week` or `fable`, `until` when it expires; an expired one is ignored |
@@ -515,7 +526,7 @@ Hungerbar runs on your machine and keeps what it learns there. Two features use 
 
 **What it writes**
 
-- Its cache folder: `%LOCALAPPDATA%\hungerbar` on Windows, `~/Library/Caches/hungerbar` on macOS, `$XDG_CACHE_HOME/hungerbar` or `~/.cache/hungerbar` on Linux. It holds small JSON files: the git answers, the last known limits, the usage API's answer, the PR answers, the HUD's terrain history, the totem's memory (what the HUD last drew, one small file per session, so it sees when a limit hits 0), the transcript counts (with the times of the newest agent files, while the session uses agents) and, after `setup`, your previous status line (and, with `setup --launcher`, `statusline.cmd`). Terrain histories, the totem's files, transcript counts and PR answers untouched for a week are deleted (checked at most once a day).
+- Its cache folder: `%LOCALAPPDATA%\hungerbar` on Windows, `~/Library/Caches/hungerbar` on macOS, `$XDG_CACHE_HOME/hungerbar` or `~/.cache/hungerbar` on Linux. It holds small JSON files: the git answers, the last known limits, the usage API's answer, the PR answers, the HUD's terrain history, the totem's memory (what the HUD last drew, one small file per session while you hold a limit reset, so it sees when a limit hits 0), the transcript counts (with the times of the newest agent files, while the session uses agents) and, after `setup`, your previous status line (and, with `setup --launcher`, `statusline.cmd`). Terrain histories, the totem's files, transcript counts and PR answers untouched for a week are deleted (checked at most once a day).
 - `settings.json` (only the `statusLine` key, with a backup) when you run `setup` or `setup --restore`.
 - `hungerbar.json` (with a backup) when you run `setup`, `look` or `totem`. `totem use` also rewrites the last known limits in the cache folder, forgetting the windows the reset refilled.
 - Windows Terminal's `settings.json` (only the font face, with a backup) when you run `icons plain` or `icons colour`, or `setup --icons plain` or `setup --icons colour`.

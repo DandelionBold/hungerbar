@@ -17,6 +17,7 @@ import type { AgentMarks, AgentsSeen } from './hud/agents.ts';
 import type { GitMarks } from './hud/gitstate.ts';
 import type { PlayerMarks } from './hud/player.ts';
 import type { OffhandMarks } from './hud/offhand.ts';
+import type { TotemMarks } from './hud/totem.ts';
 import type { TierMarks } from './hud/tiers.ts';
 import type { VitalMarks } from './hud/vitals.ts';
 import { diskHistory, histSid } from './hud/history.ts';
@@ -53,18 +54,19 @@ export interface RenderResult {
    * When the HUD drew this render, for the tests: the engine's input (with its hist), the git state's (marks), the pull
    * request (null: no badge), the player's layers' input, the vitals', the offhand's, the agents' and the pickaxe
    * tiers' inputs (1.1.0), the engine's lines, the lines with the git state, the badge, the player's layers, the vitals,
-   * the offhand, the agents, the tiers and the hotbar's frame, and the centring's offset (hud.align center; `text` is
+   * the offhand, the totem (1.2.0), the agents, the tiers and the hotbar's frame, and the centring's offset (hud.align center; `text` is
    * the framed lines moved right by it).
    */
   hud?: {
-    input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; vitals: VitalMarks; offhand: OffhandMarks; agents: AgentMarks; tiers: TierMarks;
-    lines: Span[][]; framed: Span[][]; offset: number;
+    input: HudState; git: GitMarks; pr: PrInfo | null; player: PlayerMarks; vitals: VitalMarks; offhand: OffhandMarks; totem: TotemMarks; agents: AgentMarks;
+    tiers: TierMarks; lines: Span[][]; framed: Span[][]; offset: number;
   };
   /**
    * The State both looks draw from, when a payload was read (not for `no data`): for the tests, and for what the HUD's
    * engine is not handed, such as h5None and extra.at (1.1.0). The layers after the engine read those from the State,
    * as playerMarks reads it: the vitals read h5None and the limits' dim flags (vitalMarks), the offhand extra.at
-   * (offhandMarks: the stale count) and the shown-file what the limits' dim flags leave live (shownNow).
+   * (offhandMarks: the stale count) and the totem's shown-file what the limits' dim flags and scopedAt leave live
+   * (shownNow, 1.2.0).
    */
   state?: State;
 }
@@ -178,6 +180,7 @@ export function diskSources(p: Payload, env: Env, cfg: Config, now: number, spaw
       return prShown(e, now);
     },
     who: whoAmI(env),
+    totems: () => cfg.totems,
     shown: (cur) => diskShown({ cacheDir: cd, sid: histSid(str(p.session_id), str(p.transcript_path)), now, cur, after, persist }),
     agents(): AgentsSeen | null {
       if (seen !== undefined) return seen;
@@ -224,7 +227,7 @@ export function renderPayload(raw: string | null, opts: RenderOptions): RenderRe
       const h = renderHudLook(st, p, src, cfg, gate.depth, budget(env, cfg));
       return {
         text: h.text, spawns, model: st.model, after, state: st,
-        hud: { input: h.input, git: h.git, pr: h.pr, player: h.player, vitals: h.vitals, offhand: h.offhand, agents: h.agents, tiers: h.tiers,
+        hud: { input: h.input, git: h.git, pr: h.pr, player: h.player, vitals: h.vitals, offhand: h.offhand, totem: h.totem, agents: h.agents, tiers: h.tiers,
           lines: h.lines, framed: h.framed, offset: h.offset },
       };
     } catch (e) {

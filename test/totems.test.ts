@@ -650,6 +650,7 @@ test('no totem held: every golden case, drawn again through dist with a totems k
   for (const name of caseNames()) {
     const c = loadCase(name);
     if (c.configText !== undefined) continue;                 // an invalid hungerbar.json has no key to add
+    if ((c.config as { totems?: unknown } | undefined)?.totems !== undefined) continue;   // the hud-totem cases (1.2.0) declare their own
     const mode = (c.modes ?? ['ansi'])[0]!;
     if (mode === 'config') continue;
     const totems = HOLD_NOTHING[n++ % HOLD_NOTHING.length];
