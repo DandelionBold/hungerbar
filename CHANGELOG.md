@@ -2,7 +2,7 @@
 
 What changed for users in each version. Versions before 1.0.0 were private builds; 1.0.0 is the first public release.
 
-## 1.2.0 (unreleased)
+## 1.2.0 (2026-11-03)
 
 The totem now stands for a limit reset Anthropic gave you, not for your extra credits.
 
@@ -17,6 +17,7 @@ The totem now stands for a limit reset Anthropic gave you, not for your extra cr
 - `hungerbar look` and `doctor` say how many resets you hold, of which kinds and until when. `doctor` warns about a reset that expired, an entry it cannot read, a 5-hour reset on an account with no 5-hour window, and a Fable reset while Fable's weekly is off. `hungerbar setup` ends with how to declare one when the HUD has none.
 - `schema.json` describes `totems` for your editor.
 - **The classic lines can show your resets:** add `resets` to `lines` for `☥ Limit resets: 1 (use by 2026-12-01)`. Its count turns yellow while a limit a reset can refill is at 10% left or less, and red once that limit is used up. It is in no line by default, so the classic lines look as before, and it is the first item to go when a line is too wide.
+- **The README's pictures show 1.2.0.** `anatomy.png`, `hero.gif`, `idle.gif`, `center.gif`, `frame.gif`, `fable.gif`, `git.gif`, `pr.gif` and `setup.gif` are made again from 1.2.0's renders with one limit reset declared, so the golden idol waits in slot 5 where 1.1.0's ☥ was. The anatomy numbers the totem as its own part, 20; `hero.gif` ends with the totem moving to the offhand and the emerald to slot 5; `frame.gif` shows the pop, then the totem staying gold while the credits pay in slot 5; and `setup.gif` ends with how to declare a reset. A new `totem.gif` shows the totem's day: waiting, the move at 7%, the pop at 0, the credits paying, and the reset used. `classic.png` is untouched.
 
 ## 1.1.0 (2026-11-02)
 
