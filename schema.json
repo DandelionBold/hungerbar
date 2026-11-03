@@ -152,6 +152,26 @@
           "default": "tiers"
         }
       }
+    },
+    "totems": {
+      "description": "The limit resets Anthropic gave you (Settings → Usage → Resets), which the HUD carries as the Totem of Undying. Claude Code does not pass them to status lines, so you declare them: hungerbar totem 1 --until 2026-12-01 writes this key (with a backup), hungerbar totem use takes one off when you use it, and hungerbar totem clear removes it. A grant whose until has passed is ignored, and the next hungerbar totem write removes it. An entry that is not one of these is ignored too (hungerbar doctor counts them), and at most 16 are read.",
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "required": ["n"],
+        "properties": {
+          "n": { "description": "How many resets this grant holds.", "type": "integer", "minimum": 1, "maximum": 99 },
+          "kind": {
+            "description": "Which limits it refills: full (the 5-hour window, the week and Fable's weekly), 5h (the 5-hour window), week (the week) or fable (Fable's weekly).",
+            "enum": ["full", "5h", "week", "fable"],
+            "default": "full"
+          },
+          "until": { "description": "When it expires (ISO 8601, stored in UTC); absent: no expiry known.", "type": "string", "format": "date-time" },
+          "at": { "description": "When it was declared (ISO 8601, UTC).", "type": "string", "format": "date-time" },
+          "label": { "description": "Your own note; never drawn on the HUD.", "type": "string", "maxLength": 80 }
+        }
+      }
     }
   }
 }

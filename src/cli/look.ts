@@ -21,7 +21,7 @@ import {
   type HudAgents, type HudAlign, type HudFable, type HudOp, type HudPickaxe, type HudPr, type HudSwitch, type HudUser, type Look,
 } from '../config.ts';
 import { DEMOS, DEMO_NOW, demoSources } from '../demo.ts';
-import { claudeDir, flag, intEnv, offline, type Env } from '../env.ts';
+import { claudeDir, flag, intEnv, nowSec, offline, type Env } from '../env.ts';
 import { resolveGh } from '../pr/gh.ts';
 import { centreOffset, HOTBAR_CENTRE, hudOffset, shiftHud } from '../hud/align.ts';
 import { FABLE_OPTIONS } from '../hud/fable.ts';
@@ -29,6 +29,7 @@ import { encode, hudGate, type Gate } from '../hud/look.ts';
 import { budget } from '../layout.ts';
 import { renderPayload } from '../render.ts';
 import { cacheDir, readOnly, writeAtomic } from '../store.ts';
+import { held, heldBrief, resets } from '../totems.ts';
 import { USAGE_URL } from '../usage/refresh.ts';
 import { elevated, hostName, userName, whoAmI, type WhoSource } from '../whoami.ts';
 import { optionError, parseArgs, say, type Args } from './args.ts';
@@ -263,16 +264,24 @@ export class ConfigRefused extends Error {
   }
 }
 
-/** Reads hungerbar.json strictly and plans the merge; ConfigRefused (with the by-hand steps) when it cannot be read. */
-export function planConfig(path: string, c: LookChoice, schema: string | null): ConfigPlan {
-  let file: SettingsFile;
+/**
+ * Reads hungerbar.json as the writer must: strict JSON (a BOM accepted), UTF-8, one object; ConfigRefused with the
+ * by-hand `steps` when it cannot be (shared by look, setup and, 1.2.0, `hungerbar totem`).
+ */
+export function readConfigStrict(path: string, steps: () => string[]): SettingsFile {
   try {
-    file = readSettings(path);
+    const file = readSettings(path);
     if (file.bytes && !Buffer.from(file.bytes.toString('utf8'), 'utf8').equals(file.bytes)) throw new Error('it is not UTF-8 text');
+    return file;
   } catch (e) {
     const why = (e as Error).message;
-    throw new ConfigRefused(refusal(path, why, c), why);
+    throw new ConfigRefused(refusal(path, why, steps()), why);
   }
+}
+
+/** Reads hungerbar.json strictly and plans the merge; ConfigRefused (with the by-hand steps) when it cannot be read. */
+export function planConfig(path: string, c: LookChoice, schema: string | null): ConfigPlan {
+  const file = readConfigStrict(path, () => handSteps(c));
   const before = file.exists ? file.obj : {};
   let next = mergeLook(before, c);
   const changed = JSON.stringify(next) !== JSON.stringify(before);
@@ -291,11 +300,11 @@ export function handSteps(c: LookChoice): string[] {
   return out;
 }
 
-function refusal(path: string, why: string, c: LookChoice): string {
+function refusal(path: string, why: string, steps: string[]): string {
   return [
     `${path} cannot be read as a JSON object (${why}), so it was left alone and nothing was written.`,
     'Fix it by hand: make it one valid JSON object, then set',
-    ...handSteps(c).map((s) => `  ${s}`),
+    ...steps.map((s) => `  ${s}`),
     'or move the file away to start again from the defaults. Until it is fixed the status line draws classic with cfg!.',
   ].join('\n');
 }
@@ -316,13 +325,17 @@ export function diffLines(before: Obj, next: Obj): string[] {
  * Writes the plan (a backup first when the file exists); the backup's path, or null. A read-only file throws (its code)
  * before the backup: off Windows the atomic write's rename would replace it.
  */
-export function applyConfig(p: ConfigPlan): string | null {
+export function applyConfig(p: Pick<ConfigPlan, 'file' | 'text'>): string | null {
   const ro = p.file.exists ? readOnly(p.file.path) : null;
   if (ro) throw Object.assign(new Error(`${p.file.path} is read-only`), { code: ro });
   const bak = backup(p.file);
   writeAtomic(p.file.path, p.text);
   return bak;
 }
+
+/** The one line for a write of hungerbar.json that failed (applyConfig threw): its code, else its message. */
+export const writeFailed = (path: string, e: unknown): string =>
+  `hungerbar: could not write ${path} (${(e as NodeJS.ErrnoException).code ?? (e as Error).message}); nothing changed.\n`;
 
 /**
  * Said for every Fable option but off: what turning the usage API on means (plan §8). `asking`: setup's wording, before
@@ -438,14 +451,22 @@ export function vitalsSummary(cfg: Config): string {
 }
 
 /**
- * hud.totem as hungerbar.json sets it (1.1.0), and the offhand's fixes, which have no key: the dollars past $99, a count
- * from an old usage.json in grey, and grey sides when the credits are out.
+ * The offhand's emerald (1.1.0): its fixes, which have no key: the dollars past $99, a count from an old usage.json in
+ * grey, and grey sides when the credits are out. The totem has its own line since 1.2.0 (totemSummary).
  */
-export function offhandSummary(cfg: Config): string {
-  const totem = cfg.hud.totem === 'on'
-    ? 'the Totem of Undying while extra credits are left: in hotbar slot 5, in the offhand while a limit is at 10% or less, popping for 30 s when one hits 0'
-    : 'no totem';
-  return `hud.totem ${cfg.hud.totem}: ${totem}; the emerald counts dollars past $99 (◆250, ◆ 1k), an old count is grey, and the frame stays grey when the credits are out`;
+export function offhandSummary(): string {
+  return 'the offhand: the emerald counts dollars past $99 (◆250, ◆ 1k), an old count is grey, and the frame stays grey when the credits are out';
+}
+
+/**
+ * hud.totem as hungerbar.json sets it, and the limit resets held at `now` (SPEC §0.13, 1.2.0): how many, of which
+ * kinds, until when, and where the totem goes; or that none is declared, and the command that declares one.
+ */
+export function totemSummary(cfg: Config, now: number): string {
+  const h = held(cfg.totems, now);
+  if (cfg.hud.totem === 'off') return `hud.totem off: no totem drawn; ${h.count ? `${resets(h.count)} held (${heldBrief(h)}); hungerbar look hud --totem on draws it` : 'no limit resets declared'}`;
+  if (!h.count) return 'hud.totem on: no limit resets declared; hungerbar totem <n> [--until <date>] when Anthropic gives you one';
+  return `hud.totem on: ${resets(h.count)} held (${heldBrief(h)}): the totem in hotbar slot 5, in the offhand while a limit it refills is at 10% or less; hungerbar totem to change it`;
 }
 
 /**
@@ -868,13 +889,14 @@ function status(env: Env): number {
   say(opSummary(cfg, env));
   say(idleSummary(cfg));
   say(vitalsSummary(cfg));
-  say(offhandSummary(cfg));
+  say(offhandSummary());
+  say(totemSummary(cfg, nowSec(env)));
   say(agentsSummary(cfg));
   say(pickaxeSummary(cfg));
   say(`switch with: hungerbar look classic   or   hungerbar look hud [--fable ${FABLE_HELP}] [--align ${ALIGN_HELP}] [--pr ${PR_HELP}]`);
   say(`the player: hungerbar look hud ${HUD_FLAG_KEYS.filter((k) => k !== 'pr').map((k) => `[--${k} ${hudHelp(k)}]`).join(' ')}`);
   say(`the hearts: hungerbar look hud ${HEARTS_KEYS.map((k) => `[--${k} ${hudHelp(k)}]`).join(' ')}`);
-  say(`the offhand: hungerbar look hud [--totem ${hudHelp('totem')}]`);
+  say(`the totem: hungerbar look hud [--totem ${hudHelp('totem')}]; your resets: hungerbar totem`);
   say(`the sky: hungerbar look hud [--agents ${hudHelp('agents')}]`);
   say(`the pickaxe: hungerbar look hud [--pickaxe ${hudHelp('pickaxe')}]`);
   return 0;
@@ -899,7 +921,7 @@ export function reportPlan(p: ConfigPlan, env: Env, print: boolean, consent: boo
     const bak = applyConfig(p);
     if (bak) say(`backup: ${bak}`);
   } catch (e) {
-    process.stderr.write(`hungerbar: could not write ${p.file.path} (${(e as NodeJS.ErrnoException).code ?? (e as Error).message}); nothing changed.\n`);
+    process.stderr.write(writeFailed(p.file.path, e));
     return 1;
   }
   return 0;
@@ -909,13 +931,13 @@ export function reportPlan(p: ConfigPlan, env: Env, print: boolean, consent: boo
  * The notes after a choice is written: what the player's options it set show here (0.7.0), and the hearts', the
  * offhand's, the agents' and the pickaxe's (1.1.0).
  */
-export function playerNotes(c: LookChoice, cfg: Config, env: Env): string[] {
+export function playerNotes(c: LookChoice, cfg: Config, env: Env, now: number = nowSec(env)): string[] {
   return [
     ...(c.user !== undefined ? [userSummary(cfg, env)] : []),
     ...(c.op !== undefined || (c.user !== undefined && cfg.hud.op !== 'off') ? [opSummary(cfg, env)] : []),
     ...(c.bed !== undefined || c.phantoms !== undefined ? [idleSummary(cfg)] : []),
     ...(c.ultra !== undefined || c.poison !== undefined ? [vitalsSummary(cfg)] : []),
-    ...(c.totem !== undefined ? [offhandSummary(cfg)] : []),
+    ...(c.totem !== undefined ? [totemSummary(cfg, now)] : []),
     ...(c.agents !== undefined ? [agentsSummary(cfg)] : []),
     ...(c.pickaxe !== undefined ? [pickaxeSummary(cfg)] : []),
   ];

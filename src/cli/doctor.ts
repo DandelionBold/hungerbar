@@ -2,21 +2,23 @@
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { loadConfig, usageEnabled, type Config } from '../config.ts';
+import { configPath, loadConfig, usageEnabled, type Config } from '../config.ts';
 import { flag, nowSec, VERSION, type Env } from '../env.ts';
 import { timeLeft } from '../format.ts';
 import { findGit } from '../git/bin.ts';
 import { statusArgs } from '../git/status.ts';
 import { PR_ARGS } from '../pr/gh.ts';
 import { childProcess } from '../proc.ts';
-import { acctDir, cacheDir } from '../store.ts';
+import type { LimitsFile } from '../limits.ts';
+import { acctDir, cacheDir, readJson } from '../store.ts';
+import { held, parseTotems } from '../totems.ts';
 import { DEMOS } from '../demo.ts';
 import { readUsage } from '../usage/file.ts';
 import { parseArgs, say } from './args.ts';
 import { iconSummary } from './icons.ts';
 import {
   agentsSummary, alignNote, fableWarning, gateHere, gateInputs, gitStateNote, histFiles, idleSummary, lookSummary, offhandSummary, opSummary, pickaxeSummary, prBlocked, prFiles, prSummary, shownFiles,
-  userSummary, vitalsSummary,
+  totemSummary, userSummary, vitalsSummary,
   verdict,
 } from './look.ts';
 import { readSettings, settingsPath, type StatusLine } from './setup.ts';
@@ -181,9 +183,41 @@ function lookSection(cfg: Config, error: string | null, env: Env): void {
   info(opSummary(cfg, env));
   info(idleSummary(cfg));
   info(vitalsSummary(cfg));
-  info(offhandSummary(cfg));
+  info(offhandSummary());
+  info(totemSummary(cfg, now));
+  for (const w of totemWarnings(cfg, env, now)) warn(w);
   info(agentsSummary(cfg));
   info(pickaxeSummary(cfg));
+}
+
+/** How many entries of hungerbar.json's `totems` are ignored (src/totems.ts parseTotems); 0 when the file cannot be read. */
+export function ignoredTotems(env: Env): number {
+  try {
+    const raw: unknown = JSON.parse(readFileSync(configPath(env), 'utf8').replace(/^﻿/, ''));
+    return raw && typeof raw === 'object' && !Array.isArray(raw) ? parseTotems((raw as Record<string, unknown>).totems).ignored : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * What doctor warns about the declared resets (SPEC §0.13, 1.2.0): grants that expired (ignored until the next
+ * `hungerbar totem` write removes them), entries it could not read, a 5-hour reset on an account with no 5-hour window
+ * (limits.json's fiveHourNone: it can never move the totem), and a Fable reset while Hungerbar cannot see Fable's weekly
+ * (the usage API with network.scopedWeekly).
+ */
+export function totemWarnings(cfg: Config, env: Env, now: number): string[] {
+  const h = held(cfg.totems, now), out: string[] = [];
+  if (h.expired) out.push(`${h.expired} limit reset grant${h.expired === 1 ? '' : 's'} in hungerbar.json expired and ${h.expired === 1 ? 'is' : 'are'} ignored; the next hungerbar totem write removes ${h.expired === 1 ? 'it' : 'them'}`);
+  const bad = ignoredTotems(env);
+  if (bad) out.push(`${bad} entr${bad === 1 ? 'y' : 'ies'} of totems in hungerbar.json could not be read and ${bad === 1 ? 'is' : 'are'} ignored: each needs n from 1 to 99, a kind of full, 5h, week or fable, and an until that is a date (at most 16 entries are read)`);
+  if (h.grants.some((g) => g.kind === '5h') && readJson<LimitsFile>(join(acctDir(env), 'limits.json'))?.fiveHourNone === true) {
+    out.push('a 5-hour reset is held, but this account has no 5-hour window (limits.json), so it can never move the totem');
+  }
+  if (h.grants.some((g) => g.kind === 'fable') && !(usageEnabled(cfg, env) && cfg.network.scopedWeekly)) {
+    out.push("a Fable reset is held, but Hungerbar cannot see Fable's weekly without network.usageApi and network.scopedWeekly, so it never moves the totem for it");
+  }
+  return out;
 }
 
 export function doctor(argv: string[], env: Env, self: string): number {

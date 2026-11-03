@@ -46,7 +46,7 @@ To keep a copy of your checkout, run `node dist/hungerbar.mjs mirror <dir>` from
 |---|---|
 | `src/` | The TypeScript source. `esbuild` bundles it into one file, `dist/hungerbar.mjs`, with no runtime dependencies. |
 | `src/hud/` | The Minecraft HUD: a port of the design engine, plus the layers added on top (frame, centring, git state, PR badge, the player's name, the bed, the phantoms, and since 1.1.0 the hearts, the totem and the emerald, the agents and the pickaxe's tiers). |
-| `src/cli/` | The commands: `setup`, `look`, `preview`, `doctor`, `icons`, `glyphs`, and `mirror` (for a checkout only). |
+| `src/cli/` | The commands: `setup`, `look`, `preview`, `doctor`, `icons`, `glyphs`, `totem` (since 1.2.0), and `mirror` (for a checkout only). |
 | `test/` | The tests, the golden files, the fixtures and the pinned reference files. |
 | `bench/` | The timing bench and the kill-storm. |
 | `scripts/media/` | The generator for the README's pictures. It is not shipped. |

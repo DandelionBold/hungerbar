@@ -2,6 +2,16 @@
 
 What changed for users in each version. Versions before 1.0.0 were private builds; 1.0.0 is the first public release.
 
+## 1.2.0 (unreleased)
+
+The totem stands for a limit reset Anthropic gave you, not for your extra credits. This part is the data and the command; the HUD's new totem follows.
+
+- **`hungerbar totem`** tells Hungerbar about your limit resets (Settings → Usage → Resets), because Claude Code does not pass them to status lines: `hungerbar totem 1 --until 2026-12-01` says you hold one, to use by the end of that day. `--kind full|5h|week|fable` says which limits it refills (`full`, the 5-hour window, the week and Fable's weekly, is the default), `add` adds a grant with its own expiry, `use` takes off the one that expires first, `clear` forgets them all, and `hungerbar totem` alone says what you hold. `--print` shows the change and writes nothing.
+- It writes the new `totems` key in `hungerbar.json` the way `look` writes its keys: after a backup, every other key in its place, and the way back printed. A reset that expires is ignored from that moment and removed at the next write. Nothing about it uses the network.
+- **`use` lets a refill show at once.** It also makes Hungerbar forget the last limits it saved for the windows the reset refilled, so a render without live limits no longer shows the old use with `~` until the window's own reset. Fable's weekly comes from the usage API and refreshes within 3 minutes.
+- `hungerbar look` and `doctor` say how many resets you hold, of which kinds and until when. `doctor` warns about a reset that expired, an entry it cannot read, a 5-hour reset on an account with no 5-hour window, and a Fable reset while Fable's weekly is off. `hungerbar setup` ends with how to declare one when the HUD has none.
+- `schema.json` describes `totems` for your editor.
+
 ## 1.1.0 (2026-11-02)
 
 The HUD learns the Totem of Undying, the pickaxe's tool tiers and the bees, and the hearts tell more.

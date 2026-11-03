@@ -14,7 +14,7 @@ import { parseArgs } from '../src/cli/args.ts';
 import {
   alignFlag, alignNote, choiceOptions, demoLines, diffLines, elevatedAs, handSteps, HUD_FLAG_KEYS, HUD_FLAGS, hudFlag, hudOptions, mergeLook, opSummary, ownSentence,
   parseAlign, parseFable, parseHudOption, parseLook, promptName, promptSentence, sentences, gateHere, V11_FLAG_KEYS, vitalsSummary,
-  histFiles, HUD_OPTION_NAMES, offhandSummary, playerNotes, shownFiles, agentsSummary, pickaxeSummary,
+  histFiles, HUD_OPTION_NAMES, offhandSummary, playerNotes, shownFiles, agentsSummary, pickaxeSummary, totemSummary,
 } from '../src/cli/look.ts';
 import { isLeftover, LEFTOVER_PS, listProcesses, NO_SPAWN_WARNING, paddingWarning, processSource } from '../src/cli/doctor.ts';
 import { gitArgs } from '../src/git/refresh.ts';
@@ -975,7 +975,7 @@ test('look hud --user, --op, --bed and --phantoms: a backup, --print, what they 
     r = w.run(['look'], noGh);
     assert.match(r.stdout, /\nhud\.pr off: no pull request status\nhud\.user user@host: line 3 reads "⌂ steve@DESKTOP: <folder>" here\nhud\.op tag: a bold red \[OP\] before your name while Claude Code runs as (Administrator|root); this terminal does not, so nothing shows here\nhud\.bed off: no bed; hud\.phantoms off: no phantoms\n/);
     // the player's flags, then (1.1.0) the hearts'
-    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\nthe offhand: hungerbar look hud \[--totem on\|off\]\nthe sky: hungerbar look hud \[--agents off\|allays\|bees\]\nthe pickaxe: hungerbar look hud \[--pickaxe tiers\|plain\]\n$/);
+    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\nthe totem: hungerbar look hud \[--totem on\|off\]; your resets: hungerbar totem\nthe sky: hungerbar look hud \[--agents off\|allays\|bees\]\nthe pickaxe: hungerbar look hud \[--pickaxe tiers\|plain\]\n$/);
     // no user name found here: said so
     assert.match(w.run(['look'], { ...noGh, HUNGERBAR_USER: '\x1b[31m' }).stdout, /\nhud\.user user@host, but no user name is found here, so none shows\n/);
     r = w.run(['look', 'hud', '--op', 'off', '--user', 'off'], noGh);
@@ -1334,8 +1334,8 @@ test('look hud --ultra and --poison: a backup, --print, what they show, the way 
     assert.doesNotMatch(r.stdout, /hud\.bed /, 'only what changed is noted');
     // look with no argument: the summary after the player's, and the flags after the player's line
     r = w.run(['look'], noGh);
-    assert.match(r.stdout, /\nhud\.bed on: [^\n]*\nhud\.ultra off: [^\n]*hud\.poison on: [^\n]*\nhud\.totem on: [^\n]*\nhud\.agents bees: [^\n]*\nhud\.pickaxe tiers: [^\n]*\nswitch with: /);
-    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\nthe offhand: hungerbar look hud \[--totem on\|off\]\nthe sky: hungerbar look hud \[--agents off\|allays\|bees\]\nthe pickaxe: hungerbar look hud \[--pickaxe tiers\|plain\]\n$/);
+    assert.match(r.stdout, /\nhud\.bed on: [^\n]*\nhud\.ultra off: [^\n]*hud\.poison on: [^\n]*\nthe offhand: [^\n]*\nhud\.totem on: [^\n]*\nhud\.agents bees: [^\n]*\nhud\.pickaxe tiers: [^\n]*\nswitch with: /);
+    assert.match(r.stdout, /\nthe player: hungerbar look hud \[--user off\|user\|user@host\] \[--op off\|tag\|gold\] \[--bed on\|off\] \[--phantoms on\|off\]\nthe hearts: hungerbar look hud \[--ultra on\|off\] \[--poison on\|off\]\nthe totem: hungerbar look hud \[--totem on\|off\]; your resets: hungerbar totem\nthe sky: hungerbar look hud \[--agents off\|allays\|bees\]\nthe pickaxe: hungerbar look hud \[--pickaxe tiers\|plain\]\n$/);
     const d = w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' });
     assert.equal(d.status, 0, d.stderr);
     assert.match(d.stdout.slice(d.stdout.indexOf('\nLook\n')), / {2}· {5}hud\.ultra off: a grey \? [^\n]*; hud\.poison on: [^\n]*\n/);
@@ -1423,9 +1423,11 @@ test('--totem: the writer, the checks, what it shows; histFiles and shownFiles s
   assert.deepEqual(mergeLook({}, { look: 'hud', totem: 'off', ultra: 'off', bed: 'off' }).hud, { bed: 'off', ultra: 'off', totem: 'off' }, 'the writer\'s order: last');
   assert.deepEqual(choiceOptions({ look: 'hud', totem: 'off' }), ['totem off']);
   const cfg = (totem: 'on' | 'off'): Config => ({ ...defaults(), hud: { ...defaults().hud, totem } });
-  assert.equal(offhandSummary(cfg('on')), 'hud.totem on: the Totem of Undying while extra credits are left: in hotbar slot 5, in the offhand while a limit is at 10% or less, popping for 30 s when one hits 0; the emerald counts dollars past $99 (◆250, ◆ 1k), an old count is grey, and the frame stays grey when the credits are out');
-  assert.equal(offhandSummary(cfg('off')), 'hud.totem off: no totem; the emerald counts dollars past $99 (◆250, ◆ 1k), an old count is grey, and the frame stays grey when the credits are out');
-  assert.deepEqual(playerNotes({ look: 'hud', totem: 'off' }, cfg('off'), {}), [offhandSummary(cfg('off'))]);
+  // 1.2.0: the offhand's line keeps the emerald's fixes; the totem has its own line, the limit resets declared (SPEC §0.13)
+  assert.equal(offhandSummary(), 'the offhand: the emerald counts dollars past $99 (◆250, ◆ 1k), an old count is grey, and the frame stays grey when the credits are out');
+  assert.equal(totemSummary(cfg('on'), NOW), 'hud.totem on: no limit resets declared; hungerbar totem <n> [--until <date>] when Anthropic gives you one');
+  assert.equal(totemSummary(cfg('off'), NOW), 'hud.totem off: no totem drawn; no limit resets declared');
+  assert.deepEqual(playerNotes({ look: 'hud', totem: 'off' }, cfg('off'), {}, NOW), [totemSummary(cfg('off'), NOW)]);
   assert.deepEqual(playerNotes({ look: 'hud', poison: 'off' }, cfg('on'), {}).length, 1, 'only what was set');
   const w = world(null);
   try {
@@ -1445,18 +1447,18 @@ test('look hud --totem off: a backup, what it shows, the way back; look with no 
     let r = w.run(['look', 'hud', '--totem', 'off'], noGh);
     assert.equal(r.status, 0, r.stderr);
     assert.match(r.stdout, /Back with: hungerbar look hud --totem on\n/);
-    assert.match(r.stdout, /\nhud\.totem off: no totem; the emerald counts dollars past \$99/);
+    assert.match(r.stdout, /\nhud\.totem off: no totem drawn; no limit resets declared\n/);
     assert.doesNotMatch(r.stdout, /hud\.ultra /, 'only what changed is noted');
     assert.equal(w.text(), '{\n  "look": "hud",\n  "hud": {\n    "totem": "off"\n  }\n}\n');
     r = w.run(['look'], noGh);
-    assert.match(r.stdout, /\nhud\.totem off: no totem; [^\n]*\nhud\.agents bees: [^\n]*\nhud\.pickaxe tiers: [^\n]*\nswitch with: /);
+    assert.match(r.stdout, /\nthe offhand: the emerald counts dollars past \$99 [^\n]*\nhud\.totem off: no totem drawn; no limit resets declared\nhud\.agents bees: [^\n]*\nhud\.pickaxe tiers: [^\n]*\nswitch with: /);
     const d = w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' });
     assert.equal(d.status, 0, d.stderr);
     const look = d.stdout.slice(d.stdout.indexOf('\nLook\n'));
-    assert.match(look, / {2}· {5}hud\.totem off: no totem; [^\n]*\n/);
+    assert.match(look, / {2}· {5}the offhand: the emerald [^\n]*\n {2}· {5}hud\.totem off: no totem drawn; no limit resets declared\n {2}· {5}hud\.agents /);
     assert.doesNotMatch(look, /shown-file/, 'the totem off and no shown-file: no count');
     r = w.run(['look', 'hud', '--totem', 'on'], noGh);
-    assert.match(r.stdout, /\nhud\.totem on: the Totem of Undying while extra credits are left: /);
+    assert.match(r.stdout, /\nhud\.totem on: no limit resets declared; hungerbar totem <n> \[--until <date>\] when Anthropic gives you one\n/);
     assert.match(w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' }).stdout, / {2}· {5}0 shown-file\(s\) there, /);
   } finally {
     w.cleanup();
@@ -1569,7 +1571,7 @@ test('look hud --agents and --pickaxe: what they show, the way back; look with n
     // look with no argument: the summaries after the offhand's, and the flags on their own lines after the offhand's
     r = w.run(['look'], noGh);
     assert.match(r.stdout, /\nhud\.totem on: [^\n]*\nhud\.agents allays: [^\n]*\nhud\.pickaxe plain: [^\n]*\nswitch with: /);
-    assert.match(r.stdout, /\nthe offhand: hungerbar look hud \[--totem on\|off\]\nthe sky: hungerbar look hud \[--agents off\|allays\|bees\]\nthe pickaxe: hungerbar look hud \[--pickaxe tiers\|plain\]\n$/);
+    assert.match(r.stdout, /\nthe totem: hungerbar look hud \[--totem on\|off\]; your resets: hungerbar totem\nthe sky: hungerbar look hud \[--agents off\|allays\|bees\]\nthe pickaxe: hungerbar look hud \[--pickaxe tiers\|plain\]\n$/);
     const d = w.run(['doctor'], { ...noGh, HUNGERBAR_NOW: String(NOW), FORCE_COLOR: '3' });
     assert.equal(d.status, 0, d.stderr);
     const look = d.stdout.slice(d.stdout.indexOf('\nLook\n'));
@@ -1648,4 +1650,65 @@ test('help names the agents\' and the pickaxe\'s flags of look, setup and previe
   assert.equal(r.status, 0);
   assert.equal(r.stdout.split('\n').filter((l) => l.trim() === '[--agents off|allays|bees] [--pickaxe tiers|plain]').length, 3);
   assert.ok(r.stdout.includes('--situation normal|tight|fresh|extra|fable|agents|all'));
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// 1.2.0: the totem is your limit reset (SPEC §0.13): look's and doctor's lines, doctor's warnings, the help
+// ---------------------------------------------------------------------------------------------------------------------
+
+test('totemSummary: hud.totem and the limit resets held at now, in brief; an expired grant is none', () => {
+  const at = (y: number, m: number, d: number): number => new Date(y, m - 1, d, 23, 59, 59).getTime() / 1000;
+  const cfg = (totem: 'on' | 'off', totems: Config['totems']): Config => ({ ...defaults(), hud: { ...defaults().hud, totem }, totems });
+  const one = { n: 1, kind: 'full' as const, until: at(2026, 12, 1), at: null, label: null };
+  assert.equal(totemSummary(cfg('on', [one]), NOW),
+    'hud.totem on: 1 limit reset held (a full reset, use by 2026-12-01 23:59): the totem in hotbar slot 5, in the offhand while a limit it refills is at 10% or less; hungerbar totem to change it');
+  assert.equal(totemSummary(cfg('on', [one, { ...one, n: 2, kind: 'week', until: null }]), NOW),
+    'hud.totem on: 3 limit resets held (1 full, 2 weekly; the first use by 2026-12-01 23:59): the totem in hotbar slot 5, in the offhand while a limit it refills is at 10% or less; hungerbar totem to change it');
+  assert.equal(totemSummary(cfg('off', [one]), NOW), 'hud.totem off: no totem drawn; 1 limit reset held (a full reset, use by 2026-12-01 23:59); hungerbar look hud --totem on draws it');
+  assert.equal(totemSummary(cfg('on', [{ ...one, until: NOW }]), NOW), totemSummary(cfg('on', []), NOW), 'expired: none');
+});
+
+test("look and doctor (1.2.0): the totem's line with the resets declared; doctor warns about expired and unreadable grants, a 5-hour reset with no 5-hour window, a Fable reset it cannot see", () => {
+  const until = new Date(2026, 11, 1, 23, 59, 59).toISOString();
+  const totems = [{ n: 1, until }, { n: 1, kind: '5h' }, { n: 2, kind: 'fable' }, { n: 1, until: '2026-01-01T00:00:00Z' }, { n: 0 }, { n: 1, kind: 'monthly' }];
+  const w = world(JSON.stringify({ look: 'hud', totems }));
+  try {
+    const noGh = { PATH: join(w.dir, 'no-bin'), HUNGERBAR_NOW: String(NOW) };
+    const r = w.run(['look'], noGh);
+    assert.match(r.stdout, /\nhud\.totem on: 4 limit resets held \(1 full, 1 5-hour, 2 Fable; the first use by 2026-12-01 23:59\): the totem in hotbar slot 5, [^\n]*; hungerbar totem to change it\n/);
+    const acct = acctDir(w.env);
+    mkdirSync(acct, { recursive: true });
+    writeFileSync(join(acct, 'limits.json'), JSON.stringify({ v: 1, five_hour: null, seven_day: { pct: 40, resets_at: NOW + 9999 }, at: NOW, fiveHourNone: true }));
+    const before = w.snapshot();
+    const d = w.run(['doctor'], { ...noGh, FORCE_COLOR: '3' });
+    assert.equal(d.status, 0, d.stderr);
+    const look = d.stdout.slice(d.stdout.indexOf('\nLook\n'));
+    assert.match(look, / {2}· {5}hud\.totem on: 4 limit resets held [^\n]*\n {2}warn {2}1 limit reset grant in hungerbar\.json expired and is ignored; the next hungerbar totem write removes it\n/);
+    assert.match(look, /\n {2}warn {2}2 entries of totems in hungerbar\.json could not be read and are ignored: each needs n from 1 to 99, a kind of full, 5h, week or fable, and an until that is a date \(at most 16 entries are read\)\n/);
+    assert.match(look, /\n {2}warn {2}a 5-hour reset is held, but this account has no 5-hour window \(limits\.json\), so it can never move the totem\n/);
+    assert.match(look, /\n {2}warn {2}a Fable reset is held, but Hungerbar cannot see Fable's weekly without network\.usageApi and network\.scopedWeekly, so it never moves the totem for it\n {2}· {5}hud\.agents /);
+    assert.deepEqual(w.snapshot(), before, 'doctor writes nothing');
+    // the usage API with scopedWeekly, a 5-hour window, nothing expired or unreadable: no warning
+    writeFileSync(w.cfg, JSON.stringify({ look: 'hud', totems: totems.slice(0, 3), network: { usageApi: true, scopedWeekly: true } }));
+    writeFileSync(join(acct, 'limits.json'), JSON.stringify({ v: 1, five_hour: { pct: 3, resets_at: NOW + 99 }, seven_day: null, at: NOW }));
+    const ok = w.run(['doctor'], { ...noGh, FORCE_COLOR: '3' }).stdout;
+    assert.doesNotMatch(ok.slice(ok.indexOf('\nLook\n')), /reset is held|expired and|could not be read and/);
+    // an unreadable hungerbar.json: no count of its entries
+    writeFileSync(w.cfg, '{"totems": [');
+    assert.doesNotMatch(w.run(['doctor'], { ...noGh, FORCE_COLOR: '3' }).stdout, /entr(y|ies) of totems/);
+  } finally {
+    w.cleanup();
+  }
+});
+
+test('help names the totem command and its forms, with all four kinds', () => {
+  const r = runDist('', { PATH: process.env.PATH ?? '' }, ['--help']);
+  assert.equal(r.status, 0);
+  const lines = r.stdout.split('\n');
+  const i = lines.findIndex((l) => l.startsWith('  hungerbar totem '));
+  assert.ok(i > lines.findIndex((l) => l.startsWith('  hungerbar refresh usage ')), 'after refresh usage');
+  assert.equal(lines[i], '  hungerbar totem [<n> [--until <date>] [--kind full|5h|week|fable] | add [<n>] … | use | clear] [--print]');
+  assert.equal(lines[i + 1], "                                 the limit resets Anthropic gave you, as the HUD's Totem of Undying (hungerbar.json)");
+  for (const k of ['full', '5h', 'week', 'fable']) assert.ok(lines[i]!.includes(k), k);
+  for (const f of ['add', 'use', 'clear', '--print', '--until']) assert.ok(lines[i]!.includes(f), f);
 });

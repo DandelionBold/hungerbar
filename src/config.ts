@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { claudeDir, flag, offline, type Env } from './env.ts';
+import { parseTotems, type TotemGrant } from './totems.ts';
 
 export const ITEM_IDS = ['model', 'effort', 'context', 'git', 'limit5h', 'limitWeek', 'scopedWeek', 'cache', 'extra', 'cwd', 'version'] as const;
 export type ItemId = (typeof ITEM_IDS)[number];
@@ -86,6 +87,12 @@ export interface Config {
     fable: HudFable; minWidth: number; align: HudAlign; pr: HudPr; user: HudUser; op: HudOp; bed: HudSwitch; phantoms: HudSwitch; ultra: HudSwitch; poison: HudSwitch;
     totem: HudSwitch; agents: HudAgents; pickaxe: HudPickaxe;
   };
+  /**
+   * The limit resets you declared (SPEC §0.13, 1.2.0): hungerbar.json's `totems`, read strictly by src/totems.ts
+   * parseTotems (an entry that is not one is ignored, and doctor counts it). Expired grants are kept here and count as
+   * none at render time (held); `hungerbar totem` writes the key and drops them.
+   */
+  totems: TotemGrant[];
 }
 
 /**
@@ -115,6 +122,7 @@ export function defaults(): Config {
       fable: 'boss', minWidth: 80, align: 'center', pr: 'off', user: 'user', op: 'gold', bed: 'on', phantoms: 'on', ultra: 'on', poison: 'on', totem: 'on', agents: 'bees',
       pickaxe: 'tiers',
     },
+    totems: [],
   };
 }
 
@@ -189,6 +197,7 @@ export function merge(raw: unknown): Config {
       ultra: oneOf(hud.ultra, HUD_SWITCHES, d.hud.ultra), poison: oneOf(hud.poison, HUD_SWITCHES, d.hud.poison), totem: oneOf(hud.totem, HUD_SWITCHES, d.hud.totem),
       agents: oneOf(hud.agents, HUD_AGENTS, d.hud.agents), pickaxe: oneOf(hud.pickaxe, HUD_PICKAXES, d.hud.pickaxe),
     },
+    totems: parseTotems(raw.totems).grants,
   };
 }
 

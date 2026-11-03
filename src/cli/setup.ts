@@ -10,8 +10,9 @@ import { join } from 'node:path';
 import { isatty } from 'node:tty';
 import { pathToFileURL } from 'node:url';
 import { applyEnv, loadConfig, merge } from '../config.ts';
-import { claudeDir, flag, slash, type Env } from '../env.ts';
+import { claudeDir, flag, nowSec, slash, type Env } from '../env.ts';
 import { cacheDir, readJson, readOnly, writeAtomic, writeJson } from '../store.ts';
+import { held } from '../totems.ts';
 import { optionError, parseArgs, say } from './args.ts';
 import { iconSummary, icons, parseStyle } from './icons.ts';
 import {
@@ -135,6 +136,8 @@ function refuseReadOnly(f: SettingsFile): string | null {
 const canAsk = (env: Env): boolean => (isatty(0) && isatty(1)) || flag(env, 'HUNGERBAR_SETUP_TTY');
 
 export const HUD_HINT = 'Minecraft HUD: hungerbar look hud [--fable boss] [--pr on]';
+/** Said after a setup that leaves the HUD with hud.totem on and no limit reset declared (SPEC §0.13, 1.2.0). */
+export const TOTEM_HINT = 'Got a limit reset from Anthropic (Settings → Usage)? hungerbar totem 1 --until <date> puts it in the HUD as the Totem of Undying.';
 
 // look.ts imports this module, so its option names are read when setup runs, not when this module loads
 const setupValued = (): string[] => ['node', 'icons', 'look', ...HUD_OPTION_NAMES];
@@ -296,6 +299,9 @@ export async function setup(argv: string[], env: Env, self: string): Promise<num
   }
   if (plan && !plan.changed) say(`look: ${[plan.choice.look, ...choiceOptions(plan.choice)].join(', ')}, unchanged`);
   say('Claude Code picks the new command up on its next render. Undo with: hungerbar setup --restore');
+  // 1.2.0: the HUD with the totem on and no limit reset declared: how to declare one (SPEC §0.13)
+  const done = plan ? { cfg: applyEnv(merge(plan.next), env), error: null } : loadConfig(env);
+  if (!done.error && done.cfg.look === 'hud' && done.cfg.hud.totem === 'on' && held(done.cfg.totems, nowSec(env)).count === 0) say(TOTEM_HINT);
   hint();
   if (cfgFailed) {
     say('The status line is set up; only the look could not be written (see above).');

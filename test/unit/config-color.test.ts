@@ -8,6 +8,7 @@ import {
   applyEnv, defaults, fableId, HUD_AGENTS, HUD_ALIGNS, HUD_FABLES, HUD_OPS, HUD_PICKAXES, HUD_PRS, HUD_SWITCHES, HUD_USERS, loadConfig, merge, prEnabled, usageEnabled,
 } from '../../src/config.ts';
 import { FABLE_IDS } from '../../src/hud/fable.ts';
+import { LABEL_CAP, MAX_GRANTS, MAX_N, TOTEM_KINDS } from '../../src/totems.ts';
 
 test('merge keeps defaults for wrong types and drops unknown items', () => {
   const c = merge({ icons: 'emoji', bold: 'yes', bar: { width: 3 }, thresholds: { warn: 60, crit: 50 }, lines: [['model', 'nope', 'cwd'], 'x', ['version']], extra: 1 });
@@ -197,6 +198,14 @@ test('schema.json has every config key, and look and hud as config.ts reads them
   assert.deepEqual([hud.agents.enum, hud.agents.default], [[...HUD_AGENTS], defaults().hud.agents]);
   assert.deepEqual([hud.pickaxe.enum, hud.pickaxe.default], [[...HUD_PICKAXES], defaults().hud.pickaxe]);
   assert.deepEqual(Object.keys(hud).sort(), Object.keys(defaults().hud).sort(), 'every hud key');
+  // 1.2.0: the limit resets you declare, as src/totems.ts reads them
+  const t = schema.properties.totems;
+  assert.deepEqual([t.type, t.maxItems, t.items.required], ['array', MAX_GRANTS, ['n']]);
+  const it = t.items.properties;
+  assert.deepEqual([it.n.type, it.n.minimum, it.n.maximum], ['integer', 1, MAX_N]);
+  assert.deepEqual([it.kind.enum, it.kind.default], [[...TOTEM_KINDS], 'full']);
+  assert.deepEqual([it.until.format, it.at.format, it.label.maxLength], ['date-time', 'date-time', LABEL_CAP]);
+  assert.deepEqual(Object.keys(it).sort(), ['at', 'kind', 'label', 'n', 'until']);
 });
 
 test('bgParams: the HUD background at 24-bit and 256 colours', () => {

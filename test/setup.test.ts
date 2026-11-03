@@ -1287,3 +1287,33 @@ test('the setup prompt (1.1.0): the agents at work, asked last, each look previe
     g.cleanup();
   }
 });
+
+test("setup's closing line (1.2.0): how to declare a limit reset, only when the look is the HUD, hud.totem on and none is declared", () => {
+  const LINE = 'Got a limit reset from Anthropic (Settings → Usage)? hungerbar totem 1 --until <date> puts it in the HUD as the Totem of Undying.\n';
+  const w = world(ORIGINAL);
+  try {
+    const cfg = join(w.claude, 'hungerbar.json');
+    const env = { ...w.env, PATH: join(w.dir, 'no-bin'), HUNGERBAR_NOW: '1792859460' };
+    const run = (...args: string[]) => runDist('', env, ['setup', ...args]);
+    let r = run();
+    assert.equal(r.status, 0, r.stderr);
+    assert.ok(r.stdout.includes('Undo with: hungerbar setup --restore\n' + LINE), r.stdout);
+    assert.ok(!run('--print').stdout.includes(LINE), '--print writes nothing and says nothing of it');
+    for (const [file, want] of [
+      ['{"look": "classic"}', false],
+      ['{"hud": {"totem": "off"}}', false],
+      ['{"totems": [{"n": 1}]}', false],
+      ['{"totems": [{"n": 1, "until": "2026-01-01T00:00:00Z"}, {"n": 0}]}', true],
+      ['{"totems": [', false],
+    ] as const) {
+      writeFileSync(cfg, file);
+      r = run();
+      assert.equal(r.stdout.includes(LINE), want, file);
+    }
+    writeFileSync(cfg, '{"look": "classic"}');
+    assert.ok(run('--look', 'hud').stdout.includes(LINE), 'the look the flags set');
+    assert.ok(!run('--look', 'classic').stdout.includes(LINE));
+  } finally {
+    w.cleanup();
+  }
+});

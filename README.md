@@ -385,6 +385,7 @@ The file is strict JSON. Unknown keys are ignored, and a value that is not allow
 | `hud.totem` | `on` | `on`, `off` | the [totem](#the-totem-and-the-emerald) in hotbar slot 5 while you have credits, in the offhand while a limit is at 10% or less, popping for 30 s when one hits 0 |
 | `hud.agents` | `bees` | `bees`, `allays`, `off` | [your agents at work](#your-agents-at-work) in line 1's sky; `off` never reads the subagents folder |
 | `hud.pickaxe` | `tiers` | `tiers`, `plain` | the [pickaxe and its numeral](#the-pickaxes-material) in the model's tool tier, or 1.0's colours |
+| `totems` | none | a list of `{n, kind, until, at, label}` | the [limit resets](#commands) Anthropic gave you, written by `hungerbar totem`: `n` 1 to 99, `kind` `full` (the default), `5h`, `week` or `fable`, `until` when it expires; an expired one is ignored |
 
 **Both looks**
 
@@ -449,6 +450,9 @@ hungerbar look [classic|hud]   show or switch the look; --fable, --align, --pr, 
 hungerbar preview              draw sample situations (normal, tight, fresh, extra, fable, agents); writes nothing
 hungerbar doctor [--bench]     check the install and time a render
 hungerbar refresh usage        ask the usage API now and print what came back (when network.usageApi is on)
+hungerbar totem [<n>|add|use]  the limit resets Anthropic gave you (Settings → Usage → Resets), which Hungerbar
+                               cannot see itself; clear forgets them; --until <date>, --kind full|5h|week|fable,
+                               --label <text>; --print shows the change and writes nothing
 hungerbar glyphs [--hud]       a width ruler for the icons, to check your terminal's font
 hungerbar icons [plain|colour] show or switch the icon style (a Windows Terminal font setting)
 hungerbar --help, --version
@@ -461,9 +465,13 @@ hungerbar look                                  # the look, its options, and whe
 hungerbar look hud --fable boss --pr on         # the boss bar and the PR status (each says first what it uses)
 hungerbar preview --look hud --situation all    # every sample situation in the HUD
 hungerbar preview --align center --width 120    # the HUD centred in a 120-column window
+hungerbar totem 1 --until 2026-12-01            # you hold one limit reset, to use by the end of 1 December
+hungerbar totem use                             # you used it (Settings → Usage → Reset for free, or /limit-reset)
 ```
 
 `look` changes only `hungerbar.json`, after a backup next to it (`hungerbar.json.bak.<timestamp>`), and keeps every other key in its place. Each change prints the way back. Claude Code draws the new look on its next render.
+
+`totem` tells Hungerbar about your limit resets, because Claude Code does not pass them to status lines. A reset sets your usage limits back to full whenever you choose; Anthropic gives them now and then, and Settings → Usage → Resets shows yours with its expiry. `hungerbar totem 1 --until 2026-12-01` says you hold one, to use by the end of that day (`--until` also takes `2026-12-01T18:00` in local time, the same with `Z` or `+02:00`, or `+7d` and `+12h`); `--kind` says which limits it refills: `full` (the 5-hour window, the week and Fable's weekly, the default), `5h`, `week` or `fable`. `hungerbar totem <n>` replaces what you held, `add` adds a grant with its own expiry, `use` takes one off (the one that expires first), and `clear` forgets them all. `hungerbar totem` alone says what you hold. A reset that expires is dropped by itself. Like `look`, it changes only the `totems` key of `hungerbar.json`, after a backup, and prints the way back. `use` also makes Hungerbar forget the last limits it saved for the windows the reset refilled, so the refill shows at once. Hungerbar never uses a reset for you: you do, in Settings → Usage → "Reset for free" (claude.ai or Claude Desktop), or with `/limit-reset` where your Claude Code has it.
 
 ## The classic look
 
@@ -500,7 +508,7 @@ Hungerbar runs on your machine and keeps what it learns there. Two features use 
 - Your git repo's files: `.git/HEAD` and its refs, when the index last changed, `.git/logs/HEAD` for the terrain, the files git keeps during a merge, rebase or cherry-pick, and, with the PR status on, `.git/config` to see whether a remote is on GitHub. A background refresher runs `git diff HEAD --shortstat` and, for the HUD, `git status --porcelain=v2 --branch`.
 - Your user name and computer name from the system, and whether Claude Code runs elevated.
 - Environment variables: the ones under [Configuration](#configuration), `CLAUDE_CONFIG_DIR`, `CLAUDE_CODE_EFFORT_LEVEL` (when Claude Code passes no effort), `PATH` (to find git and `gh`), `GIT_CEILING_DIRECTORIES` and `GH_HOST`; the terminal's `COLUMNS`, `TERM`, `COLORTERM`, `WT_SESSION` and `TERM_PROGRAM`; the system's folders and names, such as `LOCALAPPDATA` and `USERNAME`; in `doctor`, `CLAUDE_CODE_GIT_BASH_PATH` and `SHELL`; and the `HUNGERBAR_*` variables the tests use.
-- `~/.claude/hungerbar.json`, and its own cache folder (below).
+- `~/.claude/hungerbar.json` (with the limit resets you declared in its `totems` key), and its own cache folder (below).
 - `~/.claude/settings.json`, in `setup`, `doctor` and `look` (`look` only to say whether Claude Code runs Hungerbar yet). Windows Terminal's `settings.json`, in `setup`, `icons` and `doctor`.
 - In `doctor`: the command lines of running processes, to find leftover Hungerbar refreshers: on Windows those of `node.exe`, `git.exe` and `gh.exe`, on Linux every process's (from `/proc`), on macOS every process's (from `ps`). It shows only the leftovers.
 - With the usage API on: your Claude login token, which its background refresher reads from `CLAUDE_CODE_OAUTH_TOKEN`, else `~/.claude/.credentials.json`, else the macOS Keychain; and `HTTPS_PROXY` (or `https_proxy`), to send the refresher's request through your proxy and, in `doctor`, to say so. See the usage API below.
@@ -509,7 +517,7 @@ Hungerbar runs on your machine and keeps what it learns there. Two features use 
 
 - Its cache folder: `%LOCALAPPDATA%\hungerbar` on Windows, `~/Library/Caches/hungerbar` on macOS, `$XDG_CACHE_HOME/hungerbar` or `~/.cache/hungerbar` on Linux. It holds small JSON files: the git answers, the last known limits, the usage API's answer, the PR answers, the HUD's terrain history, the totem's memory (what the HUD last drew, one small file per session, so it sees when a limit hits 0), the transcript counts (with the times of the newest agent files, while the session uses agents) and, after `setup`, your previous status line (and, with `setup --launcher`, `statusline.cmd`). Terrain histories, the totem's files, transcript counts and PR answers untouched for a week are deleted (checked at most once a day).
 - `settings.json` (only the `statusLine` key, with a backup) when you run `setup` or `setup --restore`.
-- `hungerbar.json` (with a backup) when you run `setup` or `look`.
+- `hungerbar.json` (with a backup) when you run `setup`, `look` or `totem`. `totem use` also rewrites the last known limits in the cache folder, forgetting the windows the reset refilled.
 - Windows Terminal's `settings.json` (only the font face, with a backup) when you run `icons plain` or `icons colour`, or `setup --icons plain` or `setup --icons colour`.
 - For `doctor`'s timed render, a throwaway cache folder in your temp folder, deleted when it is done.
 - With `HUNGERBAR_CAPTURE=<dir>` set, one payload per Claude Code version in that folder, and, with the usage API on, the day's latest usage answer (only its `extra_usage` and `limits`).
@@ -615,6 +623,8 @@ It checks Node, Git Bash, the `statusLine` command in `settings.json`, your `hun
 | `cfg!` in the classic lines | `hungerbar.json` is not valid JSON. `doctor` names the error. |
 | No boss bar or Fable note | The usage API is off. Run `hungerbar look hud --fable boss`, or turn on `network.usageApi` and `network.scopedWeekly`. |
 | No pull request badge | `hud.pr` is off, `gh` is missing or not logged in (`gh auth status`), or the repo has no remote on GitHub. `hungerbar look` says whether `hud.pr` is on and `gh` is found. |
+| `hungerbar look` still counts a limit reset you used | Run `hungerbar totem use` after you use one; Hungerbar cannot see your resets. A reset that expires is dropped by itself. |
+| A dimmed `~` limit shows the old use after you used a reset | `hungerbar totem use` makes Hungerbar forget the last limits it saved for the windows the reset refilled, so the next render shows `?` until Claude Code sends the new ones. Fable's weekly comes from the usage API, not from that file: it refreshes within 3 minutes after `hungerbar totem use` (a `fable` or `full` reset). |
 | Lines cut off with `…` | Your `statusLine.padding` is not 0. Set `widthReserve` to twice it; `doctor` warns until you do. |
 | Icons too wide or misaligned | `hungerbar glyphs --hud` shows each glyph's width in your terminal. Try `hungerbar icons plain`. |
 | `hungerbar error (run hungerbar doctor)` | The render failed. Run `claude --debug` to see Hungerbar's error on stderr, and please [open an issue](https://github.com/DandelionBold/hungerbar/issues). |

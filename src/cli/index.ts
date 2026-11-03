@@ -8,6 +8,7 @@ import { look } from './look.ts';
 import { mirror } from './mirror.ts';
 import { preview } from './preview.ts';
 import { setup } from './setup.ts';
+import { totem } from './totem.ts';
 
 const HELP = `hungerbar ${VERSION}: a Claude Code status line (limits drain and refill like a Minecraft hunger bar)
 
@@ -27,6 +28,8 @@ usage:
   hungerbar glyphs [--hud]       width ruler for the icons (--hud: the Minecraft HUD's)
   hungerbar doctor [--bench]     checks the install and times a render
   hungerbar refresh usage        asks the usage API now and prints what came back (network.usageApi)
+  hungerbar totem [<n> [--until <date>] [--kind full|5h|week|fable] | add [<n>] … | use | clear] [--print]
+                                 the limit resets Anthropic gave you, as the HUD's Totem of Undying (hungerbar.json)
   hungerbar setup [--print] [--launcher] [--node <path>] [--icons plain|colour]
                   [--look classic|hud] [--fable off|tail|tooltip|boss|beacon] [--align left|center]
                   [--pr on|off] [--user off|user|user@host] [--op off|tag|gold] [--bed on|off] [--phantoms on|off]
@@ -47,6 +50,7 @@ export async function runCli(args: string[], env: Env, self: string): Promise<nu
     case 'doctor': return doctor(rest, env, self);
     case 'setup': return setup(rest, env, self);
     case 'mirror': return mirror(rest, self);
+    case 'totem': return totem(rest, env, self);
     case 'icons': return icons(rest, env);
     case 'version': case '--version': case '-v':
       say(VERSION);
