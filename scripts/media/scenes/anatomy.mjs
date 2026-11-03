@@ -55,7 +55,7 @@ export const ALSO = [
 ];
 
 export async function anatomy(rig) {
-  normalDay(rig, { clean: true, talk: false, config: { hud: { pr: 'on', align: 'left' }, totems: [{ n: 1, kind: 'full', until: new Date((T0 + 30 * 86400) * 1000).toISOString() }] } });
+  normalDay(rig, { clean: true, talk: false, config: { hud: { pr: 'on', align: 'left' } } });
   rig.mustGit('checkout', '-q', '-b', 'feature/cache');
   rig.write('src/cache.js', file(lines(40, 'cache')));
   rig.mustGit('add', '-A');

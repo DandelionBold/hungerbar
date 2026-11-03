@@ -3,15 +3,16 @@
 // the sandbox: fable.gif (the four Fable options), git.gif (the git state, from real git operations), pr.gif (the pull
 // request badge), center.gif (the window narrowing and widening), idle.gif (the bed and the phantoms), frame.gif (the
 // hotbar's frame and the offhand's) and classic.png (the classic look).
-import { T0 } from '../rig.mjs';
+import { ONE_RESET, T0 } from '../rig.mjs';
 
 const lines = (n, tag) => Array.from({ length: n }, (_, i) => `export const ${tag}${i} = ${i};`);
 const file = (ls) => ls.join('\n') + '\n';
 
 /**
  * The normal day: a repo whose diff is +1208 -279 (or none with `clean`), 42 prompts with the last reply 48 s ago, the
- * README's terrain, and the usage file with ◆ 50 and Fable at 38% left (full again in 2d05h). `talk: false` leaves the
- * transcript empty, for a caller that writes its own.
+ * README's terrain, the usage file with ◆ 50 and Fable at 38% left (full again in 2d05h), and one limit reset declared
+ * (1.2.0: the totem waits in slot 5, as the demos hold one). `talk: false` leaves the transcript empty, for a caller that
+ * writes its own.
  */
 export function normalDay(rig, { clean = false, config = {}, talk = true } = {}) {
   rig.mustGit('init', '-q', '-b', 'main');
@@ -25,7 +26,7 @@ export function normalDay(rig, { clean = false, config = {}, talk = true } = {})
     for (let i = 0; i < 42; i++) rig.prompt(T0 - 5400 + i * 120);
     rig.reply(T0 - 48);
   }
-  rig.setConfig({ network: { usageApi: true, scopedWeekly: true }, hud: { pr: 'on' }, ...config });
+  rig.setConfig({ network: { usageApi: true, scopedWeekly: true }, hud: { pr: 'on' }, totems: ONE_RESET, ...config });
   rig.setUsage(T0, { fable: { pct: 62, resets_at: T0 + 190800 } });
   rig.seedHistory(T0, 'main', [[6, 241, 101, 0], [5, 455, 160, 0], [4, 640, 220, 0], [3, 667, 231, 1], [2, 140, 40, 0], [1, 520, 120, 0], [0, 1208, 279, 0]]);
 }
@@ -43,7 +44,7 @@ export async function fable(rig) {
   normalDay(rig);
   const frames = [];
   for (const [opt, onFable, onOpus] of FABLE) {
-    rig.setConfig({ network: { usageApi: true, scopedWeekly: true }, hud: { pr: 'on', fable: opt } });
+    rig.setConfig({ network: { usageApi: true, scopedWeekly: true }, hud: { pr: 'on', fable: opt }, totems: ONE_RESET });
     frames.push({ status: rig.render(day(rig, { model: 'fable' }), { now: T0 }), caption: { at: `hud.fable ${opt}`, text: onFable }, hold: 2.1 });
     frames.push({ status: rig.render(day(rig), { now: T0 }), caption: { at: `hud.fable ${opt}`, text: onOpus }, hold: 1.3 });
   }
@@ -216,8 +217,9 @@ export async function idle(rig) {
 
 // ---------- frame.gif ----------
 /**
- * The hotbar's frame, and the offhand's: the 5-hour limit used up makes the totem pop there between gold sides for 30 s
- * (the render before saw the limit above 0), then the extra credits pay and the offhand's frame turns green.
+ * The hotbar's frame, and the offhand's: the 5-hour limit used up makes the totem (the normal day's limit reset, 1.2.0)
+ * pop in the offhand between gold sides for 30 s (the render before saw the limit above 0); then the extra credits pay,
+ * the totem stays gold, and the emerald in slot 5 gets green sides.
  */
 export async function frame(rig) {
   normalDay(rig);
@@ -225,7 +227,7 @@ export async function frame(rig) {
   const usedUp = (now) => rig.payload({ now, h5: { used: 100, reset: T0 + 2400 - now } });
   frames.push({ status: rig.render(day(rig), { now: T0 }), caption: { at: 'frame', text: 'A thin edge under the hotbar: mint under the selected slot, grey under the rest' }, hold: 2.4 });
   frames.push({ status: rig.render(usedUp(T0), { now: T0 }), caption: { at: 'frame', text: 'The 5-hour limit is used up: the totem pops in the offhand for 30 seconds, and its frame turns gold' }, hold: 2.4 });
-  frames.push({ status: rig.render(usedUp(T0 + 40), { now: T0 + 40 }), caption: { at: 'frame', text: "Then the extra credits pay: the offhand's frame turns green, and poisoned hearts count the credits left" }, hold: 2.4 });
+  frames.push({ status: rig.render(usedUp(T0 + 40), { now: T0 + 40 }), caption: { at: 'frame', text: "Then the credits pay: the totem stays gold, slot 5's emerald gets green sides, and the hearts are poisoned" }, hold: 2.4 });
   return { frames, opts: { rows: 8 } };
 }
 

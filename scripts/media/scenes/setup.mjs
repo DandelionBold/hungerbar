@@ -22,7 +22,7 @@ const STEPS = [
   ['Your name in gold while Claude Code runs as Administrator', 1.3],
   ['The pull request status, through your own gh; Enter says yes', 1.6],
   ["Your agents at work in line 1's sky: bees flying home by default, allays as the calm option, or nothing", 1.6],
-  ['Done: settings.json runs Hungerbar, and hungerbar setup --restore puts the old status line back', 2.2],
+  ['Done: settings.json runs Hungerbar, setup --restore puts the old status line back, and how to declare a limit reset', 2.4],
 ];
 
 export async function setup(rig) {

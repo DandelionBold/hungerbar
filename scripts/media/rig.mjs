@@ -25,6 +25,11 @@ export const T0 = 1792859460;
 export const SHOWN = 'D:\\webapp';
 
 const iso = (s) => new Date(s * 1000).toISOString();
+/**
+ * hungerbar.json's `totems` (1.2.0, SPEC §0.13): one full limit reset, to use within 30 days of T0, as the demos hold.
+ * A scene passes it to setConfig, so the HUD carries the totem the way 1.1.0's pictures carried the credits' ☥.
+ */
+export const ONE_RESET = [{ n: 1, kind: 'full', until: iso(T0 + 30 * 86400) }];
 
 export class Rig {
   /** @param {string} dir an empty work folder for this sandbox */
@@ -62,7 +67,10 @@ export class Rig {
     };
   }
 
-  /** hungerbar.json; git.mode sync makes the render run the diff and the status itself, as the refresher would. */
+  /**
+   * hungerbar.json; git.mode sync makes the render run the diff and the status itself, as the refresher would. The
+   * object's other keys go in as they are: `totems` (ONE_RESET) declares the limit resets the HUD shows as the totem.
+   */
   setConfig(obj) {
     writeFileSync(this.config, JSON.stringify({ git: { mode: 'sync' }, ...obj }, null, 2));
   }

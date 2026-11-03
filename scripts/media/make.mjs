@@ -4,7 +4,7 @@
 //
 //   node scripts/media/make.mjs [name ...] [--work <dir>] [--keep]
 //
-// names: hero fable git pr center idle frame setup classic anatomy (default: all). Needs Microsoft Edge (EDGE=<path> to point at
+// names: hero fable git pr center idle frame setup classic anatomy totem (default: all). Needs Microsoft Edge (EDGE=<path> to point at
 // it) and ffmpeg (FFMPEG=<path>, else ffmpeg on PATH), and the fonts Windows Terminal uses: Cascadia Mono, Segoe UI
 // Emoji, Segoe UI Symbol and Yu Gothic UI. The work folder is a new hungerbar-media-* folder made inside --work's folder
 // (default: the system temp folder), so only what this script made is ever removed; it is removed afterwards unless --keep.
@@ -17,7 +17,7 @@ import { encodeGif } from './encode.mjs';
 import { REPO_ROOT, Rig } from './rig.mjs';
 import { pageHTML } from './screen.mjs';
 /** Each picture: the module that builds its frames. */
-const SCENES = { hero: 'hero', fable: 'looks', git: 'looks', pr: 'looks', center: 'looks', idle: 'looks', frame: 'looks', setup: 'setup', classic: 'looks', anatomy: 'anatomy' };
+const SCENES = { hero: 'hero', fable: 'looks', git: 'looks', pr: 'looks', center: 'looks', idle: 'looks', frame: 'looks', setup: 'setup', classic: 'looks', anatomy: 'anatomy', totem: 'totem' };
 const OUT = join(REPO_ROOT, 'docs', 'media');
 /** The frame's defaults: Cascadia Mono 16 px (WT's 12 pt at 100%), WT's padding, a caption strip, captured at 2x. */
 const BASE = { font: 16, padX: 14, padY: 10, caption: true, cols: 120, rows: 10 };

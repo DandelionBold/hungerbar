@@ -3,8 +3,9 @@
 // limits, the context and the prompt cache in the payload. Along the way: hearts and drumsticks drain, the bubbles pop
 // between prompts, the XP bar fills and /compact levels up, the terrain grows and commits turn gold, a bed during a
 // break, the moon and phantoms late in the session, the boss bar and the netherite pickaxe after switching to Fable, and
-// at the end the totem, which waits in slot 5 all along, swapping into the offhand as the 5-hour window runs low.
-import { T0 } from '../rig.mjs';
+// at the end the totem, one declared limit reset (1.2.0) that waits in slot 5 all along, moving to the offhand as the
+// 5-hour window runs low, while the emerald takes slot 5.
+import { ONE_RESET, T0 } from '../rig.mjs';
 
 const MIN = 60;
 const S = T0;                                        // the session starts here
@@ -36,7 +37,7 @@ export async function hero(rig) {
   save(base);
   rig.mustGit('add', '-A');
   rig.mustGit('commit', '-q', '-m', 'Start the app');
-  rig.setConfig({ network: { usageApi: true, scopedWeekly: true }, hud: { pr: 'on' } });
+  rig.setConfig({ network: { usageApi: true, scopedWeekly: true }, hud: { pr: 'on' }, totems: ONE_RESET });
 
   const prompts = promptTimes();
   const events = [];
@@ -118,12 +119,13 @@ export async function hero(rig) {
     if (fable && fableTurns === null) fableTurns = turns;
     rig.setUsage(now, { fable: { pct: 58 + (fable ? (turns - fableTurns) * 0.8 : 0), resets_at: S + 2 * 86400 + 36000 } });
     const status = rig.render(p, { now, cols: 120 });
-    // the totem waits in slot 5 until the 5-hour window is at 10% left or less, then it swaps into the offhand, which
-    // comes before the pickaxe on the hotbar line: a note from the first frame that draws it there
-    const bar = status[status.length - 2], ankh = bar.indexOf('☥');
-    if (!swapped && ankh >= 0 && ankh < bar.indexOf('⛏')) {
+    // the totem waits in slot 5 until the 5-hour window is at 10% left or less, then it moves to the offhand, which
+    // comes before the pickaxe on the hotbar line, and the emerald to slot 5: a note from the first frame that draws
+    // the idol's left wing (U+1FB0C) there
+    const bar = status[status.length - 2], idol = bar.indexOf('\u{1FB0C}');
+    if (!swapped && idol >= 0 && idol < bar.indexOf('⛏')) {
       swapped = true;
-      note = [m, '10% of the 5-hour window left: the totem leaves slot 5 for the offhand, with your credits', 0.9];
+      note = [m, '10% of the 5-hour window left: the totem moves to your offhand, and the emerald, your credits, to slot 5', 0.9];
       hold = Math.max(hold, note[2]);
     }
     frames.push({ status, typed, caption: { at: clock(m), text: m - note[0] < 24 || m >= FABLE_AT ? note[1] : ALONG }, hold: m >= END - 2 ? 1.4 : hold });
