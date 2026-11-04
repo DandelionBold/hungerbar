@@ -2,9 +2,9 @@
 
 What changed for users in each version. Versions before 1.0.0 were private builds; 1.0.0 is the first public release.
 
-## Unreleased (1.2.1)
+## 1.2.1 (2026-11-04)
 
-Pro and Max plans no longer turn gold right after a 5-hour reset.
+On Pro and Max, the HUD no longer shows the gold Ultra hearts right after a 5-hour reset.
 
 - **Gold hearts on Pro and Max after a reset, fixed.** Claude Code stops sending a limit window to the status line once its reset time passes, until Claude's next reply (the status line docs, "Fields that may be absent"). So right after your 5-hour window reset, while a session sat idle or when a new one started, Hungerbar got only the week, the same data an Ultra account sends, and drew the Ultra look: the gold ∞ and ten gold hearts, and no Session item in the classic lines. It also saved that reading, so the next session started gold too. Now a 5-hour window that disappears after its reset shows refilled, as a new one: ten red hearts and 100%, until Claude's next reply brings its numbers.
 - **How Hungerbar knows you are on Ultra.** The gold shows once Claude was asked something after that reset, has replied, and the 5-hour window is still missing (Hungerbar reads from the session's transcript when the last reply was asked for: a reply that was still streaming when the window reset brought the old window's numbers, so it does not count), or at once when the usage API (`network.usageApi`) says the account has no 5-hour limit. Hungerbar remembers it, so on Ultra the next session starts gold. On a fresh install with no 5-hour window saved, the hearts show `?` until the first reply. A saved Ultra reading from 1.1.0 or 1.2.0 is not trusted and is found again after one reply.

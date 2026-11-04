@@ -37,7 +37,7 @@ body:
     attributes:
       label: Hungerbar version
       description: What `hungerbar --version` prints.
-      placeholder: 1.2.0
+      placeholder: 1.2.1
     validations:
       required: true
   - type: input

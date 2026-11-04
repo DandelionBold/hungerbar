@@ -7,7 +7,7 @@
 **Your Claude Code limits as a Minecraft HUD, right in the status line.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version 1.2.0](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/DandelionBold/hungerbar/releases/tag/v1.2.0)
+[![Version 1.2.1](https://img.shields.io/badge/version-1.2.1-blue.svg)](https://github.com/DandelionBold/hungerbar/releases/tag/v1.2.1)
 [![Node 20 or newer](https://img.shields.io/badge/node-%3E%3D20-339933.svg)](https://nodejs.org/)
 [![Platform: Windows Terminal](https://img.shields.io/badge/platform-Windows%20Terminal-0078D4.svg)](#requirements)
 [![CI](https://github.com/DandelionBold/hungerbar/actions/workflows/ci.yml/badge.svg)](https://github.com/DandelionBold/hungerbar/actions/workflows/ci.yml)
@@ -17,7 +17,7 @@ Hearts are your 5-hour window. Drumsticks are your week. The XP bar is your cont
 **Quick start.** With Claude Code and Node.js 20 or newer, run these two commands in a terminal, one after the other, and answer setup's questions (Enter takes each default):
 
 ```bash
-npm i -g https://github.com/DandelionBold/hungerbar/releases/download/v1.2.0/hungerbar-1.2.0.tgz
+npm i -g https://github.com/DandelionBold/hungerbar/releases/download/v1.2.1/hungerbar-1.2.1.tgz
 hungerbar setup
 ```
 
@@ -310,7 +310,7 @@ Hungerbar is built on Windows. Tests run on Windows, Linux and macOS in CI. The 
 ### Install from the release
 
 ```bash
-npm i -g https://github.com/DandelionBold/hungerbar/releases/download/v1.2.0/hungerbar-1.2.0.tgz
+npm i -g https://github.com/DandelionBold/hungerbar/releases/download/v1.2.1/hungerbar-1.2.1.tgz
 hungerbar setup
 ```
 
@@ -329,7 +329,7 @@ Install Hungerbar for me: https://github.com/DandelionBold/hungerbar
 **If you are the AI assistant doing the install,** follow these steps and keep the user in the loop:
 
 1. Check that `node --version` is 20 or newer. On Windows, check that Git for Windows is installed: Claude Code runs status lines through its Git Bash.
-2. Install the release: `npm i -g https://github.com/DandelionBold/hungerbar/releases/download/v1.2.0/hungerbar-1.2.0.tgz`. If Windows PowerShell says running scripts is disabled, use `npm.cmd` and `hungerbar.cmd`.
+2. Install the release: `npm i -g https://github.com/DandelionBold/hungerbar/releases/download/v1.2.1/hungerbar-1.2.1.tgz`. If Windows PowerShell says running scripts is disabled, use `npm.cmd` and `hungerbar.cmd`.
 3. Run `hungerbar setup`. Your shell gives it no terminal for its questions, so it asks nothing and sets up the defaults: the Minecraft HUD, centred, with the user's name, and nothing that uses the network. It changes only the `statusLine` key of `~/.claude/settings.json`, after a backup.
 4. Setup then prints a command for the two features that use the network, such as `hungerbar look hud --fable boss --pr on`. Do not run it on your own. First tell the user what it turns on. The usage API reads their Claude login token and asks Anthropic's usage endpoint for their limits in the background; it is what shows Fable's weekly limit. The pull request status runs their own `gh` in the repo about once a minute. [Privacy and network](#privacy-and-network) has the details. Run the command only after the user says yes; otherwise leave both off.
 5. Tell the user that the HUD shows in Claude Code sessions run in a terminal (Windows Terminal is recommended; the desktop app draws no status line), that `hungerbar doctor` checks the install, and that `hungerbar setup --restore` undoes it.
