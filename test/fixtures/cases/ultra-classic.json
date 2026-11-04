@@ -1,5 +1,5 @@
 {
-  "note": "An account with no 5-hour window (Ultra): rate_limits with a real weekly and no five_hour, and Claude has replied (the transcript, 1.2.1) after the reset of the 5-hour window the last-known file still holds, from before the plan changed (an account that moved from Max 20x to Ultra, its last 5-hour window saved ten days ago). That reply brought the limits and still no five_hour, so the Session item is not drawn, not even from the last-known file.",
+  "note": "An account with no 5-hour window (Ultra): rate_limits with a real weekly and no five_hour, and Claude was asked (the transcript's prompt, 1.2.1) and replied after the reset of the 5-hour window the last-known file still holds, from before the plan changed (an account that moved from Max 20x to Ultra, its last 5-hour window saved ten days ago). That reply brought the limits and still no five_hour, so the Session item is not drawn, not even from the last-known file.",
   "payload": {
     "session_id": "00000000-0000-4000-8000-000000000001",
     "transcript_path": "{{TRANSCRIPT}}",

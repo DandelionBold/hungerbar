@@ -1,5 +1,5 @@
 {
-  "note": "The payload Claude Code sends right after a 5-hour reset (Claude Code 2.1.317, captured live on 4 Nov 2026; 1.2.1): the week and no five_hour, as it drops a window once its resets_at passes, until Claude's next reply. limits.json holds the window that reset 30 s ago, and no reply has come since, so it is refilled: full hearts, 100%, no clock and no ~, not the Ultra plan. It draws what live-reset-passed draws.",
+  "note": "The payload right after a 5-hour reset, as the status line docs describe it (\"Fields that may be absent\"; 1.2.1): the week and no five_hour, as Claude Code drops a window once its resets_at passes, until Claude's next reply. No capture of a Pro or Max window dropped at its reset exists; Claude Code 2.1.317 sent the same week-only shape for an Ultra account in a live capture on 4 Nov 2026. Its version field (2.1.306) is the one the other fixtures carry, not a captured one. limits.json holds the window that reset 30 s ago, and no reply has come since, so it is refilled: full hearts, 100%, no clock and no ~, not the Ultra plan. It draws what live-reset-passed draws.",
   "payload": {
     "session_id": "00000000-0000-4000-8000-000000000001",
     "transcript_path": "{{TRANSCRIPT}}",

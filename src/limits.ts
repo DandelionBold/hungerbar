@@ -24,7 +24,7 @@ export interface LimitsFile {
   fiveHourNoneAt?: number;
   /**
    * Since when Hungerbar has seen the week and no 5-hour window with none saved (1.2.1, a fresh install or a file 1.2.0
-   * emptied): a reply from Claude after it, with the 5-hour window still missing, means the account has none.
+   * emptied): a reply from Claude asked for after it, with the 5-hour window still missing, means the account has none.
    */
   noFiveHourSince?: number;
 }
@@ -94,8 +94,11 @@ export const savedNoFiveHour = (f: Pick<LimitsFile, 'fiveHourNone' | 'fiveHourNo
  * nothing saved settles it. Each is a function, so a render that never needs it never reads it.
  */
 export interface Evidence {
-  /** The newest main-chain reply that came from the API, in seconds (the transcript's replyAt), or null. */
-  replyAt?: () => number | null;
+  /**
+   * When the newest main-chain reply from the API was asked for, in seconds (the transcript's askedAt), or null. Not the
+   * reply row's own time, which comes after it streamed: a request sent before a reset carries the old window's headers.
+   */
+  askedAt?: () => number | null;
   /** The usage API's five_hour: true when it is null (no 5-hour window), false when it is a window, null for no word. */
   usageNone?: () => boolean | null;
 }
@@ -122,8 +125,10 @@ const same = (a: Known | null, b: Known | null): boolean => a === b || (!!a && !
  * says so; until then it is a window Claude Code dropped at its reset:
  *   1. the usage API's five_hour: null says Ultra, a window says not (evidence.usageNone);
  *   2. else limits.json's flag, when 1.2.1 or later set it (savedNoFiveHour);
- *   3. else a reply from Claude after the saved window's reset, or, with no window saved, after noFiveHourSince, with
- *      five_hour still missing, says Ultra: that reply's answer brought the limits, and it had no 5-hour window.
+ *   3. else a reply from Claude asked for after the saved window's reset, or, with no window saved, after
+ *      noFiveHourSince, with five_hour still missing, says Ultra: that request went out in the new window, its answer
+ *      brought the limits, and it had no 5-hour window. A reply asked for before the reset that ends after it (a reply
+ *      still streaming at the reset) says nothing: its headers were the old window's.
  * Otherwise the 5-hour is drawn from what is saved: a window past its reset is refilled (0% used, no clock, not ~, as
  * Claude Code itself says it ended by dropping it), one before its reset is last known (~), and with none saved it is
  * unknown, and noFiveHourSince starts. A payload without that shape keeps the 1.1.0 rules, with the trusted flag only.
@@ -151,8 +156,8 @@ export function resolveLimits(p: Payload, acct: string, now: number, persist: bo
       // the saved window has not reset: another session's, or this one's before a plan change; drawn last known
     } else {
       const after = reset ?? sinceSaved;
-      const reply = after !== null ? (evidence.replyAt?.() ?? null) : null;
-      h5None = after !== null && reply !== null && reply > after;
+      const asked = after !== null ? (evidence.askedAt?.() ?? null) : null;
+      h5None = after !== null && asked !== null && asked > after;
       refilled = !h5None && reset !== null;
       if (!h5None && reset === null) since = after ?? now;
     }

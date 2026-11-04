@@ -1,5 +1,5 @@
 {
-  "note": "The Minecraft HUD when the 5-hour window on stdin has passed its reset: refilled, ten full hearts and no clock, as the next window starts. Claude Code 2.1.243 and later no longer send this payload: they drop a window once its resets_at passes, until Claude's next reply (the status line docs, \"Fields that may be absent\"). Kept for the older Claude Codes that do; the payload sent today is hud-reset-dropped (1.2.1), which draws the same.",
+  "note": "The Minecraft HUD when the 5-hour window on stdin has passed its reset: refilled, ten full hearts and no clock, as the next window starts. Claude Code most likely no longer sends this payload since 2.1.243: it drops a window once its resets_at passes, until Claude's next reply (the status line docs, \"Fields that may be absent\", since at least their 21 Oct 2026 copy). Kept for the older Claude Codes that do; the payload sent today is hud-reset-dropped (1.2.1), which draws the same.",
   "payload": {
     "session_id": "00000000-0000-4000-8000-000000000001",
     "transcript_path": "{{TRANSCRIPT}}",

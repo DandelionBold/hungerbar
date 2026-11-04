@@ -65,11 +65,18 @@ export interface TxState {
    */
   agents?: AgentsLook;
   /**
-   * The time, in seconds, of the newest main-chain reply that came from the API (1.2.1): an assistant row with usage,
-   * not an API error and not Claude Code's own <synthetic> row. Its answer brought the status line's limits, which is
-   * how limits.ts tells a dropped 5-hour window from none (resolveLimits). Absent while there is none.
+   * When the newest main-chain reply from the API was asked for, in seconds (1.2.1): the time of the newest main-chain
+   * user row (a prompt or a tool result, userAt) before the first row of that reply's message, an assistant row with
+   * usage, not an API error and not Claude Code's own <synthetic> row. The request went out after that user row was
+   * written, and its answer's headers brought the status line's limits as they stood then, which is how limits.ts
+   * tells a dropped 5-hour window from none (resolveLimits). It is not the reply row's own time: Claude Code stamps a
+   * row when its block has streamed, a median 7 s and up to minutes after the request. Absent while there is none.
    */
-  replyAt?: number | null;
+  askedAt?: number | null;
+  /** The newest main-chain user row's time, in seconds (1.2.1): a prompt or a tool result. Absent while none is seen. */
+  userAt?: number | null;
+  /** The message id of the reply askedAt was taken for (1.2.1): its later rows keep it. Absent while there is none. */
+  askedMsg?: string | null;
 }
 
 /** One look at the subagents folder: when, and the newest agent files' mtimes (seconds, newest first). */
@@ -95,8 +102,8 @@ export interface TxSummary {
   agentAt: number | null;
   /** The worker's last look at the subagents folder (TxState.agents), null until it has looked (1.1.0). */
   agents: AgentsLook | null;
-  /** The newest reply from the API, in seconds (TxState.replyAt), null when there is none (1.2.1). */
-  replyAt?: number | null;
+  /** When the newest reply from the API was asked for, in seconds (TxState.askedAt), null when there is none (1.2.1). */
+  askedAt?: number | null;
 }
 
 /** The most new bytes one render folds (SPEC §17's +25 ms envelope); more is left to the worker. */
@@ -246,6 +253,13 @@ function seen(st: TxState, timestamp: unknown): void {
   if (Number.isFinite(ts)) st.lastAt = Math.max(st.lastAt ?? 0, Math.floor(ts / 1000));
 }
 
+/** A main-chain user row (a prompt or a tool result, 1.2.1): a message (seen), and the next request goes after it (userAt). */
+function said(st: TxState, timestamp: unknown): void {
+  seen(st, timestamp);
+  const ts = typeof timestamp === 'string' ? Date.parse(timestamp) : NaN;
+  if (Number.isFinite(ts)) st.userAt = Math.max(st.userAt ?? 0, Math.floor(ts / 1000));
+}
+
 /** The blocks of a message's content, objects only. */
 const blocks = (c: unknown): Block[] => (Array.isArray(c) ? (c as unknown[]).filter((b): b is Block => b !== null && typeof b === 'object') : []);
 
@@ -292,7 +306,7 @@ const SIDECHAIN = /"isSidechain":(true|false)/;
 function result(st: TxState, line: string): void {
   if (SIDECHAIN.exec(line)?.[1] === 'true') return;
   if ((st.open ?? []).length) answered(st, Array.from(line.matchAll(RESULT_ID), (m) => m[1] as string));
-  seen(st, FIRST_TS.exec(line)?.[1]);
+  said(st, FIRST_TS.exec(line)?.[1]);
 }
 
 /** Folds one JSONL line into the running state. Exported for the transcript tests. */
@@ -336,7 +350,7 @@ export function fold(st: TxState, line: string): void {
     } else {
       answered(st, blocks(r.message?.content).flatMap((b) => (b.type === 'tool_result' && typeof b.tool_use_id === 'string' ? [b.tool_use_id] : [])));
     }
-    seen(st, r.timestamp);
+    said(st, r.timestamp);
     return;
   }
   if (r.type === 'attachment') {
@@ -361,8 +375,12 @@ export function fold(st: TxState, line: string): void {
   if (effort) st.lastEffort = { level: effort, model: typeof m.model === 'string' ? m.model : null };
   const u = m.usage;
   if (!u) return;
-  const at = typeof r.timestamp === 'string' ? Date.parse(r.timestamp) : NaN;
-  if (m.model !== '<synthetic>' && Number.isFinite(at)) st.replyAt = Math.max(st.replyAt ?? 0, Math.floor(at / 1000));
+  // a reply from the API (1.2.1): asked for after the newest user row before its message's first row; a later row of
+  // the same message keeps that, as a tool result written while it still streams came after its request
+  if (m.model !== '<synthetic>' && typeof m.id === 'string' && m.id !== st.askedMsg) {
+    st.askedMsg = m.id;
+    if (typeof st.userAt === 'number') st.askedAt = Math.max(st.askedAt ?? 0, st.userAt);
+  }
   const usage = { input: n(u.input_tokens), create: n(u.cache_creation_input_tokens), read: n(u.cache_read_input_tokens) };
   st.lastUsage = usage;
   if (typeof m.id === 'string') {
@@ -396,7 +414,7 @@ export function summarize(st: TxState): TxSummary {
     ultra: st.ultra === true,
     agentAt: st.agentAt ?? null,
     agents: st.agents ?? null,
-    replyAt: st.replyAt ?? null,
+    askedAt: st.askedAt ?? null,
   };
 }
 
