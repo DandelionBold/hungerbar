@@ -23,6 +23,11 @@ export interface UsageFile {
   /** No refresh before this time (401/403, 429 or a transient error). */
   lockUntil: number;
   error?: string;
+  /**
+   * The answer's five_hour (1.2.1): true when it was null (the account has no 5-hour window, as an Ultra plan's answer
+   * shows), false when it was a window; absent when the answer had no five_hour key or before 1.2.1. limits.ts reads it.
+   */
+  fiveHourNone?: boolean;
 }
 
 export const usagePath = (acct: string): string => join(acct, 'usage.json');

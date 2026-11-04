@@ -1,5 +1,5 @@
 {
-  "note": "An account with no 5-hour window (Ultra): rate_limits with a real weekly and no five_hour. The Session item is not drawn, not even from the last-known file, which still holds an older 5-hour value.",
+  "note": "An account with no 5-hour window (Ultra): rate_limits with a real weekly and no five_hour, and Claude has replied (the transcript, 1.2.1) after the reset of the 5-hour window the last-known file still holds, from before the plan changed (an account that moved from Max 20x to Ultra, its last 5-hour window saved ten days ago). That reply brought the limits and still no five_hour, so the Session item is not drawn, not even from the last-known file.",
   "payload": {
     "session_id": "00000000-0000-4000-8000-000000000001",
     "transcript_path": "{{TRANSCRIPT}}",
@@ -53,7 +53,40 @@
       ".git/HEAD": "ref: refs/heads/main\n"
     }
   },
-  "transcript": [],
+  "transcript": [
+    {
+      "type": "user",
+      "message": {
+        "role": "user",
+        "content": "fix the build"
+      },
+      "origin": {
+        "kind": "human"
+      },
+      "timestamp": "2026-10-24T16:29:30.000Z"
+    },
+    {
+      "type": "assistant",
+      "message": {
+        "id": "msg_01",
+        "model": "claude-opus-5-5",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "text",
+            "text": "Done."
+          }
+        ],
+        "usage": {
+          "input_tokens": 6,
+          "cache_creation_input_tokens": 1494,
+          "cache_read_input_tokens": 79500,
+          "output_tokens": 812
+        }
+      },
+      "timestamp": "2026-10-24T16:30:00.000Z"
+    }
+  ],
   "config": {
     "look": "classic",
     "network": {
@@ -79,13 +112,13 @@
       "v": 1,
       "five_hour": {
         "pct": 55,
-        "resets_at": "{{NOW+9000}}"
+        "resets_at": "{{NOW-864000}}"
       },
       "seven_day": {
         "pct": 40,
         "resets_at": "{{NOW+302400}}"
       },
-      "at": "{{NOW-600}}"
+      "at": "{{NOW-867600}}"
     }
   }
 }

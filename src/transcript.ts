@@ -64,6 +64,12 @@ export interface TxState {
    * the newest agent files' mtimes, in seconds, newest first, at most AGENTS_KEPT. Absent until it has looked.
    */
   agents?: AgentsLook;
+  /**
+   * The time, in seconds, of the newest main-chain reply that came from the API (1.2.1): an assistant row with usage,
+   * not an API error and not Claude Code's own <synthetic> row. Its answer brought the status line's limits, which is
+   * how limits.ts tells a dropped 5-hour window from none (resolveLimits). Absent while there is none.
+   */
+  replyAt?: number | null;
 }
 
 /** One look at the subagents folder: when, and the newest agent files' mtimes (seconds, newest first). */
@@ -89,6 +95,8 @@ export interface TxSummary {
   agentAt: number | null;
   /** The worker's last look at the subagents folder (TxState.agents), null until it has looked (1.1.0). */
   agents: AgentsLook | null;
+  /** The newest reply from the API, in seconds (TxState.replyAt), null when there is none (1.2.1). */
+  replyAt?: number | null;
 }
 
 /** The most new bytes one render folds (SPEC §17's +25 ms envelope); more is left to the worker. */
@@ -353,6 +361,8 @@ export function fold(st: TxState, line: string): void {
   if (effort) st.lastEffort = { level: effort, model: typeof m.model === 'string' ? m.model : null };
   const u = m.usage;
   if (!u) return;
+  const at = typeof r.timestamp === 'string' ? Date.parse(r.timestamp) : NaN;
+  if (m.model !== '<synthetic>' && Number.isFinite(at)) st.replyAt = Math.max(st.replyAt ?? 0, Math.floor(at / 1000));
   const usage = { input: n(u.input_tokens), create: n(u.cache_creation_input_tokens), read: n(u.cache_read_input_tokens) };
   st.lastUsage = usage;
   if (typeof m.id === 'string') {
@@ -386,6 +396,7 @@ export function summarize(st: TxState): TxSummary {
     ultra: st.ultra === true,
     agentAt: st.agentAt ?? null,
     agents: st.agents ?? null,
+    replyAt: st.replyAt ?? null,
   };
 }
 

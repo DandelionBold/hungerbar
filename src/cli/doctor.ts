@@ -9,7 +9,7 @@ import { findGit } from '../git/bin.ts';
 import { statusArgs } from '../git/status.ts';
 import { PR_ARGS } from '../pr/gh.ts';
 import { childProcess } from '../proc.ts';
-import type { LimitsFile } from '../limits.ts';
+import { savedNoFiveHour, type LimitsFile } from '../limits.ts';
 import { acctDir, cacheDir, readJson } from '../store.ts';
 import { held, parseTotems } from '../totems.ts';
 import { DEMOS } from '../demo.ts';
@@ -204,15 +204,15 @@ export function ignoredTotems(env: Env): number {
 /**
  * What doctor warns about the declared resets (SPEC §0.13, 1.2.0): grants that expired (ignored until the next
  * `hungerbar totem` write removes them), entries it could not read, a 5-hour reset on an account with no 5-hour window
- * (limits.json's fiveHourNone: it can never move the totem), and a Fable reset while Hungerbar cannot see Fable's weekly
- * (the usage API with network.scopedWeekly).
+ * (limits.json's fiveHourNone with its fiveHourNoneAt, 1.2.1: it can never move the totem), and a Fable reset while
+ * Hungerbar cannot see Fable's weekly (the usage API with network.scopedWeekly).
  */
 export function totemWarnings(cfg: Config, env: Env, now: number): string[] {
   const h = held(cfg.totems, now), out: string[] = [];
   if (h.expired) out.push(`${h.expired} limit reset grant${h.expired === 1 ? '' : 's'} in hungerbar.json expired and ${h.expired === 1 ? 'is' : 'are'} ignored; the next hungerbar totem write removes ${h.expired === 1 ? 'it' : 'them'}`);
   const bad = ignoredTotems(env);
   if (bad) out.push(`${bad} entr${bad === 1 ? 'y' : 'ies'} of totems in hungerbar.json could not be read and ${bad === 1 ? 'is' : 'are'} ignored: each needs n from 1 to 99, a kind of full, 5h, week or fable, and an until that is a date (at most 16 entries are read)`);
-  if (h.grants.some((g) => g.kind === '5h') && readJson<LimitsFile>(join(acctDir(env), 'limits.json'))?.fiveHourNone === true) {
+  if (h.grants.some((g) => g.kind === '5h') && savedNoFiveHour(readJson<LimitsFile>(join(acctDir(env), 'limits.json')))) {
     out.push('a 5-hour reset is held, but this account has no 5-hour window (limits.json), so it can never move the totem');
   }
   if (h.grants.some((g) => g.kind === 'fable') && !(usageEnabled(cfg, env) && cfg.network.scopedWeekly)) {

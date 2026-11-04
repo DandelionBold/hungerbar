@@ -302,6 +302,28 @@ test('the token never lands in a file, an argv or the output', async () => {
   }
 });
 
+test('the answer\'s five_hour (1.2.1): null saves fiveHourNone true, a window false, no key nothing; a failed fetch keeps the last word', async () => {
+  const w = world();
+  try {
+    reply(200, JSON.stringify(BODY));
+    await refresh(w.env);
+    assert.equal(readUsage(w.acct)!.fiveHourNone, false, 'a window: the account has one');
+    reply(200, JSON.stringify({ ...BODY, five_hour: null }));
+    await refresh({ ...w.env, HUNGERBAR_NOW: String(NOW + 600) });
+    assert.equal(readUsage(w.acct)!.fiveHourNone, true, 'null: no 5-hour window (an Ultra plan\'s answer, 3 Nov)');
+    reply(503, '{}');
+    await refresh({ ...w.env, HUNGERBAR_NOW: String(NOW + 1200) });
+    assert.equal(readUsage(w.acct)!.fiveHourNone, true, 'kept through a failed fetch');
+    for (const [body, why] of [[{ extra_usage: BODY.extra_usage }, 'no key'], [{ five_hour: 5 }, 'not an object'], [{ five_hour: [] }, 'an array']] as const) {
+      reply(200, JSON.stringify(body));
+      await refresh({ ...w.env, HUNGERBAR_NOW: String(NOW + 1800) });
+      assert.equal('fiveHourNone' in readUsage(w.acct)!, false, why);
+    }
+  } finally {
+    w.cleanup();
+  }
+});
+
 test('HUNGERBAR_CAPTURE (1.1.0): a fetch that worked saves the answer\'s extra_usage and limits only, as the day\'s usage-YYYYMMDD.json', async () => {
   const w = world();
   try {

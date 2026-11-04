@@ -9,6 +9,7 @@ import type { Payload } from '../../src/payload.ts';
 import { collect, type Sources } from '../../src/state.ts';
 import type { TxSummary } from '../../src/transcript.ts';
 import { diskSources, renderPayload } from '../../src/render.ts';
+import { acctDir } from '../../src/store.ts';
 import { CAP } from '../../src/sanitize.ts';
 import { adapt } from '../../src/hud/adapter.ts';
 import { parseBody } from '../../src/usage/refresh.ts';
@@ -99,24 +100,36 @@ test('noFiveHour: rate_limits with a real weekly and five_hour missing, null or 
   ] as const) assert.equal(noFiveHour(p as Payload), false, why);
 });
 
-test('no five_hour (missing, null, {}): h5 null and never last known, h5None, and limits.json saves five_hour null with fiveHourNone', () => {
+// 1.2.1: the no-5-hour shape alone is no longer the Ultra plan (Claude Code drops a window at its reset, until Claude's
+// next reply; test/unit/limits-dropped.test.ts has those paths). These tests hand it the usage API's five_hour: null.
+const ULTRA = { usageNone: () => true };
+
+test('no five_hour (missing, null, {}) and the usage API says none: h5 null and never last known, h5None, and limits.json saves five_hour null with fiveHourNone', () => {
   for (const five_hour of [undefined, null, {}]) {
     const w = acctWith(OLD_FILE);
     try {
       const rate_limits = five_hour === undefined ? { seven_day: WEEK } : { five_hour, seven_day: WEEK };
-      const r = resolveLimits({ rate_limits } as Payload, w.acct, NOW, true);
+      const r = resolveLimits({ rate_limits } as Payload, w.acct, NOW, true, ULTRA);
       assert.deepEqual(r, { h5: null, week: { pct: 41, left: 302400, dim: false }, h5None: true }, JSON.stringify(rate_limits));
-      assert.deepEqual(w.saved(), { v: 1, five_hour: null, seven_day: { pct: 41, resets_at: NOW + 302400 }, at: NOW, fiveHourNone: true });
+      assert.deepEqual(w.saved(), { v: 1, five_hour: null, seven_day: { pct: 41, resets_at: NOW + 302400 }, at: NOW, fiveHourNone: true, fiveHourNoneAt: NOW });
     } finally {
       w.cleanup();
     }
+  }
+  // without that word the saved window, which has not reset, is drawn last known (1.2.1), and nothing saves Ultra
+  const w = acctWith(OLD_FILE);
+  try {
+    assert.deepEqual(resolveLimits({ rate_limits: { seven_day: WEEK } }, w.acct, NOW, true), { h5: { pct: 55, left: 9000, dim: true }, week: { pct: 41, left: 302400, dim: false }, h5None: false });
+    assert.equal((w.saved() as { fiveHourNone?: true }).fiveHourNone, undefined);
+  } finally {
+    w.cleanup();
   }
 });
 
 test('the saved flag: no rate_limits keeps h5None; glitch zeros keep it; a live five_hour clears it, then the 5-hour falls back again', () => {
   const w = acctWith(OLD_FILE);
   try {
-    resolveLimits({ rate_limits: { seven_day: WEEK } }, w.acct, NOW, true);
+    resolveLimits({ rate_limits: { seven_day: WEEK } }, w.acct, NOW, true, ULTRA);
     const flagged = readFileSync(join(w.acct, 'limits.json'), 'utf8');
     // no rate_limits at all (another tool, an old Claude Code): the flag decides, and nothing is written
     assert.deepEqual(resolveLimits({}, w.acct, NOW + 10, true), { h5: null, week: { pct: 41, left: 302390, dim: true }, h5None: true });
@@ -126,7 +139,7 @@ test('the saved flag: no rate_limits keeps h5None; glitch zeros keep it; a live 
     // live, and the newer weekly rewrites the file, which keeps the flag
     const carried = resolveLimits({ rate_limits: { five_hour: { used_percentage: null, resets_at: NOW + 60 }, seven_day: { ...WEEK, used_percentage: 45 } } }, w.acct, NOW + 15, true);
     assert.deepEqual(carried, { h5: null, week: { pct: 45, left: 302385, dim: false }, h5None: true });
-    assert.deepEqual(w.saved(), { v: 1, five_hour: null, seven_day: { pct: 45, resets_at: NOW + 302400 }, at: NOW + 15, fiveHourNone: true }, 'rewritten, the flag kept');
+    assert.deepEqual(w.saved(), { v: 1, five_hour: null, seven_day: { pct: 45, resets_at: NOW + 302400 }, at: NOW + 15, fiveHourNone: true, fiveHourNoneAt: NOW }, 'rewritten, the flag kept');
     // a live five_hour clears it
     const live = resolveLimits({ rate_limits: { five_hour: { used_percentage: 3, resets_at: NOW + 17000 }, seven_day: WEEK } }, w.acct, NOW + 20, true);
     assert.deepEqual(live, { h5: { pct: 3, left: 16980, dim: false }, week: { pct: 41, left: 302380, dim: false }, h5None: false });
@@ -167,6 +180,10 @@ test('h5None reaches the State (false when a source leaves it out) and RenderRes
   const dir = mkdtempSync(join(tmpdir(), 'hb-ultra-'));
   try {
     const env = { HUNGERBAR_CACHE_DIR: join(dir, 'cache'), CLAUDE_CONFIG_DIR: join(dir, 'claude'), HUNGERBAR_NOW: String(NOW), HUNGERBAR_LOOK: 'hud', FORCE_COLOR: '3' };
+    // an account 1.2.1 already found has no 5-hour window (limits.json's trusted flag); a fresh install's first render
+    // is not Ultra (test/unit/limits-dropped.test.ts)
+    mkdirSync(acctDir(env), { recursive: true });
+    writeFileSync(join(acctDir(env), 'limits.json'), JSON.stringify({ v: 1, five_hour: null, seven_day: null, at: NOW - 60, fiveHourNone: true, fiveHourNoneAt: NOW - 60 }));
     const r = renderPayload(JSON.stringify({ model: { display_name: 'Opus 5.5' }, rate_limits: { seven_day: WEEK } }), { env });
     assert.equal(r.state?.h5None, true);
     assert.equal(r.state?.h5, null);

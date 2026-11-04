@@ -1,5 +1,5 @@
 {
-  "note": "An account with no 5-hour window (the Ultra plan, 1.1.0): Claude Code sends only the week. The engine is handed no 5-hour (its grey ? and dark hearts), and the vitals draw the golden apple over it (hud.ultra, on by default; the pick from design round 9): a yellow ☼, a bold gold ∞ at col 14 and ten gold hearts. No session key, so no history: the terrain shows now only.",
+  "note": "An account with no 5-hour window (the Ultra plan, 1.1.0): Claude Code sends only the week. The engine is handed no 5-hour (its grey ? and dark hearts), and the vitals draw the golden apple over it (hud.ultra, on by default; the pick from design round 9): a yellow ☼, a bold gold ∞ at col 14 and ten gold hearts. No session key, so no history: the terrain shows now only. The usage API said five_hour null (usage.json's fiveHourNone, 1.2.1): since 1.2.1 the week alone is not enough, as Claude Code also drops a 5-hour window at its reset until Claude's next reply.",
   "payload": {
     "cwd": "D:\\webapp",
     "version": "2.1.306",
@@ -68,7 +68,8 @@
         "limitCents": 5000,
         "currency": "USD"
       },
-      "scoped": []
+      "scoped": [],
+      "fiveHourNone": true
     }
   },
   "config": {

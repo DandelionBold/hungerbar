@@ -84,9 +84,9 @@ export interface State {
   h5: LimitView | null;
   week: LimitView | null;
   /**
-   * The account has no 5-hour window (an Ultra plan, 1.1.0; limits.ts noFiveHour or limits.json's saved flag): h5 is
-   * then null. Classic draws no Session item, as for any null h5. The HUD's engine is handed no 5-hour, and its vitals
-   * (src/hud/vitals.ts, hud.ultra on) draw the golden apple's hearts over its unknown one.
+   * The account has no 5-hour window (an Ultra plan, 1.1.0; since 1.2.1 limits.ts resolveLimits needs more than the
+   * no-5-hour shape): h5 is then null. Classic draws no Session item, as for any null h5. The HUD's engine is handed no
+   * 5-hour, and its vitals (src/hud/vitals.ts, hud.ultra on) draw the golden apple's hearts over its unknown one.
    */
   h5None: boolean;
   cache: CacheView | null;

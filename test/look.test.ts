@@ -1694,7 +1694,7 @@ test("look and doctor (1.2.0): the totem's line with the resets declared; doctor
     assert.match(r.stdout, /\nhud\.totem on: 4 limit resets held \(1 full, 1 5-hour, 2 Fable; the first use by 2026-12-01 23:59\): the totem in hotbar slot 5, [^\n]*; hungerbar totem to change it\n/);
     const acct = acctDir(w.env);
     mkdirSync(acct, { recursive: true });
-    writeFileSync(join(acct, 'limits.json'), JSON.stringify({ v: 1, five_hour: null, seven_day: { pct: 40, resets_at: NOW + 9999 }, at: NOW, fiveHourNone: true }));
+    writeFileSync(join(acct, 'limits.json'), JSON.stringify({ v: 1, five_hour: null, seven_day: { pct: 40, resets_at: NOW + 9999 }, at: NOW, fiveHourNone: true, fiveHourNoneAt: NOW }));
     const before = w.snapshot();
     const d = w.run(['doctor'], { ...noGh, FORCE_COLOR: '3' });
     assert.equal(d.status, 0, d.stderr);

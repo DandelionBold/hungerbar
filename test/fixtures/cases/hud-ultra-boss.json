@@ -1,5 +1,5 @@
 {
-  "note": "The Ultra plan with Fable in use and its boss bar (1.1.0): 6 lines, so the hearts line is the third of the engine's 5; the golden apple draws there, under the boss bar and the held item.",
+  "note": "The Ultra plan with Fable in use and its boss bar (1.1.0): 6 lines, so the hearts line is the third of the engine's 5; the golden apple draws there, under the boss bar and the held item. The usage API said five_hour null (usage.json's fiveHourNone, 1.2.1): since 1.2.1 the week alone is not enough, as Claude Code also drops a 5-hour window at its reset until Claude's next reply.",
   "payload": {
     "cwd": "D:\\webapp",
     "version": "2.1.306",
@@ -74,7 +74,8 @@
           "pct": 35,
           "resets_at": "{{NOW+345600}}"
         }
-      ]
+      ],
+      "fiveHourNone": true
     }
   },
   "config": {

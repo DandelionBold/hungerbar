@@ -15,10 +15,18 @@ export interface LimitsFile {
   seven_day: Known | null;
   at: number;
   /**
-   * The account has no 5-hour window (noFiveHour, 1.1.0): set with five_hour null, so a payload without rate_limits
-   * keeps that; a live five_hour clears it. Readers before 1.1.0 ignore it and find five_hour null.
+   * The account has no 5-hour window (an Ultra plan, 1.1.0): set with five_hour null. Since 1.2.1 it is trusted only with
+   * fiveHourNoneAt, as 1.1.0 and 1.2.0 also set it for a window Claude Code had dropped at its reset (resolveLimits).
+   * Readers before 1.1.0 ignore it and find five_hour null.
    */
   fiveHourNone?: true;
+  /** When Hungerbar found the account had no 5-hour window (1.2.1, resolveLimits): the flag counts only with it. */
+  fiveHourNoneAt?: number;
+  /**
+   * Since when Hungerbar has seen the week and no 5-hour window with none saved (1.2.1, a fresh install or a file 1.2.0
+   * emptied): a reply from Claude after it, with the 5-hour window still missing, means the account has none.
+   */
+  noFiveHourSince?: number;
 }
 
 export interface LimitView {
@@ -63,9 +71,11 @@ export function view(k: Known | null, isLive: boolean, now: number): LimitView |
 }
 
 /**
- * The account has no 5-hour window (an Ultra plan, 1.1.0): rate_limits is an object, its five_hour is missing, null or
- * an object with neither used_percentage nor resets_at, and its weekly is real (it passes the glitch rule). Only the
- * 5-hour window has this rule: a payload with a five_hour and no seven_day still falls back to the weekly last known.
+ * The payload has the shape of an account with no 5-hour window (1.1.0): rate_limits is an object, its five_hour is
+ * missing, null or an object with neither used_percentage nor resets_at, and its weekly is real (it passes the glitch
+ * rule). Only the 5-hour window has this rule: a payload with a five_hour and no seven_day still falls back to the
+ * weekly last known. Since 1.2.1 the shape alone is not the Ultra plan: Claude Code drops a window once its resets_at
+ * passes, until Claude's next reply, so a Pro or Max payload right after a 5-hour reset has it too (resolveLimits).
  */
 export function noFiveHour(p: Payload): boolean {
   const rl = p.rate_limits;
@@ -73,6 +83,21 @@ export function noFiveHour(p: Payload): boolean {
   const f = rl.five_hour;
   const none = f === undefined || f === null || (typeof f === 'object' && num(f.used_percentage) === null && num(f.resets_at) === null);
   return none && liveLimits(p).week !== null;
+}
+
+/** limits.json says the account has no 5-hour window, and 1.2.1 or later found it (fiveHourNoneAt). */
+export const savedNoFiveHour = (f: Pick<LimitsFile, 'fiveHourNone' | 'fiveHourNoneAt'> | null | undefined): boolean =>
+  f?.fiveHourNone === true && typeof f.fiveHourNoneAt === 'number' && Number.isFinite(f.fiveHourNoneAt);
+
+/**
+ * What else a render knows about the 5-hour window (1.2.1), asked only while the payload has the no-5-hour shape and
+ * nothing saved settles it. Each is a function, so a render that never needs it never reads it.
+ */
+export interface Evidence {
+  /** The newest main-chain reply that came from the API, in seconds (the transcript's replyAt), or null. */
+  replyAt?: () => number | null;
+  /** The usage API's five_hour: true when it is null (no 5-hour window), false when it is a window, null for no word. */
+  usageNone?: () => boolean | null;
 }
 
 /**
@@ -91,28 +116,66 @@ const same = (a: Known | null, b: Known | null): boolean => a === b || (!!a && !
 
 /**
  * Resolves both windows: each from stdin, else last known. The last-known file keeps the newer value of each window and
- * is written only when it changes. With no 5-hour window (noFiveHour, or its saved flag while no live five_hour comes)
- * h5 is null and never last known.
+ * is written only when it changes. With no 5-hour window h5 is null and never last known.
+ *
+ * No 5-hour window (1.2.1). A payload with the week and no five_hour (noFiveHour) is the Ultra plan only once something
+ * says so; until then it is a window Claude Code dropped at its reset:
+ *   1. the usage API's five_hour: null says Ultra, a window says not (evidence.usageNone);
+ *   2. else limits.json's flag, when 1.2.1 or later set it (savedNoFiveHour);
+ *   3. else a reply from Claude after the saved window's reset, or, with no window saved, after noFiveHourSince, with
+ *      five_hour still missing, says Ultra: that reply's answer brought the limits, and it had no 5-hour window.
+ * Otherwise the 5-hour is drawn from what is saved: a window past its reset is refilled (0% used, no clock, not ~, as
+ * Claude Code itself says it ended by dropping it), one before its reset is last known (~), and with none saved it is
+ * unknown, and noFiveHourSince starts. A payload without that shape keeps the 1.1.0 rules, with the trusted flag only.
  */
-export function resolveLimits(p: Payload, acct: string, now: number, persist: boolean): Limits {
+export function resolveLimits(p: Payload, acct: string, now: number, persist: boolean, evidence: Evidence = {}): Limits {
   const { h5, week } = liveLimits(p);
   const path = join(acct, 'limits.json');
   const old = readJson<LimitsFile>(path);
   const prev = old && old.v === 1 ? old : null;
-  const none = noFiveHour(p), h5None = none || (!h5 && prev?.fiveHourNone === true);
+  const saved5 = prev?.five_hour ?? null;
+  const trusted = savedNoFiveHour(prev);
+  const sinceSaved = typeof prev?.noFiveHourSince === 'number' && Number.isFinite(prev.noFiveHourSince) ? prev.noFiveHourSince : null;
+  let h5None = false, refilled = false, since: number | null = null;
+  if (h5) {
+    // a live five_hour: the 1.1.0 rules, and it clears the flag
+  } else if (noFiveHour(p)) {
+    const word = evidence.usageNone?.() ?? null;
+    const reset = saved5?.resets_at ?? null;
+    if (word !== null) {
+      h5None = word;
+      refilled = !word && reset !== null && reset <= now;
+    } else if (trusted) {
+      h5None = true;
+    } else if (reset !== null && reset > now) {
+      // the saved window has not reset: another session's, or this one's before a plan change; drawn last known
+    } else {
+      const after = reset ?? sinceSaved;
+      const reply = after !== null ? (evidence.replyAt?.() ?? null) : null;
+      h5None = after !== null && reply !== null && reply > after;
+      refilled = !h5None && reset !== null;
+      if (!h5None && reset === null) since = after ?? now;
+    }
+  } else {
+    h5None = trusted;
+    if (!trusted && !saved5) since = sinceSaved;
+  }
+  const noneAt = h5None ? (trusted ? prev!.fiveHourNoneAt! : now) : null;
   const next: LimitsFile = {
     v: 1,
-    five_hour: none ? null : newer(prev?.five_hour ?? null, h5),
+    five_hour: h5None ? null : newer(saved5, h5),
     seven_day: newer(prev?.seven_day ?? null, week),
     at: now,
-    ...(h5None ? { fiveHourNone: true as const } : {}),
+    ...(noneAt !== null ? { fiveHourNone: true as const, fiveHourNoneAt: noneAt } : {}),
+    ...(since !== null && !h5 ? { noFiveHourSince: since } : {}),
   };
-  const changed = !prev || !same(prev.five_hour, next.five_hour) || !same(prev.seven_day, next.seven_day) || (prev.fiveHourNone === true) !== h5None;
+  const marks = (f: LimitsFile | null): string => JSON.stringify([f?.fiveHourNone === true, f?.fiveHourNoneAt ?? null, f?.noFiveHourSince ?? null]);
+  const changed = !prev || !same(prev.five_hour, next.five_hour) || !same(prev.seven_day, next.seven_day) || marks(prev) !== marks(next);
   if (persist && (h5 || week) && changed) {
     try { writeJson(path, next); } catch { /* a read-only cache dir only costs the fallback */ }
   }
   return {
-    h5: h5 ? view(h5, true, now) : h5None ? null : view(prev?.five_hour ?? null, false, now),
+    h5: h5 ? view(h5, true, now) : h5None ? null : refilled ? { pct: 0, left: null, dim: false } : view(saved5, false, now),
     week: week ? view(week, true, now) : view(prev?.seven_day ?? null, false, now),
     h5None,
   };

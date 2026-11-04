@@ -121,8 +121,14 @@ export function diskSources(p: Payload, env: Env, cfg: Config, now: number, spaw
   let usage: UsageFile | null | undefined;
   let lim: Limits | undefined;
   let seen: AgentsSeen | null | undefined;
-  /** Read once per render: the usage refresher asks how hungry the limits are (1.1.0). */
-  const limits = (): Limits => (lim ??= resolveLimits(p, acct, now, persist));
+  /**
+   * Read once per render: the usage refresher asks how hungry the limits are (1.1.0). A payload with the week and no
+   * 5-hour window asks the transcript's last reply and the usage API's five_hour, when nothing saved settles it (1.2.1).
+   */
+  const limits = (): Limits => (lim ??= resolveLimits(p, acct, now, persist, {
+    replyAt: () => transcript()?.replyAt ?? null,
+    usageNone: () => (usageEnabled(cfg, env) ? ((usage !== undefined ? usage : readUsage(acct))?.fiveHourNone ?? null) : null),
+  }));
   /** The transcript worker this render queued, if it did (the agents' look rides on it). */
   let txSpawn: string[] | null = null;
   /** Read once per render, by whichever asks first; a delta over the budget queues the worker unless it already runs. */

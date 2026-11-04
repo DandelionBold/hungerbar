@@ -1,5 +1,5 @@
 {
-  "note": "An account with no 5-hour window (Ultra: the golden apple's hearts, hud.ultra) with the week at 5% left and one full limit reset (1.2.0): only the week and Fable's weekly can move the totem; the week is dying, so it is in the offhand and the emerald in slot 5.",
+  "note": "An account with no 5-hour window (Ultra: the golden apple's hearts, hud.ultra) with the week at 5% left and one full limit reset (1.2.0): only the week and Fable's weekly can move the totem; the week is dying, so it is in the offhand and the emerald in slot 5. The usage API said five_hour null (usage.json's fiveHourNone, 1.2.1): since 1.2.1 the week alone is not enough, as Claude Code also drops a 5-hour window at its reset until Claude's next reply.",
   "payload": {
     "cwd": "D:\\webapp",
     "version": "2.1.306",
@@ -68,7 +68,8 @@
         "limitCents": 5000,
         "currency": "USD"
       },
-      "scoped": []
+      "scoped": [],
+      "fiveHourNone": true
     }
   },
   "config": {

@@ -1,5 +1,5 @@
 {
-  "note": "The Ultra plan when Claude Code sends no limits (1.1.0): limits.json's saved flag keeps the account without a 5-hour window (the golden apple), and its week is last-known, so the stale mark (no key; the pick from design round 9) puts a grey ~ at col 62 and draws the drumsticks and the % at 60%.",
+  "note": "The Ultra plan when Claude Code sends no limits (1.1.0): limits.json's saved flag keeps the account without a 5-hour window (the golden apple), and its week is last-known, so the stale mark (no key; the pick from design round 9) puts a grey ~ at col 62 and draws the drumsticks and the % at 60%. The flag has fiveHourNoneAt, as 1.2.1 saves it once it has found the account has no 5-hour window; a flag without it (1.1.0, 1.2.0) is not trusted.",
   "payload": {
     "cwd": "D:\\webapp",
     "version": "2.1.306",
@@ -72,7 +72,8 @@
         "resets_at": "{{NOW+84539}}"
       },
       "at": "{{NOW-600}}",
-      "fiveHourNone": true
+      "fiveHourNone": true,
+      "fiveHourNoneAt": "{{NOW-600}}"
     }
   },
   "config": {

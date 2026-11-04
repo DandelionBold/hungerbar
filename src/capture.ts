@@ -3,6 +3,10 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { writeAtomic } from './store.ts';
 
+/**
+ * The payload with what names this user and session replaced: the session id, the transcript path ({{TRANSCRIPT}}), the
+ * scratchpad folder ({{SCRATCHPAD}}, 1.2.1) and the workspace paths ({{REPO}}, wherever they occur).
+ */
 export function scrub(raw: string): string | null {
   let p: Record<string, unknown>;
   try {
@@ -16,6 +20,8 @@ export function scrub(raw: string): string | null {
   let text = JSON.stringify(p, null, 2);
   if (typeof p.session_id === 'string') text = text.split(JSON.stringify(p.session_id)).join('"00000000-0000-4000-8000-000000000001"');
   if (typeof p.transcript_path === 'string') text = text.split(JSON.stringify(p.transcript_path)).join('"{{TRANSCRIPT}}"');
+  // Claude Code 2.1.317's top-level scratchpad_dir, a session temp folder under the user's profile (1.2.1)
+  if (typeof p.scratchpad_dir === 'string' && p.scratchpad_dir) text = text.split(JSON.stringify(p.scratchpad_dir)).join('"{{SCRATCHPAD}}"');
   for (const v of [...paths].sort((a, b) => b.length - a.length)) text = text.split(JSON.stringify(v).slice(1, -1)).join('{{REPO}}');
   return text + '\n';
 }

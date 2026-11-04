@@ -31,11 +31,22 @@ interface ApiLimit {
 }
 
 interface ApiBody {
+  five_hour?: unknown;
   extra_usage?: { is_enabled?: unknown; used_credits?: unknown; monthly_limit?: unknown; currency?: unknown } | null;
   limits?: unknown;
 }
 
+/** usage.json's fiveHourNone, only when there is a word. */
+const word = (v: boolean | undefined): { fiveHourNone?: boolean } => (typeof v === 'boolean' ? { fiveHourNone: v } : {});
+
 const numOr = (v: unknown, d: number | null): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : d);
+
+/** The answer's five_hour (1.2.1): null is no 5-hour window (true), an object is one (false), anything else no word. */
+export function fiveHourWord(body: ApiBody): boolean | undefined {
+  if (!body || typeof body !== 'object' || !('five_hour' in body)) return undefined;
+  const f = body.five_hour;
+  return f === null ? true : typeof f === 'object' && !Array.isArray(f) ? false : undefined;
+}
 
 export function parseBody(body: ApiBody): { extra: UsageExtra | null; scoped: UsageScoped[] } {
   const x = body.extra_usage;
@@ -77,7 +88,7 @@ export async function refreshUsage(env: Env, readKeychain: KeychainReader = secu
     return u;
   };
   const keep = (lockFor: number, error: string): UsageFile =>
-    write({ v: 1, at: prev?.at ?? now, extra: prev?.extra ?? null, scoped: prev?.scoped ?? [], lockUntil: now + lockFor, error });
+    write({ v: 1, at: prev?.at ?? now, extra: prev?.extra ?? null, scoped: prev?.scoped ?? [], lockUntil: now + lockFor, error, ...word(prev?.fiveHourNone) });
   try {
     const token = getToken(env, Date.now(), platform, readKeychain);
     if (!token) return keep(600, 'no-credentials');
@@ -107,7 +118,7 @@ export async function refreshUsage(env: Env, readKeychain: KeychainReader = secu
     }
     const { extra, scoped } = parseBody(body ?? {});
     if (env.HUNGERBAR_CAPTURE) captureUsage(body, env.HUNGERBAR_CAPTURE, nowSec(env));
-    return write({ v: 1, at: nowSec(env), extra, scoped, lockUntil: 0 });
+    return write({ v: 1, at: nowSec(env), extra, scoped, lockUntil: 0, ...word(fiveHourWord(body ?? {})) });
   } finally {
     unlock(lock);
   }
