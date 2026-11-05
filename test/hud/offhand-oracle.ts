@@ -9,14 +9,17 @@
 //     trunc(dollars / 1000) and 'k' right-aligned to $99,999, then a yellow 99k. marks.stale draws white as grey (the
 //     yellow stays).
 //   - Credits out (a window used up, $0 left): cols 9 and 14 are a space on the frame grey.
+//   - The share (1.2.2, marks.pct: credits with only the share used, which the engine is handed as that % of a limit of
+//     100): left = the % left. Nothing under 1%; else the icon is 1 cell and the count 3, bold: the % left and a '%',
+//     right-aligned, to 99%; from 100 a yellow 99%.
 // The frame's side colour (for frameOracle): grey with the credits out, else as the engine's paying() lights it.
 import { PORT, type RefLines, type RefSpan } from './ref.ts';
 
 const GREEN = '#17DD62', SIDE = '#5D5D5D', WELL = '#201E07', WHITE = '#FFFFFF', GREY = '#AAAAAA', YELLOW = '#FFFF55';
 const FRAME_GREY = '#5D5D5D';
 
-/** The offhand's input, as the tests hand it: the credits older than 900 s. */
-export interface OracleOffhand { stale: boolean }
+/** The offhand's input, as the tests hand it: the credits older than 900 s; the count a % left (1.2.2, absent: dollars). */
+export interface OracleOffhand { stale: boolean; pct?: boolean }
 export const QUIET_OFFHAND: OracleOffhand = { stale: false };
 
 export interface Cl { g: string; w: number; fg: string | undefined; bg: string | undefined; bold: boolean }
@@ -80,6 +83,12 @@ function countCells(dollars: number, room: 2 | 3, ink: string): Cl[] {
   return [...t].map((g) => cell(g, fg, WELL, true));
 }
 
+/** The share's 3 cells after a 1-cell icon (1.2.2): the % left with its '%', right-aligned; from 100 the yellow 99%. */
+function shareCells(left: number, ink: string): Cl[] {
+  const t = left >= 100 ? '99%' : `${left}%`.padStart(3, ' ');
+  return [...t].map((g) => cell(g, left >= 100 ? YELLOW : ink, WELL, true));
+}
+
 /** The offhand on the engine's render of `state` (with the layers before it already drawn). */
 export function offhandOracle(lines: RefLines, state: unknown, m: OracleOffhand): RefLines {
   const copy = lines.map((l) => l.map((s) => ({ ...s })));
@@ -92,7 +101,8 @@ export function offhandOracle(lines: RefLines, state: unknown, m: OracleOffhand)
     if (r.dollars >= 100) put(10, [cell(glyph, fg, WELL), ...countCells(r.dollars, 3, ink)]);
     else put(10, [cell(glyph, fg, WELL), cell(' ', fg, WELL), ...countCells(r.dollars, 2, ink)]);
   };
-  if (r.dollars >= 1) item('◆', GREEN);                    // the engine's emerald, or from $100 its 3-cell count
+  if (r.dollars >= 1 && m.pct) put(10, [cell('◆', GREEN, WELL), ...shareCells(r.dollars, ink)]);   // the share left
+  else if (r.dollars >= 1) item('◆', GREEN);               // the engine's emerald, or from $100 its 3-cell count
   if (r.used && !(r.left > 0)) {
     put(9, [cell(' ', undefined, SIDE)]);
     put(14, [cell(' ', undefined, SIDE)]);

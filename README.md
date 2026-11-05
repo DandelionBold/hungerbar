@@ -89,7 +89,7 @@ This is one render. The Claude Code session is about four and a half hours old a
 | 12 | Spawn point | ⌂ and the folder Claude Code runs in. A long path is cut from the front. | Your spawn point: home, where you come back to. |
 | 13 | Operator | Your user name before the folder (`hud.user`). While Claude Code runs as Administrator (root elsewhere), the name turns bold gold (`hud.op gold`, the default). With `tag`, a red `[OP]` shows instead. | An operator: a player with admin rights on a server. Servers often show it as a coloured name or an `[OP]` rank in chat. |
 | 14 | Version | Claude Code's version, in dark grey. | The version in the corner of the title screen. |
-| 15 | Offhand | ◆ The extra credits left, in whole dollars, when the account has extra usage; from $100 the emerald gives up its spare cell for three digits (◆250, then ◆ 1k to ◆99k). The count turns grey when the credits were last read more than 15 minutes ago. Its frame turns green while a limit is used up and the extra credits pay, and stays grey when they are out. While the totem takes the offhand, the emerald moves to slot 5 as it is. | The offhand slot, holding an emerald, the villagers' money. |
+| 15 | Offhand | ◆ The extra credits left, in whole dollars, when the account has extra usage; from $100 the emerald gives up its spare cell for three digits (◆250, then ◆ 1k to ◆99k). Behind a Claude apps gateway that has not sent dollars yet, the % of the credits left (◆37%). The count turns grey when the credits were last read more than 15 minutes ago. Its frame turns green while a limit is used up and the extra credits pay, and stays grey when they are out. While the totem takes the offhand, the emerald moves to slot 5 as it is. | The offhand slot, holding an emerald, the villagers' money. |
 | 16 | Pickaxe | The selected slot, in the mint selection frame. The pickaxe and its effort numeral (Ⅰ to Ⅴ) take the model's tool tier (`hud.pickaxe`): netherite for Fable, diamond for Opus, iron for Sonnet, gold for Haiku, stone for any other. The numeral sits on a glint that turns a deeper purple with more effort. | The selected hotbar slot, holding a pickaxe. Tools come in tiers, from stone to netherite. Enchanted items shimmer with a purple glint. |
 | 17 | Book and quill | 📖 The prompts you sent this session, typed or sent while Claude was working. Slash commands, interrupts and notifications do not count. 100 or more shows 99 in yellow. | The book and quill, a book you write in. |
 | 18 | Gold | The session's cost, in whole dollars. | A gold ingot. |
@@ -176,6 +176,8 @@ Three changes to the offhand's emerald, your extra credits in whole dollars, pic
 - **Dollars past $99.** The emerald had two cells for its count, so $500 showed a yellow 99. From $100 it gives up its spare cell: ◆250, then ◆ 1k to ◆99k, and a yellow ◆99k from $100,000.
 - **An old count.** Credits the usage API read more than 15 minutes ago are counted in grey, not white.
 - **No green frame without credits.** When a limit is used up and no credits are left, the offhand's frame stays grey; 1.0 lit it green, as if the credits paid.
+
+**Only a percentage (1.2.2).** Behind a Claude apps gateway (some company setups), Claude Code sends how much of your spend limit is used with every reply, and the dollars later: about every five minutes, and only from Claude Code 2.1.284 on, on both sides. Until the dollars come, the emerald shows the % of the credits left: ◆37% when 63% is used. 100% does not fit, so with nothing spent it shows a yellow ◆99%. Under 1% left the well is empty, as under a dollar. The poisoned hearts show the same share: 37% left is four hearts. Once the dollars come, the emerald shows them.
 
 ### Your agents at work
 
@@ -502,7 +504,7 @@ Session: ♥♥♥♥♥♥♥♥♥♥ 98% (↻ 4h 49m) │ Weekly:            
 💳 Extra: $0.00/$50 │ cwd: D:/webapp │ v2.1.306
 ```
 
-The red hearts are what is left of the 5-hour window; a lost heart turns dark, from the right. The ten drumsticks are what is left of the week; an eaten one vanishes from the left. The % counts what is left too; `"limits": "used"` makes the icons and the % both count what is used. Limits turn yellow with 25% left and red with 10% left. The pie (● ◕ ◑ ◔ ○) empties as the cache cools, and the cache shows `○ ❄ COLD` once it expires. When the width is known, the lines are fitted: the version, the extra credits and the git changes go first, then the labels shorten, and so on. The model, the thinking effort, the context % and both limit %s are never dropped.
+The red hearts are what is left of the 5-hour window; a lost heart turns dark, from the right. The ten drumsticks are what is left of the week; an eaten one vanishes from the left. The % counts what is left too; `"limits": "used"` makes the icons and the % both count what is used. Limits turn yellow with 25% left and red with 10% left. Extra shows the dollars spent and your limit; behind a Claude apps gateway that has not sent dollars yet, it shows a % counted the same way: `💳 Extra: 37%` left, or 63% with `"limits": "used"`. The pie (● ◕ ◑ ◔ ○) empties as the cache cools, and the cache shows `○ ❄ COLD` once it expires. When the width is known, the lines are fitted: the version, the extra credits and the git changes go first, then the labels shorten, and so on. The model, the thinking effort, the context % and both limit %s are never dropped.
 
 The classic lines can show the [limit resets](#the-totem-your-limit-resets) you hold: add `resets` to a line of `lines`, for example `[["model","effort","context","git"],["limit5h","limitWeek","cache"],["extra","resets","cwd","version"]]`. It reads `☥ Limit resets: 1 (use by 2026-11-13)`, with the soonest expiry. The count turns yellow while a limit a reset can refill is at 10% left or less, and red once that limit is used up. With no reset held it shows nothing, and when a line is too wide it is the first item to go.
 
@@ -570,7 +572,7 @@ Hungerbar reads one JSON object on stdin and draws from it. Nothing checks who s
 | `cost.total_duration_ms` | the session's age, one of the phantoms' signs |
 | `cost.total_lines_added` and `total_lines_removed` | nothing of their own: a change only freshens the cached `+added -removed` diff |
 | `rate_limits.five_hour` and `rate_limits.seven_day`, each `{used_percentage, resets_at}` (`resets_at` in epoch seconds) | the day, the hearts and the drumsticks, with the time to each reset |
-| `rate_limits.spend_limit` (`used_usd`, `limit_usd`, `used_percentage`) | the extra credits in the offhand; when it is there it wins over the usage API's answer, which is then not read |
+| `rate_limits.spend_limit` (`used_usd`, `limit_usd`, `used_percentage`) | the extra credits in the offhand: the dollars left, or the % left while it has only `used_percentage`; when it is there it wins over the usage API's answer, which is then not read |
 | `prompt_cache` (`warm`, `expires_at`, `ttl`, `hit_ratio`, `caching_observed`) | the air bubbles, the countdown and the hit % |
 | `version` | the version |
 | `session_id` | the key of the terrain's history and of the transcript's counts |

@@ -527,20 +527,23 @@ export function vitalFlags(r: Rng): VitalFlags {
 // ---------------- the offhand (1.1.0): the count from $100, the stale count, the credits out ----------------
 /**
  * Credits for the offhand: under a dollar ($0.40, $0.999), the count's edges ($1, $1.99, $2, $99, $99.99, $100, $999,
- * $1,000, $9,999, $12,345, $99,999, $100,000 and far past it), exactly $0, past the limit, no limit, none.
+ * $1,000, $9,999, $12,345, $99,999, $100,000 and far past it), exactly $0, past the limit, no limit, none; and (1.2.2)
+ * shares of a limit of 100, as the adapter hands the engine credits with only the share used: 0%, 1%, 9% and 10%, 37%
+ * left.
  */
 export const OFF_EXTRA: readonly unknown[] = [{ used: 49.6, limit: 50 }, { used: 0.001, limit: 1 }, { used: 0, limit: 1 }, { used: 0.01, limit: 2 },
   { used: 0, limit: 2 }, { used: 0, limit: 99 }, { used: 0.01, limit: 100 }, { used: 0, limit: 100 }, { used: 0, limit: 250 }, { used: 0, limit: 999 },
   { used: 0, limit: 1000 }, { used: 0, limit: 9999 }, { used: 0, limit: 12345 }, { used: 0, limit: 99999 }, { used: 0, limit: 100000 }, { used: 1, limit: 1e12 },
-  { used: 4.2, limit: 50 }, { used: 50, limit: 50 }, { used: 75, limit: 50 }, { used: 0, limit: 0 }, { used: 4.2, limit: null }, null, DEL];
+  { used: 4.2, limit: 50 }, { used: 50, limit: 50 }, { used: 75, limit: 50 }, { used: 0, limit: 0 }, { used: 4.2, limit: null }, null, DEL,
+  { used: 100, limit: 100 }, { used: 99, limit: 100 }, { used: 91, limit: 100 }, { used: 90, limit: 100 }, { used: 63, limit: 100 }];
 /** 5-hour windows around the totem's edges: healthy, 11% and 10% left (not dying, dying), 1%, used up, none. */
 export const OFF_H5: readonly unknown[] = [{ used: 2, left: 17340, window: 18000 }, { used: 89, left: 3000 }, { used: 90, left: 2400 }, { used: 93, left: 2280 },
   { used: 99, left: 60 }, { used: 99.9 }, { used: 100, left: 3900 }, { used: 105 }, null, DEL];
 /** Weeks around the same edges. */
 export const OFF_WEEK: readonly unknown[] = [{ used: 40, left: 345540 }, { used: 89, left: 9000 }, { used: 90, left: 9000 }, { used: 97, left: 33120 },
   { used: 99.5 }, { used: 100, left: 187200 }, null, DEL];
-/** What the offhand is handed besides the state: the credits more than 900 s old. */
-export interface OffFlags { stale: boolean }
+/** What the offhand is handed besides the state: the credits more than 900 s old; only the share used (1.2.2). */
+export interface OffFlags { stale: boolean; pct: boolean }
 /** A state for the offhand: a seeded state that, two times in three, has its credits and windows from the offhand's domains. */
 export function offhandState(r: Rng, bases: readonly object[]): unknown {
   const s = state(r, bases);
@@ -552,7 +555,7 @@ export function offhandState(r: Rng, bases: readonly object[]): unknown {
 }
 /** Seeded flags for the offhand. */
 export function offhandFlags(r: Rng): OffFlags {
-  return { stale: chance(r, 0.4) };
+  return { stale: chance(r, 0.4), pct: chance(r, 0.3) };
 }
 
 // ---------------- the agents at work (1.1.0): bees or allays in line 1's sky ----------------

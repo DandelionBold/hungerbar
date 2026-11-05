@@ -285,6 +285,29 @@ test('ExtraView.at (1.1.0): usage.json\'s at for its extra credits, null for std
   assert.deepEqual(adapt(fromFile, {}, { turns: 0, compactions: 0 }).extra, { used: 4.2, limit: 50 });
 });
 
+test('spend_limit (1.2.2): only the percentage, only the dollars, both; while it is there the usage API\'s credits are never read for it', () => {
+  const cfg = defaults();
+  const usage = { v: 1 as const, at: NOW - 30, extra: { enabled: true, usedCents: 0, limitCents: 20000, currency: 'USD' }, scoped: [], lockUntil: 0 };
+  const at = (spend: unknown) => {
+    let asked = 0;
+    const st = collect({ rate_limits: { spend_limit: spend } } as Payload, NOW, cfg, {}, { ...sources(null), usage: () => { asked++; return usage; } }, false);
+    return { extra: st.extra, hud: adapt(st, {}, { turns: 0, compactions: 0 }).extra, asked };
+  };
+  // a Claude apps gateway sends used_percentage first, the dollars later (and never before Claude Code 2.1.284)
+  assert.deepEqual(at({ used_percentage: 63, resets_at: NOW + 86400 }),
+    { extra: { used: null, limit: null, currency: 'USD', pct: 63, at: null }, hud: { used: 63, limit: 100 }, asked: 0 }, 'only the percentage: the share, not usage.json\'s $200');
+  assert.deepEqual(at({ used_percentage: 62.8 }).hud, { used: 62, limit: 100 }, 'the engine counts the % left as the limits do: 100 - floor(used)');
+  assert.deepEqual(at({ used_percentage: 120 }).hud, { used: 100, limit: 100 }, 'past the limit: 0% left');
+  assert.deepEqual(at({ used_percentage: '7.5' }).extra, { used: null, limit: null, currency: 'USD', pct: 7.5, at: null }, 'a numeric string, as num() reads any field');
+  assert.deepEqual(at({ used_usd: 12.4, limit_usd: 50 }),
+    { extra: { used: 12.4, limit: 50, currency: 'USD', pct: 24.8, at: null }, hud: { used: 12.4, limit: 50 }, asked: 0 }, 'only the dollars');
+  assert.deepEqual(at({ used_percentage: 62.8, used_usd: 314.12, limit_usd: 500, period: 'monthly' }),
+    { extra: { used: 314.12, limit: 500, currency: 'USD', pct: 62.8, at: null }, hud: { used: 314.12, limit: 500 }, asked: 0 }, 'both: the dollars, and its own %');
+  assert.deepEqual(at({ resets_at: NOW + 86400 }), { extra: null, hud: null, asked: 0 }, 'nothing to draw: no credits, and not the usage API\'s');
+  assert.deepEqual(at({}), { extra: null, hud: null, asked: 0 });
+  assert.deepEqual(at(null), { extra: { used: 0, limit: 200, currency: 'USD', pct: 0, at: NOW - 30 }, hud: { used: 0, limit: 200 }, asked: 1 }, 'no spend_limit: the usage API\'s');
+});
+
 test('usage API: weekly_scoped entries and the placeholder rule', () => {
   const r = parseBody({
     extra_usage: { is_enabled: true, used_credits: 420, monthly_limit: 5000, currency: 'USD' },
