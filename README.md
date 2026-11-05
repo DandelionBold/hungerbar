@@ -4,7 +4,7 @@
 
 # Hungerbar
 
-**Your Claude Code limits as a Minecraft HUD, right in the status line.**
+**Your Claude Code usage limits as a Minecraft HUD, right in the status line.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Version 1.2.1](https://img.shields.io/badge/version-1.2.1-blue.svg)](https://github.com/DandelionBold/hungerbar/releases/tag/v1.2.1)
@@ -12,7 +12,9 @@
 [![Platform: Windows Terminal](https://img.shields.io/badge/platform-Windows%20Terminal-0078D4.svg)](#requirements)
 [![CI](https://github.com/DandelionBold/hungerbar/actions/workflows/ci.yml/badge.svg)](https://github.com/DandelionBold/hungerbar/actions/workflows/ci.yml)
 
-Hearts are your 5-hour window. Drumsticks are your week. The XP bar is your context. The last two hours of git grow as terrain in the hotbar.
+Hungerbar is a Claude Code status line. Hearts are your 5-hour window. Drumsticks are your week. The XP bar is your context. The last two hours of git grow as terrain in the hotbar.
+
+A short launch film shows it at work: [watch it on LinkedIn](https://www.linkedin.com/posts/kamal-nady_claudecode-opensource-minecraft-ugcPost-7524123761802117123-6-Hg/).
 
 **Quick start.** With Claude Code and Node.js 20 or newer, run these two commands in a terminal, one after the other, and answer setup's questions (Enter takes each default):
 
@@ -41,7 +43,7 @@ Or let your AI do it: tell Claude Code `Install Hungerbar for me: https://github
 
 ## What it is
 
-Claude Code can run a command of your choice to draw a status line under its prompt. Hungerbar is that command. On each render, Claude Code passes it the model, the context, the cost, your 5-hour and weekly limits and the prompt cache. Hungerbar adds your git state and draws it all as Minecraft's HUD:
+Claude Code can run a command of your choice to draw a status line under its prompt (its `statusLine` setting). Hungerbar is that command. On each render, Claude Code passes it the model, the context, the cost, your 5-hour and weekly limits and the prompt cache. Hungerbar adds your git state and draws it all as a Minecraft HUD for your terminal:
 
 - **Hearts** show what is left of the 5-hour window. **Drumsticks** show what is left of the week.
 - The **XP bar** is the context. The **level** counts the times it was compacted.
@@ -50,6 +52,8 @@ Claude Code can run a command of your choice to draw a status line under its pro
 - The **branch** shows what git is doing. It can also show the pull request and its checks.
 - **Bees** fly home across the sky while Claude Code's subagents work.
 - The **totem** is a limit reset Anthropic gave you, once you tell Hungerbar about it.
+
+So it is a usage tracker you read at a glance, and a rate limit monitor: you see a limit coming before it stops you.
 
 Hungerbar is one JavaScript file with no runtime dependencies. It never uses the network while it draws, and it runs git only in the background (unless you set `git.mode` to `sync`). Its network features stay off until you say yes.
 
@@ -102,7 +106,7 @@ This is one render. The Claude Code session is about four and a half hours old a
 
 ### Fable's weekly limit
 
-![The four Fable options, each shown with Fable in use and then on Opus](docs/media/fable.gif)
+![The four ways to show the Fable weekly limit, each with Fable in use and then on Opus](docs/media/fable.gif)
 
 Fable has its own weekly limit. `hud.fable` picks how the HUD shows it:
 
@@ -301,11 +305,11 @@ The switch changes only the font face in Windows Terminal's profile defaults (`p
 
 - **Claude Code.**
 - **Node.js 20 or newer.**
-- **Windows Terminal** is recommended. The HUD needs 256 or 24-bit colour, and its glyphs and widths were checked in Windows Terminal. In another terminal, `hungerbar glyphs --hud` shows whether each glyph has the right width.
+- **Windows Terminal** is recommended. The HUD needs 256 or 24-bit colour, and its glyphs and widths were checked in Windows Terminal and in Ubuntu's terminal. In another terminal, `hungerbar glyphs --hud` shows whether each glyph has the right width.
 - **Git for Windows**, on Windows. Claude Code runs status lines through its Git Bash, and the command `setup` writes is made for it.
 - Optional: **git** for the git state and the terrain, and the **GitHub CLI** (`gh`), logged in, for the pull request status.
 
-Hungerbar is built on Windows. Tests run on Windows, Linux and macOS in CI. The HUD's glyphs and widths were checked by eye in Windows Terminal only; elsewhere run `hungerbar glyphs --hud` first.
+Hungerbar is built on Windows. Tests run on Windows, Linux and macOS in CI. It has run live in Windows Terminal and in Ubuntu's terminal. If an icon looks off in your terminal, run `hungerbar glyphs --hud`.
 
 ### Install from the release
 
@@ -606,7 +610,7 @@ process.stdin.on("data", (d) => (s += d)).on("end", () => {
 As of November 2026:
 
 - OpenAI's Codex CLI has no command status line hook, only its own fixed items, so Hungerbar cannot run there.
-- Google's Antigravity CLI has a `statusLine` command hook like Claude Code's, with JSON on stdin. A Hungerbar adapter for it is planned for v1.2. A payload saved with `HUNGERBAR_CAPTURE=<dir>` from it would help: read it before you share it, since it keeps some paths.
+- Google's Antigravity CLI has a `statusLine` command hook like Claude Code's, with JSON on stdin. A Hungerbar adapter for it is planned. A payload saved with `HUNGERBAR_CAPTURE=<dir>` from it would help: read it before you share it, since it keeps some paths.
 
 ## How it stays fast
 
@@ -669,4 +673,4 @@ Bug reports, ideas and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING
 
 ## Trademarks
 
-Minecraft is a trademark of Mojang AB. Hungerbar is not affiliated with or endorsed by Mojang or Microsoft.
+Minecraft is a trademark of Mojang AB. Hungerbar is a fan project: it is not an official Minecraft product, and it is not approved by, associated with or endorsed by Mojang, Microsoft or Anthropic.
