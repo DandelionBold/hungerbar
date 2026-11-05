@@ -48,7 +48,10 @@ export interface CacheView {
   dim: boolean;
 }
 
-export interface ExtraView {
+/** The extra credits: in dollars, or (1.2.2) only the share used, from a spend_limit with no dollars yet. */
+export type ExtraView = ExtraDollars | ExtraShare;
+
+export interface ExtraDollars {
   used: number;
   limit: number | null;
   currency: string;
@@ -59,6 +62,19 @@ export interface ExtraView {
    * more than 900 s old, and the shown-file keeps only fresh dollars.
    */
   at: number | null;
+}
+
+/**
+ * A spend_limit with only its percentage (1.2.2): behind a Claude apps gateway, `used_percentage` comes with every
+ * response, and `used_usd` and `limit_usd` come later, from a request about every five minutes, and never on a Claude Code
+ * or a gateway older than 2.1.284. `pct` is the share used, as sent: 0-100, or more past the limit. Always stdin's.
+ */
+export interface ExtraShare {
+  used: null;
+  limit: null;
+  currency: 'USD';
+  pct: number;
+  at: null;
 }
 
 export interface ScopedView {
@@ -227,17 +243,23 @@ export function collect(p: Payload, now: number, cfg: Config, env: Env, src: Sou
     } else cache = { hit: null, state: null, left: 0, ttl: null, dim: false };
   }
 
+  // stdin's spend_limit is the gateway's own: while it is there, the usage API's credits (the Claude account's) are not
+  // read, even when it holds only its percentage (1.2.1 read them then) or nothing to draw.
   let extra: ExtraView | null = null;
   const sl = obj(p.rate_limits?.spend_limit);
-  const slUsed = num(sl?.used_usd), slLimit = num(sl?.limit_usd);
-  const usage = slUsed !== null || slLimit !== null ? null : src.usage();
-  if (sl && (slUsed !== null || slLimit !== null)) {
-    const used = slUsed ?? 0;
-    extra = { used, limit: slLimit, currency: 'USD', pct: num(sl.used_percentage) ?? (slLimit ? (used / slLimit) * 100 : null), at: null };
-  } else if (usage?.extra?.enabled) {
-    const x = usage.extra;
-    const used = x.usedCents / 100, limit = x.limitCents === null ? null : x.limitCents / 100;
-    extra = { used, limit, currency: sanitize(x.currency || 'USD', CAP.currency) || 'USD', pct: limit ? (used / limit) * 100 : null, at: usage.at };
+  if (sl) {
+    const slUsed = num(sl.used_usd), slLimit = num(sl.limit_usd), slPct = num(sl.used_percentage);
+    if (slUsed !== null || slLimit !== null) {
+      const used = slUsed ?? 0;
+      extra = { used, limit: slLimit, currency: 'USD', pct: slPct ?? (slLimit ? (used / slLimit) * 100 : null), at: null };
+    } else if (slPct !== null) extra = { used: null, limit: null, currency: 'USD', pct: slPct, at: null };
+  } else {
+    const usage = src.usage();
+    if (usage?.extra?.enabled) {
+      const x = usage.extra;
+      const used = x.usedCents / 100, limit = x.limitCents === null ? null : x.limitCents / 100;
+      extra = { used, limit, currency: sanitize(x.currency || 'USD', CAP.currency) || 'USD', pct: limit ? (used / limit) * 100 : null, at: usage.at };
+    }
   }
 
   const scoped: ScopedView[] = cfg.network.scopedWeekly

@@ -2,6 +2,13 @@
 
 What changed for users in each version. Versions before 1.0.0 were private builds; 1.0.0 is the first public release.
 
+## 1.2.2 (Unreleased)
+
+Behind a Claude apps gateway, the credits show from the first reply, as a percentage until the dollars come.
+
+- **A spend limit with only its percentage, fixed.** Behind a Claude apps gateway (some company setups), Claude Code sends your spend limit to the status line as `rate_limits.spend_limit`. The % used comes with every reply; the dollars come later, about every five minutes, and never on a Claude Code or a gateway older than 2.1.284 (the status line docs, "Spend limit fields"). Hungerbar read the spend limit only with its dollars, so until they came it showed no credits, or the Claude account's credits from the usage API, which are not the gateway's. Now the emerald shows the % of the credits left, ◆37% when 63% is used, and the classic lines show `💳 Extra: 37%`, counted like the limits (`"limits": "used"` makes it 63%). With nothing spent the emerald shows a yellow ◆99%, since 100% does not fit. The poisoned hearts show the same share. Once the dollars come, both looks show the dollars, as before.
+- **The gateway's spend limit always wins.** While Claude Code sends a `spend_limit`, Hungerbar never reads the usage API's credits for the offhand or the Extra item, even when the spend limit has only its percentage.
+
 ## 1.2.1 (2026-11-04)
 
 On Pro and Max, the HUD no longer shows the gold Ultra hearts right after a 5-hour reset.

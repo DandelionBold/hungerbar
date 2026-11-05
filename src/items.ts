@@ -215,6 +215,11 @@ export function build(id: ItemId, st: State, cfg: Config, g: Glyphs, o: Opts): P
     case 'extra': {
       const x = st.extra;
       if (!x) return [];
+      if (x.used === null) {
+        // only the share used (1.2.2, a gateway's spend_limit with no dollars yet): a % that counts as the limits' (SPEC §0.8)
+        const p = limitPct(x.pct);
+        return one([...lab(label(id, cfg, g, o)), { t: `${cfg.limits === 'left' ? 100 - p : p}%`, role: lvl(p, 'extra', cfg) }]);
+      }
       const text = x.limit !== null ? `${moneyUsed(x.used, x.currency)}/${moneyLimit(x.limit, x.currency)}` : moneyUsed(x.used, x.currency);
       return one([...lab(label(id, cfg, g, o)), { t: text, role: x.pct !== null ? lvl(limitPct(x.pct), 'extra', cfg) : 'extra' }]);
     }

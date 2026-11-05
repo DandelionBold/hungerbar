@@ -6,11 +6,13 @@
 //   - branch and cwd come capped at the engine's own bounds (State.branchFull 256, State.cwdFull 512, the end kept),
 //     so the engine never cuts a second time (round-4 issue 6);
 //   - a scoped weekly limit past its reset (left ≤ 0) is a full week with no clock (used 0, left null) until the next
-//     fetch, as limits.ts view() reads a passed reset.
+//     fetch, as limits.ts view() reads a passed reset;
+//   - credits with only the share used (1.2.2, a gateway's spend_limit with no dollars yet) are that % of a limit of 100.
 // Last-known limits and the transcript's cache values are drawn without classic's ~: the HUD has no cell for it.
 // `hist` is not set here: the history step needs fromState's reading of this state first (look.ts).
+import { limitPct } from '../format.ts';
 import { num, type Payload } from '../payload.ts';
-import type { CacheView, Counts, State } from '../state.ts';
+import type { CacheView, Counts, ExtraView, State } from '../state.ts';
 import type { Hist } from './input.ts';
 import { tidy } from './text.ts';
 
@@ -56,6 +58,14 @@ const limit = (l: State['h5'], window?: number): HudLimit | null =>
 const cacheOf = (c: CacheView | null): HudState['cache'] =>
   c ? { hit: c.hit, warm: c.state === 'warm' ? true : c.state === 'cold' ? false : null, left: Math.max(0, Math.floor(c.left)), ttl: c.ttl === '1h' ? 3600 : 300 } : null;
 
+/**
+ * The credits as the engine counts them: the dollars; or, for only the share used (1.2.2), the % used (floored, as the
+ * limits' are) of a limit of 100, so what is left is the % left, and the poisoned hearts' share is the share left. The
+ * offhand layer (src/hud/offhand.ts) draws that count with its %.
+ */
+const extraOf = (x: ExtraView | null): HudState['extra'] =>
+  x === null ? null : x.used === null ? { used: limitPct(x.pct), limit: 100 } : { used: x.used, limit: x.limit };
+
 /** The engine's state for this render, without its history. */
 export function adapt(st: State, p: Payload, counts: Counts): HudState {
   return {
@@ -72,7 +82,7 @@ export function adapt(st: State, p: Payload, counts: Counts): HudState {
     h5: limit(st.h5, WINDOW_5H),
     week: limit(st.week),
     cache: cacheOf(st.cache),
-    extra: st.extra ? { used: st.extra.used, limit: st.extra.limit } : null,
+    extra: extraOf(st.extra),
     cost: num(p.cost?.total_cost_usd) ?? 0,
     turns: counts.turns,
     compactions: counts.compactions,

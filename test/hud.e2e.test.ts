@@ -171,8 +171,8 @@ const vitalsOf = (c: Case): OracleVitals => {
 };
 
 /** The offhand's input as src/hud/offhand.ts OffhandMarks has it (restated here): a case's pin, or none (no offhand). */
-interface PinnedOffhand { cash: number | null; paying: boolean; out: boolean; stale: boolean }
-const NO_OFF: PinnedOffhand = { cash: null, paying: false, out: false, stale: false };
+interface PinnedOffhand { cash: number | null; pct: boolean; paying: boolean; out: boolean; stale: boolean }
+const NO_OFF: PinnedOffhand = { cash: null, pct: false, paying: false, out: false, stale: false };
 const pinnedOffhand = (c: Case): PinnedOffhand => ({ ...NO_OFF, ...(c.hudOffhand as Partial<PinnedOffhand> | undefined) });
 /** The totem's input as src/hud/totem.ts TotemMarks has it (restated here): a case's pin, or none drawn. */
 interface PinnedTotem { at: 'slot5' | 'offhand' | 'call' | null; mark: 'pop' | 'last' | null }
@@ -199,7 +199,7 @@ const agentsOf = (c: Case): OracleAgents => { const a = pinnedAgents(c); return 
 const tiersOf = (c: Case): boolean => (c.config as { hud?: { pickaxe?: unknown } } | undefined)?.hud?.pickaxe !== 'plain';
 /** The tiers' input a case pins, or the tests' own reading of its state (src/hud/tiers.ts TierMarks, restated). */
 const pinnedTiers = (c: Case, want: RefState): unknown => (c.hudTiers !== undefined ? c.hudTiers : tierOracle(want, tiersOf(c)));
-const offhandOf = (c: Case): OracleOffhand => ({ stale: pinnedOffhand(c).stale });
+const offhandOf = (c: Case): OracleOffhand => ({ stale: pinnedOffhand(c).stale, pct: pinnedOffhand(c).pct });
 
 // ---------------------------------------------------------------------------------------------------------------------
 // (a) adapt(DEMOS[s])

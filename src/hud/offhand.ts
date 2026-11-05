@@ -9,6 +9,10 @@
 //     icon keeps its colour, and the yellow cap stays yellow.
 //   - Credits out (no key): a window used up with $0 of credits left: the engine still lights the sides green, as if
 //     the credits paid; they are the frame grey instead, so the frame's edges are too.
+//   - The share (no key, 1.2.2): credits with only the share used (a gateway's spend_limit with no dollars yet) are
+//     handed to the engine as that % of a limit of 100 (src/hud/adapter.ts), so it counts the % left. The count is then
+//     the % left with its %: the icon in 1 cell, then 3 cells, ' 1%' to '99%' in white; 100% does not fit, so it is
+//     the yellow cap '99%'. Under 1% left the well is empty, as under a dollar.
 // In 1.1.0 the totem lived here and followed the credits; since 1.2.0 it is the limit resets you declare, its own layer
 // (src/hud/totem.ts), which moves the emerald this layer drew into slot 5 when the totem takes the offhand.
 // The layer reads only what the engine drew: it draws the offhand only where cols 9-14 are exactly the engine's offhand
@@ -30,8 +34,13 @@ export const OFFHAND: readonly [number, number] = [9, 15];
 
 /** What the layer draws: the HUD path builds it with offhandMarks(). */
 export interface OffhandMarks {
-  /** The credits' whole dollars as the engine counts them (trunc of what is left); null: no offhand (no extra-usage limit). */
+  /**
+   * The credits' whole dollars as the engine counts them (trunc of what is left), or with `pct` the % left; null: no
+   * offhand (no extra-usage limit).
+   */
   cash: number | null;
+  /** The count is the % left, not dollars (1.2.2): the credits have only the share used (State.extra.used null). */
+  pct: boolean;
   /** A window is used up (the engine's paying()): it lights the sides green. */
   paying: boolean;
   /** Credits out: a window used up and $0 left; the sides are the frame grey. */
@@ -41,21 +50,21 @@ export interface OffhandMarks {
 }
 
 /** Nothing to draw: the engine's lines as they are. */
-export const NO_OFFHAND: OffhandMarks = { cash: null, paying: false, out: false, stale: false };
+export const NO_OFFHAND: OffhandMarks = { cash: null, pct: false, paying: false, out: false, stale: false };
 
 /** The credits come from usage.json and were fetched more than 900 s ago (stdin's own have no `at`). */
 export const staleCredits = (st: Pick<State, 'now' | 'extra'>): boolean => !!st.extra && st.extra.at !== null && st.now - st.extra.at > STALE_SECS;
 
 /**
  * What the layer draws this render, from the port's own reading (`sit`, fromState's) and the credits' age
- * (State.extra.at): no offhand without an extra-usage limit; the whole dollars, whether a window is used up (the
- * engine's paying()) and whether the credits are out then.
+ * (State.extra.at): no offhand without an extra-usage limit; the whole dollars (or the % left, for credits with only
+ * the share used), whether a window is used up (the engine's paying()) and whether the credits are out then.
  */
 export function offhandMarks(st: Pick<State, 'now' | 'extra'>, sit: Sit): OffhandMarks {
   const left = sit.extra_left;
   if (none(left)) return NO_OFFHAND;
   const used = paying(sit);
-  return { cash: Math.trunc(left), paying: used, out: used && !(left > 0), stale: staleCredits(st) };
+  return { cash: Math.trunc(left), pct: st.extra?.used === null, paying: used, out: used && !(left > 0), stale: staleCredits(st) };
 }
 
 /** A count of 2 cells after a 2-cell icon (the engine's f2Well): nothing for 0 or 1, the dollars right-aligned. */
@@ -66,6 +75,9 @@ const three = (cash: number, ink: string): Span =>
 /** An item and its count in the 4 well cells: the icon and a space, then 2 cells, or from $100 the icon and 3 cells. */
 const stack = (glyph: string, fg: string, cash: number, ink: string): Span[] =>
   cash >= 100 ? [S(glyph, fg, WELL), three(cash, ink)] : [S(glyph + ' ', fg, WELL), two(cash, ink)];
+/** The share left in the 4 well cells (1.2.2): the icon, then the % right-aligned in 3 cells; 100% is the yellow 99%. */
+const share = (glyph: string, fg: string, pct: number, ink: string): Span[] =>
+  [S(glyph, fg, WELL), pct >= 100 ? S('99%', YELLOW, WELL, true) : S(rjust(`${pct}%`, 3), ink, WELL, true)];
 
 /** A side of the offhand in this colour: the frame's half blocks on the frame grey. */
 const side = (g: '▐' | '▌', fg: string): Span => S(g, fg, SIDE);
@@ -79,7 +91,7 @@ export function engineOffhand(m: OffhandMarks & { cash: number }): Span[] {
 /** The offhand as the marks draw it, cols 9-14 (the totem layer moves its well to slot 5 when the totem takes the offhand). */
 export function drawnOffhand(m: OffhandMarks & { cash: number }): Span[] {
   const ink = m.stale ? GREY : WHITE, c = m.cash;
-  const well = c >= 1 ? stack('◆', EMERALD, c, ink) : f2Well(null, null);
+  const well = c >= 1 ? (m.pct ? share : stack)('◆', EMERALD, c, ink) : f2Well(null, null);
   return m.paying && !m.out ? [side('▐', EMERALD), ...well, side('▌', EMERALD)] : [DIV, ...well, DIV];
 }
 

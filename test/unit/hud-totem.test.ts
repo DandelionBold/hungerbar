@@ -526,22 +526,25 @@ function* inputs(): Generator<[string, unknown]> {
   for (let k = 0; k < 400; k++) yield [`fuzz state #${k}`, totemState(r, bases)];
 }
 const xv = (at: number): ExtraView => ({ used: 0, limit: 50, currency: 'USD', pct: 0, at });
+/** Credits with only the share used (1.2.2): the emerald's count is the % left, and moves to slot 5 as it is. */
+const SHARE: ExtraView = { used: null, limit: null, currency: 'USD', pct: 63, at: null };
 
 test('the layer equals the tests\' layer on the reference states, the time-lapse and fuzz, x seeded grants x hud.totem x the 5 fable ids; no totem is hud.totem off; n never matters', () => {
   const r = mulberry32(0x1d01);
   const n = { slot5: 0, offhand: 0, call: 0, pop: 0, last: 0, appears: 0, none: 0 };
   for (const [what, state] of inputs()) {
     for (const id of FABLE_IDS) {
-      const grants = totemGrants(r, DEMO_NOW), totem = r() < 0.85 ? 'on' : 'off', pop = r() < 0.4 ? DEMO_NOW + 5 : 0, stale = offhandFlags(r).stale;
+      const grants = totemGrants(r, DEMO_NOW), totem = r() < 0.85 ? 'on' : 'off', pop = r() < 0.4 ? DEMO_NOW + 5 : 0, f = offhandFlags(r);
+      const stale = f.stale && !f.pct, pct = f.pct;
       const sit = fromState(state), h = held(grants as TotemGrant[], DEMO_NOW);
-      const em = offhandMarks({ now: DEMO_NOW, extra: xv(stale ? DEMO_NOW - 901 : DEMO_NOW - 30) }, sit);
+      const em = offhandMarks({ now: DEMO_NOW, extra: pct ? SHARE : xv(stale ? DEMO_NOW - 901 : DEMO_NOW - 30) }, sit);
       const tm = totemMarks(DEMO_NOW, { totem }, h, sit, pop);
       const eng = renderHud(state, id), layered = offhandHud(eng, em);
       const got = frameHud(totemHud(layered, tm, em, sit));
       const o: OracleTotem = totem === 'on' && h.count > 0 ? { held: true, refills: h.refills, lastDay: h.lastDay, pop: pop > DEMO_NOW } : NO_TOTEM_ORACLE;
-      const base = offhandOracle(MIX.render(state, picked(`fable-${id}`)), state, { stale });
+      const base = offhandOracle(MIX.render(state, picked(`fable-${id}`)), state, { stale, pct });
       const want = frameOracle(totemOracle(base, state, o), state, totemSideOracle(state, o));
-      assert.deepEqual(tuples(got as RefLines), plain(tuples(want)), `${what} ${id} ${JSON.stringify({ grants, totem, pop, stale })}`);
+      assert.deepEqual(tuples(got as RefLines), plain(tuples(want)), `${what} ${id} ${JSON.stringify({ grants, totem, pop, stale, pct })}`);
       assert.equal(tm.at, totemPlaceOracle(state, o), `${what}: where`);
       assert.equal(tm.mark, totemMarkOracle(state, o), `${what}: the mark`);
       for (const l of got) assert.ok(cellWidth(text(l)) <= 110 && !/^\s/u.test(text(l)), `${what} ${id}: ${cellWidth(text(l))} cells`);

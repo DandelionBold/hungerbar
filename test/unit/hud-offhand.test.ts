@@ -163,13 +163,35 @@ test('round 9: through the real HUD path (renderPayload, the adapter, the engine
   }
 });
 
+test('the share through the real HUD path (1.2.2): a gateway\'s spend_limit with only its percentage draws ◆37%, with its dollars the dollars; the usage API\'s credits only without one', () => {
+  const src = (p: Payload, cfg: Config, now: number): Sources =>
+    ({ ...demoSources(DEMOS.normal!)(p, cfg, now), usage: () => usageOf({ used: 4.2, limit: 50 }, DEMO_NOW - 30), history: () => null, totems: () => [] });
+  const at = (spend: unknown) => {
+    const r = renderPayload(JSON.stringify({ ...NORMAL_P, rate_limits: { ...NORMAL_P.rate_limits, spend_limit: spend } }), { env: { FORCE_COLOR: '3' }, config: hudCfg(), sources: src, now: DEMO_NOW });
+    assert.ok(r.hud && r.state);
+    // the hotbar is the framed lines' last but one: the frame's edge is under it
+    return { extra: r.state.extra, input: r.hud.input.extra, marks: plain(r.hud.offhand), off: plain(cols(r.hud.framed[r.hud.framed.length - 2]!, 9, 15)) };
+  };
+  const E = (g: string): Span => S(g, '#17DD62', WELL);
+  const W = (t: string, fg = '#FFFFFF'): Span => S(t, fg, WELL, true);
+  assert.deepEqual(at({ used_percentage: 63, resets_at: DEMO_NOW + 86400 }), {
+    extra: { used: null, limit: null, currency: 'USD', pct: 63, at: null }, input: { used: 63, limit: 100 },
+    marks: { cash: 37, pct: true, paying: false, out: false, stale: false }, off: plain([DIV, E('◆'), W('37%'), DIV]),
+  }, 'only the percentage');
+  assert.deepEqual(at({ used_percentage: 62.8, used_usd: 314.12, limit_usd: 500 }).off, plain([DIV, E('◆'), W('185'), DIV]), 'with the dollars: the dollars left');
+  assert.deepEqual(at({ used_usd: 12.4, limit_usd: 50 }).off, plain([DIV, E('◆ '), W('37'), DIV]), 'only the dollars');
+  assert.deepEqual(at({ used_percentage: 0 }).off, plain([DIV, E('◆'), W('99%', '#FFFF55'), DIV]), 'nothing spent yet: 100%, the cap');
+  assert.equal(at({ resets_at: DEMO_NOW + 86400 }).extra, null, 'a spend_limit with nothing to draw: no credits, and not the usage API\'s');
+  assert.deepEqual(at(null).marks, { cash: 45, pct: false, paying: false, out: false, stale: false }, 'no spend_limit: the usage API\'s $45.80');
+});
+
 // ---------------------------------------------------------------------------------------------------------------------
 // By hand: the marks
 // ---------------------------------------------------------------------------------------------------------------------
 
 test('the constants: the emerald\'s green, the sides, the cap, the 900 s, the columns', () => {
   assert.deepEqual([EMERALD, SIDE, YELLOW, STALE_SECS, OFFHAND], ['#17DD62', '#5D5D5D', '#FFFF55', 900, [9, 15]]);
-  assert.deepEqual(NO_OFFHAND, { cash: null, paying: false, out: false, stale: false });
+  assert.deepEqual(NO_OFFHAND, { cash: null, pct: false, paying: false, out: false, stale: false });
   assert.deepEqual(defaults().hud.totem, 'on');
 });
 
@@ -181,12 +203,13 @@ const X = (used: number, limit = 50): Partial<RefState> => ({ extra: { used, lim
 const fresh = { now: DEMO_NOW, extra: xv(null) };
 
 test('offhandMarks: the dollars, paying while a window is used up, the credits out at $0; none without an extra-usage limit', () => {
-  assert.deepEqual(offhandMarks(fresh, sitOf({})), { cash: 50, paying: false, out: false, stale: false });
-  assert.deepEqual(offhandMarks(fresh, sitOf({ ...H(100), ...X(4.2) })), { cash: 45, paying: true, out: false, stale: false });
-  assert.deepEqual(offhandMarks(fresh, sitOf({ ...H(100), ...X(50) })), { cash: 0, paying: true, out: true, stale: false }, 'credits out');
-  assert.deepEqual(offhandMarks(fresh, sitOf({ ...WK(100), ...X(80) })), { cash: 0, paying: true, out: true, stale: false }, 'past the limit is $0');
-  assert.deepEqual(offhandMarks(fresh, sitOf({ ...H(100), ...X(49.6) })), { cash: 0, paying: true, out: false, stale: false }, '$0.40 left still pays');
-  assert.deepEqual(offhandMarks(fresh, sitOf(X(50))), { cash: 0, paying: false, out: false, stale: false }, '$0 and nothing used up');
+  assert.deepEqual(offhandMarks(fresh, sitOf({})), { cash: 50, pct: false, paying: false, out: false, stale: false });
+  assert.deepEqual(offhandMarks(fresh, sitOf({ ...H(100), ...X(4.2) })), { cash: 45, pct: false, paying: true, out: false, stale: false });
+  assert.deepEqual(offhandMarks(fresh, sitOf({ ...H(100), ...X(50) })), { cash: 0, pct: false, paying: true, out: true, stale: false }, 'credits out');
+  assert.deepEqual(offhandMarks(fresh, sitOf({ ...WK(100), ...X(80) })), { cash: 0, pct: false, paying: true, out: true, stale: false }, 'past the limit is $0');
+  assert.deepEqual(offhandMarks(fresh, sitOf({ ...H(100), ...X(49.6) })), { cash: 0, pct: false, paying: true, out: false, stale: false }, '$0.40 left still pays');
+  assert.deepEqual(offhandMarks(fresh, sitOf(X(50))), { cash: 0, pct: false, paying: false, out: false, stale: false }, '$0 and nothing used up');
+  assert.deepEqual(offhandMarks({ now: DEMO_NOW, extra: null }, sitOf({})), { cash: 50, pct: false, paying: false, out: false, stale: false }, 'no ExtraView: dollars');
   assert.deepEqual(offhandMarks(fresh, sitOf({ extra: null })), NO_OFFHAND);
   assert.deepEqual(offhandMarks(fresh, sitOf({ extra: { used: 4, limit: null } })), NO_OFFHAND, 'no limit: no offhand');
 });
@@ -196,6 +219,19 @@ test('staleCredits: usage.json\'s credits more than 900 s old; stdin\'s are neve
   assert.deepEqual([staleCredits(at(DEMO_NOW - 900)), staleCredits(at(DEMO_NOW - 901)), staleCredits(at(DEMO_NOW - 7200)), staleCredits(at(null)),
     staleCredits({ now: DEMO_NOW, extra: null }), staleCredits(at(DEMO_NOW + 60))], [false, true, true, false, false, false]);
   assert.equal(offhandMarks(at(DEMO_NOW - 901), sitOf({})).stale, true);
+});
+
+/** Credits with only the share used (1.2.2): a gateway's spend_limit with no dollars yet, always stdin's. */
+const SHARE = (pct: number): ExtraView => ({ used: null, limit: null, currency: 'USD', pct, at: null });
+
+test('offhandMarks for the share (1.2.2): the % left as the engine counts it (a limit of 100), paying and the credits out as for dollars; never stale', () => {
+  const m = (pct: number, over: Partial<RefState> = {}): OffhandMarks => offhandMarks({ now: DEMO_NOW, extra: SHARE(pct) }, sitOf({ ...X(Math.floor(pct), 100), ...over }));
+  assert.deepEqual(m(63), { cash: 37, pct: true, paying: false, out: false, stale: false });
+  assert.deepEqual(m(0), { cash: 100, pct: true, paying: false, out: false, stale: false }, 'nothing spent: 100% left');
+  assert.deepEqual(m(99), { cash: 1, pct: true, paying: false, out: false, stale: false });
+  assert.deepEqual(m(63, H(100)), { cash: 37, pct: true, paying: true, out: false, stale: false }, 'the credits pay');
+  assert.deepEqual(m(100, H(100)), { cash: 0, pct: true, paying: true, out: true, stale: false }, 'the credits out');
+  assert.deepEqual(offhandMarks({ now: DEMO_NOW, extra: SHARE(63) }, sitOf({ extra: null })), NO_OFFHAND, 'no offhand drawn: none');
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -233,6 +269,26 @@ test('the count: the engine\'s two cells below $100, then ◆ and three: 100-999
   ]);
   // below $100 and fresh: the engine's own spans, every count
   for (let c = 0; c < 100; c++) for (const paying of [false, true]) assert.deepEqual(drawnOffhand({ ...NO_OFFHAND, cash: c, paying }), engineOffhand({ ...NO_OFFHAND, cash: c, paying }), `$${c}`);
+});
+
+test('the share (1.2.2): the % left after a 1-cell emerald, \' 1%\' to \'99%\' in white, 100% the yellow 99%, nothing under 1%; the sides as for dollars', () => {
+  const well = (cash: number, stale = false): Span[] => drawnOffhand({ ...NO_OFFHAND, cash, pct: true, stale }).slice(1, -1);
+  assert.deepEqual(well(0), [S('    ', null, WELL)], 'under 1%: the empty well');
+  assert.deepEqual(well(1), [G('◆', GREEN), B(' 1%')]);
+  assert.deepEqual(well(9), [G('◆', GREEN), B(' 9%')]);
+  assert.deepEqual(well(10), [G('◆', GREEN), B('10%')]);
+  assert.deepEqual(well(37), [G('◆', GREEN), B('37%')]);
+  assert.deepEqual(well(99), [G('◆', GREEN), B('99%')]);
+  assert.deepEqual(well(100), [G('◆', GREEN), B('99%', YELLOW)], '100%: the cap');
+  assert.deepEqual([well(37, true), well(100, true)], [[G('◆', GREEN), B('37%', GREY)], [G('◆', GREEN), B('99%', YELLOW)]], 'stale (never for stdin): grey but the cap');
+  // on the engine's render: 37% left, paying, the credits out, nothing spent
+  assert.deepEqual(drawn({ cash: 37, pct: true }, X(63, 100)).off, [DIV, G('◆', GREEN), B('37%'), DIV]);
+  assert.deepEqual(drawn({ cash: 37, pct: true, paying: true }, { ...H(100), ...X(63, 100) }).off, [side('▐', GREEN), G('◆', GREEN), B('37%'), side('▌', GREEN)]);
+  assert.deepEqual(drawn({ cash: 0, pct: true, paying: true, out: true }, { ...H(100), ...X(100, 100) }).off, [DIV, S('    ', null, WELL), DIV]);
+  assert.deepEqual(drawn({ cash: 100, pct: true }, X(0, 100)).off, [DIV, G('◆', GREEN), B('99%', YELLOW), DIV]);
+  // every other cell of the line is the engine's
+  const eng = text(hot(renderHud(st(X(63, 100)), 'off'))), got = text(drawn({ cash: 37, pct: true }, X(63, 100)).line);
+  assert.equal(got.slice(0, 9) + got.slice(15), eng.slice(0, 9) + eng.slice(15));
 });
 
 test('the sides: grey while nothing is used up, green while the credits pay, grey again with the credits out; the frame\'s edges follow', () => {
@@ -326,8 +382,8 @@ test('glyphs: every glyph on the rows\' offhand is listed by glyphs --hud', () =
 
 /** The src marks and the tests' layer's input for one set of flags on a state. */
 function both(state: unknown, f: OffFlags): [OffhandMarks, OracleOffhand] {
-  const m = offhandMarks({ now: DEMO_NOW, extra: xv(f.stale ? DEMO_NOW - 901 : DEMO_NOW - 30) }, fromState(state));
-  return [m, { stale: f.stale }];
+  const m = offhandMarks({ now: DEMO_NOW, extra: f.pct ? SHARE(63) : xv(f.stale ? DEMO_NOW - 901 : DEMO_NOW - 30) }, fromState(state));
+  return [m, { stale: f.stale && !f.pct, pct: f.pct }];
 }
 
 function* inputs(): Generator<[string, unknown]> {
@@ -343,7 +399,7 @@ function* inputs(): Generator<[string, unknown]> {
 
 test('the layer equals the tests\' layer on the reference states, the time-lapse and fuzz, x seeded flags x the 5 fable ids', () => {
   const r = mulberry32(0x7073e);
-  const n = { out: 0, three: 0, stale: 0, kept: 0 };
+  const n = { out: 0, three: 0, stale: 0, share: 0, kept: 0 };
   for (const [what, state] of inputs()) {
     for (const id of FABLE_IDS) {
       const f = offhandFlags(r), [m, o] = both(state, f);
@@ -355,10 +411,11 @@ test('the layer equals the tests\' layer on the reference states, the time-lapse
       if (m.out) n.out++;
       if (m.cash !== null && m.cash >= 100) n.three++;
       if (m.stale && m.cash !== null && m.cash >= 2) n.stale++;
-      if (m.cash !== null && !m.out && !(m.cash >= 100) && !(m.stale && m.cash >= 2)) { assert.deepEqual(got, frameHud(eng), `${what}: nothing to draw`); n.kept++; }
+      if (m.pct && m.cash !== null && m.cash >= 1) n.share++;
+      if (m.cash !== null && !m.out && !(m.cash >= 100) && !(m.stale && m.cash >= 2) && !(m.pct && m.cash >= 1)) { assert.deepEqual(got, frameHud(eng), `${what}: nothing to draw`); n.kept++; }
     }
   }
-  assert.ok(n.out >= 20 && n.three > 100 && n.stale > 100 && n.kept > 50, JSON.stringify(n));
+  assert.ok(n.out >= 20 && n.three > 100 && n.stale > 100 && n.share > 100 && n.kept > 50, JSON.stringify(n));
 });
 
 test('QUIET_OFFHAND: the tests\' layer with nothing to draw is the engine\'s render; no offhand, no change', () => {
